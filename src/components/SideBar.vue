@@ -3,7 +3,7 @@ const a = 1
 </script>
 <template>
   <div class="sidebar">
-    <RouterLink class="c-menu">
+    <RouterLink to="/" class="c-menu">
       <!-- 아이콘 -->
       <!-- 텍스트 -->
     </RouterLink>
