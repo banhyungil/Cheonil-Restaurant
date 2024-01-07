@@ -1,17 +1,14 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
+import { useLayoutStore } from '@/stores/layoutStore'
+
+const layoutStore = useLayoutStore()
 </script>
 
 <template>
-  <header>
-    <div class="wrapper">
-      <nav>
-        <RouterLink to="/"> <font-awesome-icon :icon="['fas', 'house']" />Home</RouterLink>
-      </nav>
-    </div>
-  </header>
-
-  <RouterView />
+  <component :is="layoutStore.getComp()">
+    <RouterView />
+  </component>
 </template>
 
 <style scoped>

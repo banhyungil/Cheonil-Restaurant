@@ -1,7 +1,7 @@
 <script setup lang="ts"></script>
 
 <template>
-  <div></div>
+  <div>관리자</div>
 </template>
 
 <style scoped></style>
