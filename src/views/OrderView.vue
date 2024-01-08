@@ -1,7 +1,12 @@
 <script setup lang="ts"></script>
 
 <template>
-  <div></div>
+  <div class="order-view">
+    <div></div>
+  </div>
 </template>
 
-<style scoped></style>
+<style lang="scss" scoped>
+.order-view {
+}
+</style>

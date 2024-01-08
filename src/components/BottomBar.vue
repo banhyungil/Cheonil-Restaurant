@@ -2,11 +2,11 @@
 
 <template>
   <section class="btt-bar">
-    <RouterLink class="link" to="/order">주문</RouterLink>
-    <RouterLink class="link" to="/orderstate">주문현황</RouterLink>
-    <RouterLink class="link" to="/orderstate"
-      ><font-awesome-icon :icon="['fas', 'user']"
-    /></RouterLink>
+    <RouterLink class="item" to="/order">주문</RouterLink>
+    <RouterLink class="item" to="/orderstate">주문현황</RouterLink>
+    <RouterLink class="item" to="/admin" v-tooltip.top="'관리자 화면'">
+      <font-awesome-icon :icon="['fas', 'user']" />
+    </RouterLink>
   </section>
 </template>
 
@@ -17,9 +17,17 @@
   align-items: center;
   justify-items: center;
   width: 100vw;
-  background-color: #fafafa;
+  background-color: #2aac8e;
 
-  .link {
+  .item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    color: #fff;
+    border: 1px solid #fafafa;
+    border-right: none;
   }
 }
 </style>
