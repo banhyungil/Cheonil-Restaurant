@@ -9,11 +9,6 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      name: 'home',
-      component: HomeView,
-    },
-    {
-      path: '/order',
       name: 'order',
       component: OrderView,
     },

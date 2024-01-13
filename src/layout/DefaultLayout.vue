@@ -16,6 +16,7 @@ import BottomBar from '@/components/BottomBar.vue'
   display: grid;
   grid-template-rows: calc(100vh - 60px) 60px;
   .c-slot {
+    padding: 20px 30px;
   }
 
   .btt-bar {
