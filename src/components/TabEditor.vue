@@ -1,5 +1,5 @@
 <script setup lang="ts" generic="T extends Record<string, any>">
-import { computed, ref, watch } from 'vue'
+import { ref, watch } from 'vue'
 
 // generic 타입 K extends keyof T 가 정상 작동하지 않음... 그래서 string으로 대체
 // assertion
@@ -11,20 +11,21 @@ interface Props {
   ctgKey?: string
   /** override: 카테고리 선택시 실행 콜백 */
   onSelectCtg?: (ctg: string) => T[]
-  srchKeys: string[]
+  srchKeys?: string[]
   /** override: 검색시 실행 콜백 */
   onSearch?: (srchText: string) => T[]
 }
 const props = withDefaults(defineProps<Props>(), {
   itemKey: 'id',
   ctgKey: 'category',
+  srchKeys: () => ['name'],
 })
 
 watch(
   () => props.items.length,
   () => {
     // key값이 item에 있는지 검사
-    const keys = [props.itemKey, props.ctgKey]
+    const keys = [props.itemKey, props.ctgKey, ...props.srchKeys]
     if (props.items.every((item) => keys.every((key) => key in item)) == false) {
       throw new Error('Check the keys of Props!')
     }
@@ -32,7 +33,6 @@ watch(
 )
 
 // default key가 없는 경우는 종료해줘야함
-
 defineEmits<{
   (e: 'select', item: T): void
   (e: 'search', items: T[], srchText: string): void

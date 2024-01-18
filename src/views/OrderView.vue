@@ -1,27 +1,79 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import type { Menu, Order, Store } from '@/@types/cheonil'
+import useApiMenu from '@/api/useApiMenu'
+import useApiStore from '@/api/useApiStore'
+import MenuTab from '@/components/MenuTab.vue'
+import StoreTab from '@/components/StoreTab.vue'
+import { onMounted, ref, watch, type Ref } from 'vue'
+
+const apiStore = useApiStore()
+const apiMenu = useApiMenu()
+
+const stores = ref([]) as Ref<Store[]>
+const menues = ref([]) as Ref<Menu[]>
+
+// 매장 조회
+apiStore.select().then((list) => {
+  stores.value = list
+})
+
+// 메뉴 조회
+apiMenu.select().then((list) => {
+  menues.value = list
+})
+
+// 주문완료시 Order 저장 후 리셋
+const tab = ref<'store' | 'menu'>('store')
+
+// 주문 목록 entity는 주문을 할떄 만들어진다
+const nOrder = ref({} as Partial<Order>)
+watch(
+  () => nOrder.value,
+  () => {
+    if (nOrder.value == null) tab.value = 'store'
+  }
+)
+
+function onSelectStore(store: Store) {
+  nOrder.value.store = store
+
+  tab.value = 'menu'
+}
+
+function onSelectMenu(menu: Menu) {
+  if (nOrder.value.menues == null) nOrder.value.menues = []
+  const omenu = nOrder.value.menues.find((omenu) => omenu.id == menu.id)
+  // 해당 메뉴 존재 시 수량 증가
+  if (omenu) ++omenu.cnt
+  else nOrder.value.menues.push({ ...menu, cnt: 1 })
+}
+
+function onClickStoreName() {
+  tab.value = 'store'
+}
+</script>
 
 <template>
   <div class="order-view">
     <section class="left">
-      <section class="top">
-        <!-- 초성 검색 구현 -->
-        <input type="text" placeholder="검색" />
-      </section>
-      <ul class="ctgs">
-        <!-- v-for 카테고리 표시 -->
-        <li></li>
-      </ul>
-      <section class="grid">
-        <!-- 메뉴 목록 표시 -->
-        <div class="item"></div>
-      </section>
+      <StoreTab v-if="tab" :items="stores" @select="onSelectStore" />
+      <MenuTab v-else :items="menues" @select="onSelectMenu" />
     </section>
     <section class="right">
-      <section class="top"></section>
+      <section class="top">
+        <button @click="onClickStoreName">{{ nOrder.store?.name }}</button>
+      </section>
       <section class="content">
         <ul class="orders">
           <!-- 주문 목록을 표시, 주문 목록 정보 객체를 만들어야함 -->
-          <li></li>
+          <li v-for="(menu, idx) in nOrder.menues" :key="idx">
+            <div>
+              <span>{{ menu.name }}</span>
+              <button></button>
+              <span></span>
+              <button></button>
+            </div>
+          </li>
         </ul>
         <div class="c-total"></div>
       </section>

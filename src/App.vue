@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
 import { useLayoutStore } from '@/stores/layoutStore'
+import { useConfigStore } from './stores/configStore';
 
 const layoutStore = useLayoutStore()
+const configStore = useConfigStore()
 </script>
 
 <template>
