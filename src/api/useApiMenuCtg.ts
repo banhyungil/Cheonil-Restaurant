@@ -3,7 +3,7 @@ import useApi from './useApi'
 
 export default function useApiMenuCtg() {
   const api = useApi()
-  const prefix = 'order'
+  const prefix = '/menu-cateogry'
 
   const select = async () => {
     const res = await api.get(prefix, {

@@ -59,6 +59,7 @@ function onAddMenu() {
       @select="(item) => $emit('select', item)"
       @add-category="onAddCategory"
       @add-menu="onAddMenu"
+      :is-edit="true"
     ></TabEditor>
     <div
       v-if="isRegCategory"

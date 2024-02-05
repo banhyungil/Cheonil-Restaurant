@@ -2,7 +2,7 @@
 
 <template>
   <section class="btt-bar">
-    <RouterLink class="item" to="/order">주문</RouterLink>
+    <RouterLink class="item" to="/">주문</RouterLink>
     <RouterLink class="item" to="/orderstate">주문현황</RouterLink>
     <RouterLink class="item" to="/admin" v-tooltip.top="'관리자 화면'">
       <font-awesome-icon :icon="['fas', 'user']" />
@@ -16,7 +16,7 @@
   grid-template-columns: 1fr 1fr 100px;
   align-items: center;
   justify-items: center;
-  width: 100vw;
+  width: 100%;
   background-color: #2aac8e;
 
   .item {

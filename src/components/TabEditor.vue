@@ -1,105 +1,143 @@
-<script setup lang="ts" generic="T extends Record<string, any>">
+<script setup lang="ts" generic="T extends Record<string, any>, S extends Record<string, any>">
 import { ref, watch } from 'vue'
 
 // generic 타입 K extends keyof T 가 정상 작동하지 않음... 그래서 string으로 대체
 // assertion
 // * item관련 key 값이 있는지 items 가 변경될 때 마다 체크해줘야함
 interface Props {
-  categories: string[]
+  categories: S[]
+  ctgKey?: string
   items: T[]
   itemKey?: string
-  ctgKey?: string
-  /** override: 카테고리 선택시 실행 콜백 */
-  onSelectCtg?: (ctg: string) => T[]
-  srchKeys?: string[]
-  /** override: 검색시 실행 콜백 */
-  onSearch?: (srchText: string) => T[]
+  isEdit?: boolean
 }
 const props = withDefaults(defineProps<Props>(), {
   itemKey: 'id',
-  ctgKey: 'category',
-  srchKeys: () => ['name'],
+  ctgKey: 'name',
 })
 
 watch(
   () => props.items.length,
   () => {
+    if (props.items.length == 0) return
     // key값이 item에 있는지 검사
-    const keys = [props.itemKey, props.ctgKey, ...props.srchKeys]
+    const keys = [props.itemKey]
     if (props.items.every((item) => keys.every((key) => key in item)) == false) {
       throw new Error('Check the keys of Props!')
     }
-  }
+  },
+  { immediate: true }
+)
+
+watch(
+  () => props.categories.length,
+  () => {
+    if (props.categories.length == 0) return
+    // key값이 item에 있는지 검사
+    const keys = [props.ctgKey]
+    if (props.categories.every((ctg) => keys.every((key) => key in ctg)) == false) {
+      throw new Error('Check the keys of Props!')
+    }
+  },
+  { immediate: true }
 )
 
 // default key가 없는 경우는 종료해줘야함
-defineEmits<{
+const emit = defineEmits<{
   (e: 'select', item: T): void
-  (e: 'search', items: T[], srchText: string): void
-  (e: 'update:ftItems', ftItems: T[]): void
+  (e: 'selectCategory', category: S | 'all' | null): void
+  (e: 'addItem'): void
+  (e: 'addCategory'): void
 }>()
-// 편집 클릭시 카테고리, 아이템 목록 마지막 단에 + 버튼 나오게
-// context 메뉴표시.. ctx 메뉴는 slot으로 설정가능하게
-const isEdit = ref(false)
-function onEdit() {
-  isEdit.value = true
+
+function onAddCategory() {
+  emit('addCategory')
+}
+function onAddItem() {
+  emit('addItem')
 }
 
-const srchText = ref('')
-function search() {
-  if (props.onSearch) {
-    props.onSearch(srchText.value)
-    return
-  }
+const selCtg = ref<string | null>()
+function onClickCategory(ctg: S | 'all' | null) {
+  selCtg.value = ctg == null || ctg == 'all' ? ctg : ctg[props.ctgKey]
+  emit('selectCategory', ctg)
 }
-const selCtg = ref('')
-function selectCtg(category: string) {
-  selCtg.value = category
-  if (props.onSelectCtg) {
-    props.onSelectCtg(category)
-    return
-  }
-}
-defineExpose({ search, selectCtg })
 </script>
-
 <template>
-  <div class="s">
-    <section class="top">
-      <!-- 초성 검색 구현 -->
-      <input type="text" placeholder="검색" v-model="srchText" @input="search" />
-      <button @click="onEdit">편집</button>
-    </section>
+  <div class="comp-tab-editor">
     <ul class="ctgs">
-      <!-- v-for 카테고리 표시 -->
-      <slot name="item" v-for="ctg in categories" :key="ctg" :category="ctg">
-        <button class="item" @click="selectCtg(ctg)">{{ ctg }}</button>
-      </slot>
-      <button v-if="isEdit"></button>
+      <!-- 카테고리 목록 표시 -->
+      <button @click="onClickCategory('all')" class="item" :class="{ on: selCtg == 'all' }">
+        <span>{{ '전체' }}</span>
+      </button>
+      <button
+        v-for="ctg in categories"
+        :key="ctg[ctgKey]"
+        :category="ctg"
+        @click="onClickCategory(ctg)"
+        class="item"
+        :class="{ on: selCtg == ctg[ctgKey] }"
+      >
+        <span>{{ ctg[ctgKey] ?? '' }}</span>
+      </button>
+      <button @click="onClickCategory(null)" class="item" :class="{ on: selCtg == null }">
+        <span>{{ '미지정' }}</span>
+      </button>
+      <button class="itemd" v-if="isEdit" @click="onAddCategory">
+        <font-awesome-icon :icon="['fas', 'plus']" />
+      </button>
     </ul>
     <section class="grid">
       <!-- 메뉴 목록 표시 -->
-      <slot name="item" v-for="item in items" :key="item[itemKey]" :item="item">
-        <div class="item"></div>
+      <slot name="item" v-for="item in items" :key="item[itemKey]" :item="item" :isEdit="isEdit">
+        <button>{{ item['name'] ?? '' }}</button>
       </slot>
+      <button class="item add" v-if="isEdit" @click="onAddItem">
+        <font-awesome-icon :icon="['fas', 'plus']" />
+      </button>
     </section>
-    <!-- left, top 지정 -->
-    <div class="ctx-menu" :style="{ left: '0', top: '0' }">
-      <slot name="ctxMenu"></slot>
-    </div>
   </div>
 </template>
 
-<style lang="scss" scoped>
-.warapper {
-  .top {
-  }
+<!-- 스타일 변경 확장성은 scoped를 해제해서 확보
+scoped 해제 시에는 최대한 고유한 namespace를 지정하는 것이 필요
+-->
+<style lang="scss">
+.comp-tab-editor {
   .ctgs {
-    .item {
+    display: flex;
+    align-items: center;
+    // default class
+    button {
+      width: 100px;
+      height: 40px;
+      background-color: grey;
+
+      &.on {
+        color: #fff;
+        background-color: #2aac8e;
+      }
+      &.add {
+        height: 40px;
+      }
     }
   }
   .grid {
-    .item {
+    display: grid;
+    grid-template-columns: repeat(1fr, 5);
+    width: 100%;
+    background-color: blue;
+
+    background-color: grey;
+    button.item {
+      width: 40px;
+      height: 40px;
+      background-color: grey;
+
+      &.add {
+        width: 30px;
+        height: 30px;
+      }
     }
   }
 }

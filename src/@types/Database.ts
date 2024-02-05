@@ -13,20 +13,19 @@ export interface ConfigEntity {
 /** 메뉴 */
 export interface MenuEntity {
   id: string
-  categoryId: string | null
-  cmt: string | null
+  categoryName: string | null
   name: string
   price: number
-  created?: Date | null
-  updated: Date | null
+  cmt?: string | null
+  created: Date | null
+  updated?: Date | null
 }
 
 /** 메뉴 카테고리 */
 export interface MenuCategoryEntity {
-  id: string
   name: string
-  created?: Date | null
-  updated: Date | null
+  created: Date | null
+  updated?: Date | null
 }
 
 /** 주문 메뉴 */
@@ -53,13 +52,13 @@ export interface OrderRsvEntity {
   periodType: any | null
 
   /** 기타 정보 */
-  reqCmt: string | null
+  reqcmt?: string | null
 
   /** HH:MM */
   rsvTime: string
   storeId: string
-  created?: Date | null
-  updated: Date | null
+  created: Date | null
+  updated?: Date | null
 }
 export interface PaymentEntity {
   id: string
@@ -67,23 +66,22 @@ export interface PaymentEntity {
   /** 실제 대금 납부일 */
   payDate: Date | null
   created: Date | null
-  updated: Date | null
+  updated?: Date | null
 }
 export interface StoreEntity {
   id: string
-  categoryId: string
+  categoryName: string
 
   /** 기타 정보 */
-  cmt: string | null
-  name: string
-  created?: Date | null
-  updated: Date | null
-}
-export interface StoreCategoryEntity {
-  id: string
+  cmt?: string | null
   name: string
   created: Date | null
-  updated: Date | null
+  updated?: Date | null
+}
+export interface StoreCategoryEntity {
+  name: string
+  created: Date | null
+  updated?: Date | null
 }
 
 /** 주문 */
@@ -98,7 +96,7 @@ export interface OrderEntity {
   payType?: any | null
 
   /** 기타 정보 */
-  reqCmt: string | null
+  reqcmt?: string | null
 
   /** ready: 준비, complete: 완료 */
   status?: any
@@ -106,8 +104,8 @@ export interface OrderEntity {
 
   /** 주문 시간 */
   time?: Date
-  created?: Date | null
-  updated: Date | null
+  created: Date | null
+  updated?: Date | null
 }
 
 /** 주문 메뉴 */

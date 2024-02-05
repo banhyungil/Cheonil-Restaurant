@@ -3,7 +3,7 @@ import useApi from './useApi'
 
 export default function useApiMenu() {
   const api = useApi()
-  const prefix = 'menu'
+  const prefix = '/menu'
 
   const select = async () => {
     const res = await api.get(prefix, {

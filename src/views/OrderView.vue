@@ -4,23 +4,7 @@ import useApiMenu from '@/api/useApiMenu'
 import useApiStore from '@/api/useApiStore'
 import MenuTab from '@/components/MenuTab.vue'
 import StoreTab from '@/components/StoreTab.vue'
-import { onMounted, ref, watch, type Ref } from 'vue'
-
-const apiStore = useApiStore()
-const apiMenu = useApiMenu()
-
-const stores = ref([]) as Ref<Store[]>
-const menues = ref([]) as Ref<Menu[]>
-
-// 매장 조회
-apiStore.select().then((list) => {
-  stores.value = list
-})
-
-// 메뉴 조회
-apiMenu.select().then((list) => {
-  menues.value = list
-})
+import { ref, watch, type Ref } from 'vue'
 
 // 주문완료시 Order 저장 후 리셋
 const tab = ref<'store' | 'menu'>('store')
@@ -56,8 +40,8 @@ function onClickStoreName() {
 <template>
   <div class="order-view">
     <section class="left">
-      <StoreTab v-if="tab" :items="stores" @select="onSelectStore" />
-      <MenuTab v-else :items="menues" @select="onSelectMenu" />
+      <StoreTab v-if="tab" @select="onSelectStore" />
+      <MenuTab v-else @select="onSelectMenu" />
     </section>
     <section class="right">
       <section class="top">
@@ -85,9 +69,12 @@ function onClickStoreName() {
 <style lang="scss" scoped>
 .order-view {
   display: flex;
-  flex-direction: column;
+  height: 100%;
+  background-color: rgb(199, 197, 197);
 
   .left {
+    width: 60vw;
+    height: 100%;
     .top {
     }
     .ctgs {
@@ -96,6 +83,9 @@ function onClickStoreName() {
     }
   }
   .right {
+    width: calc(100% - 60vw);
+    height: 100%;
+    background-color: blue;
     .top {
     }
     .content {

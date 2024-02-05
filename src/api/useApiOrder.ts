@@ -3,7 +3,7 @@ import useApi from './useApi'
 
 export default function useApiOrder() {
   const api = useApi()
-  const prefix = 'order'
+  const prefix = '/order'
 
   const select = async () => {
     const res = await api.get(prefix, {

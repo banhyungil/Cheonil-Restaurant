@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
 import OrderView from '@/views/OrderView.vue'
 import OrderStateView from '@/views/OrderStateView.vue'
 import AdminView from '@/views/AdminView.vue'
@@ -13,14 +12,20 @@ const router = createRouter({
       component: OrderView,
     },
     {
-      path: '/orderstate',
-      name: 'orderstate',
+      path: '/orderState',
+      name: 'orderState',
       component: OrderStateView,
     },
     {
       path: '/admin',
       name: 'admin',
       component: AdminView,
+    },
+    {
+      path: '/storeCtg/:name',
+      name: 'storeCtg',
+      props: true,
+      component: () => import('../views/RegStorCtgView.vue'),
     },
   ],
 })

@@ -6,6 +6,8 @@ import useApiStoreCtg from '@/api/useApiStoreCtg'
 import type { StoreCategoryEntity } from '@/@types/Database'
 import _ from 'lodash'
 import useApiStore from '@/api/useApiStore'
+import RegStorePop from './pop/RegStorePop.vue'
+import RegStoreCtgPop from './pop/RegStoreCtgPop.vue'
 
 const apiStore = useApiStore()
 const apiStoreCtg = useApiStoreCtg()
@@ -27,23 +29,28 @@ apiStoreCtg.select().then((list) => {
   storeCtgs.value = list
 })
 
-const srchText = ref('')
-const search = _.debounce(() => {
-  // 초성검색 util 사용
-  // srchText.value
-}, 50)
-
-function filterItems() {
-  // 현재 카테고리에 따라 items를 필터링
-  // 현재 입력된 검색어에 따라도...
+const popupType = ref<'category' | 'store' | null>()
+function onAddCategory() {
+  console.log('onAddCategory')
+  popupType.value = 'category'
 }
 
-const popupType = ref<'category' | 'store' | null>()
+function onAddStore() {
+  console.log('onAddStore')
+  popupType.value = 'store'
+}
 
 const selCateogry = ref<StoreCategoryEntity | 'all' | null>()
 function onSelectCategory(cateogry: StoreCategoryEntity | 'all' | null) {
   // 선택된 카테고리의 아이템을 보여준다.
   selCateogry.value = cateogry
+}
+
+async function onSaveStore(store: StoreC) {
+  // validate 나중에 추가
+  await apiStore.save(store)
+  popupType.value = null
+  stores.value = await apiStore.select()
 }
 </script>
 
@@ -53,17 +60,15 @@ function onSelectCategory(cateogry: StoreCategoryEntity | 'all' | null) {
 -->
 <template>
   <section class="comp-store-tap">
-    <section class="top">
-      <!-- 초성 검색 구현 -->
-      <input type="text" placeholder="검색" v-model="srchText" @input="search" />
-      <!-- <button @click="onEdit">편집</button> -->
-    </section>
     <TabEditor
       class="tab"
       :items="stores"
       :categories="storeCtgs"
       @select="(item) => $emit('select', item)"
       @select-category="onSelectCategory"
+      @add-category="onAddCategory"
+      @add-item="onAddStore"
+      :is-edit="true"
     >
       <template #item="{ item }">
         <button class="btn-store">
@@ -71,8 +76,6 @@ function onSelectCategory(cateogry: StoreCategoryEntity | 'all' | null) {
         </button>
       </template>
     </TabEditor>
-    <!-- 팝업 -->
-    <!-- validator는 나중에 등록 -->
   </section>
 </template>
 

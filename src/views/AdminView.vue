@@ -1,7 +1,11 @@
 <script setup lang="ts"></script>
 
 <template>
-  <div>관리자</div>
+  <div>
+    <div>
+      <div>등록</div>
+    </div>
+  </div>
 </template>
 
 <style scoped></style>

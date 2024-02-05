@@ -7,7 +7,7 @@ import BottomBar from '@/components/BottomBar.vue'
     <section class="c-slot">
       <slot></slot>
     </section>
-    <BottomBar clss="btt-bar"></BottomBar>
+    <BottomBar class="btt-bar"></BottomBar>
   </div>
 </template>
 
@@ -15,6 +15,7 @@ import BottomBar from '@/components/BottomBar.vue'
 .layout-default {
   display: grid;
   grid-template-rows: calc(100vh - 60px) 60px;
+
   .c-slot {
     padding: 20px 30px;
   }

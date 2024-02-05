@@ -1,16 +1,19 @@
-import type { Store } from '@/@types/cheonil'
+import type { Store, StoreC } from '@/@types/cheonil'
 import useApi from './useApi'
 
 export default function useApiStore() {
   const api = useApi()
-  const prefix = 'store'
+  const prefix = '/store'
 
   const select = async () => {
-    const res = await api.get(prefix, {
-      data: '',
-    })
+    const res = await api.get(prefix)
 
     return res.data.list as Store[]
   }
-  return { select }
+
+  const save = (store: StoreC) => {
+    return api.post(prefix, store)
+  }
+
+  return { select, save }
 }
