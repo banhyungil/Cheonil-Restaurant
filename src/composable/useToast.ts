@@ -30,5 +30,5 @@ export default function useToast(option?: SweetAlertOptions) {
     Toast.fire({ title: MESSAGE_INFO.remove, icon: 'success' })
   }
 
-  return { ...Toast, create, update, remove }
+  return Object.assign(Toast, { create, update, remove })
 }

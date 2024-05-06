@@ -22,10 +22,46 @@ const router = createRouter({
       component: AdminView,
     },
     {
-      path: '/storeCtg/:name',
-      name: 'storeCtg',
+      path: '/store',
+      component: () => import('../views/StoreView.vue'),
+    },
+    {
+      path: '/store/:id',
       props: true,
-      component: () => import('../views/RegStorCtgView.vue'),
+      component: () => import('../views/StoreView.vue'),
+    },
+    {
+      path: '/storeCtg',
+      component: () => import('../views/StoreCtgView.vue'),
+    },
+    {
+      path: '/storeCtg/:name',
+      props: true,
+      component: () => import('../views/StoreCtgView.vue'),
+    },
+    {
+      path: '/menu',
+      component: () => import('../views/MenuView.vue'),
+    },
+    {
+      path: '/menu/:id',
+      props: true,
+      component: () => import('../views/MenuView.vue'),
+    },
+    {
+      path: '/menuCtg',
+      component: () => import('../views/MenuCtgView.vue'),
+    },
+    {
+      path: '/menuCtg/:name',
+      props: true,
+      component: () => import('../views/MenuCtgView.vue'),
+    },
+    {
+      path: '/test',
+      name: 'test',
+      props: true,
+      component: () => import('../components/MenuTab.vue'),
     },
   ],
 })

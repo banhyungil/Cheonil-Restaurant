@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
 import { useLayoutStore } from '@/stores/layoutStore'
-import { useConfigStore } from './stores/configStore';
+import { useConfigStore } from './stores/configStore'
 
 const layoutStore = useLayoutStore()
 const configStore = useConfigStore()
@@ -9,7 +9,11 @@ const configStore = useConfigStore()
 
 <template>
   <component :is="layoutStore.getComp()">
-    <RouterView />
+    <RouterView v-slot="{ Component }">
+      <KeepAlive include="OrderView">
+        <component :is="Component"></component>
+      </KeepAlive>
+    </RouterView>
   </component>
 </template>
 

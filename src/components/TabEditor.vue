@@ -57,6 +57,10 @@ function onAddItem() {
   emit('addItem')
 }
 
+function onClickItem(item: T) {
+  emit('select', item)
+}
+
 const selCtg = ref<string | null>()
 function onClickCategory(ctg: S | 'all' | null) {
   selCtg.value = ctg == null || ctg == 'all' ? ctg : ctg[props.ctgKey]
@@ -90,7 +94,7 @@ function onClickCategory(ctg: S | 'all' | null) {
     <section class="grid">
       <!-- 메뉴 목록 표시 -->
       <slot name="item" v-for="item in items" :key="item[itemKey]" :item="item" :isEdit="isEdit">
-        <button>{{ item['name'] ?? '' }}</button>
+        <button @click="onClickItem(item)">{{ item['name'] ?? '' }}</button>
       </slot>
       <button class="item add" v-if="isEdit" @click="onAddItem">
         <font-awesome-icon :icon="['fas', 'plus']" />

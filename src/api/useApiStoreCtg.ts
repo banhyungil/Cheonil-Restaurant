@@ -1,12 +1,9 @@
-import { type StoreCategoryEntityC } from './../@types/cheonil'
 import type { StoreCategoryEntity } from '@/@types/Database'
 import useApi from './useApi'
-import useToast from '@/composable/useToast'
 
 export default function useApiStoreCtg() {
   const api = useApi()
-  const Toast = useToast()
-  const prefix = '/store-category'
+  const prefix = '/storeCategory'
 
   const select = async () => {
     const res = await api.get(prefix)
@@ -14,15 +11,17 @@ export default function useApiStoreCtg() {
     return res.data.list as StoreCategoryEntity[]
   }
 
-  const save = (storeCtg: StoreCategoryEntityC) => {
-    return api
-      .post(prefix, storeCtg)
-      .then(() => {
-        Toast.create()
-      })
-      .catch(() => {
-        Toast.fire({ title: '에러', icon: 'error' })
-      })
+  const create = (storeCtg: StoreCategoryEntity) => {
+    return api.post(prefix, storeCtg)
   }
-  return { select, save }
+
+  const update = (name: string, storeCtg: StoreCategoryEntity) => {
+    return api.put(`${prefix}/${name}`, storeCtg)
+  }
+
+  const remove = (name: string) => {
+    return api.delete(`${prefix}/${name}`)
+  }
+
+  return { select, create, update, remove }
 }

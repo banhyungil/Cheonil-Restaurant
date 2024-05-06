@@ -1,5 +1,48 @@
+@import './tab.scss';
+@import './g-form';
+@import './mixin';
+
 button, a {
   &:hover {
     opacity: 0.8;
   }
 }
+button {
+  cursor: pointer;
+  border: none;
+
+  &:disabled {
+    cursor: inherit;
+    opacity: 1;
+  }
+}
+
+
+input {
+  border: none;
+  outline: none;
+
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+}
+* {
+  // scrollbar-* 적용 순간 webkit이 동작하지 않음
+  // scrollbar-width로는 px단위 조절이 불가능
+  // scrollbar-color: #5e5e5e #888;
+
+  &::-webkit-scrollbar {
+    -webkit-appearance: none;
+    width: 6px;
+  }
+  &::-webkit-scrollbar-track-piece {
+    background: #8c8c8c;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #676767;
+    border-radius: 4px;
+  }
+}
+

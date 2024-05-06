@@ -1,0 +1,38 @@
+@mixin vueSlide($distance: 30px, $direction: x, $time: 0.3s, $isOpacity: true) {
+  .vueSlide-enter-active,
+  .vueSlide-leave-active {
+    transition: all 0.3s ease-out;
+  }
+
+  .vueSlide-enter-from,
+  .vueSlide-leave-to {
+    @if $direction == y {
+      transform: translateY($distance);
+    } @else {
+      transform: translateX($distance);
+    }
+    
+    opacity: 0;
+  }
+}
+
+
+@mixin center-view(){
+  & {
+    position: relative;
+    height: 100%;
+    color: #5f5f5f;
+    background-color: #fff;
+    padding: 10px 14px;
+  
+    & > div, & > section {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 30vw;
+      max-width: 400px;
+      transform: translate(-50%, -50%);
+    }
+  }
+}
+

@@ -12,19 +12,20 @@ export interface ConfigEntity {
 
 /** 메뉴 */
 export interface MenuEntity {
-  id: string
+  id?: string
   categoryName: string | null
   name: string
+  nameAbv?: string
   price: number
   cmt?: string | null
-  created: Date | null
+  created?: Date | null
   updated?: Date | null
 }
 
 /** 메뉴 카테고리 */
 export interface MenuCategoryEntity {
   name: string
-  created: Date | null
+  created?: Date | null
   updated?: Date | null
 }
 
@@ -69,18 +70,19 @@ export interface PaymentEntity {
   updated?: Date | null
 }
 export interface StoreEntity {
-  id: string
-  categoryName: string
+  id?: string
+  name: string
+  categoryName?: string | null
 
   /** 기타 정보 */
   cmt?: string | null
-  name: string
-  created: Date | null
+  created?: Date | null
   updated?: Date | null
 }
+
 export interface StoreCategoryEntity {
   name: string
-  created: Date | null
+  created?: Date | null
   updated?: Date | null
 }
 
@@ -111,9 +113,9 @@ export interface OrderEntity {
 /** 주문 메뉴 */
 export interface OrderMenuEntity {
   /** 수량 */
-  orderId: string
+  orderId?: string
   menuId: string
-  cnt: string
+  cnt: number
 
   /** 가격
   menu는 가격이 바뀔수가 있음 */
