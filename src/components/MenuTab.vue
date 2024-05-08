@@ -7,6 +7,7 @@ import useApiMenu from '@/api/useApiMenu'
 import { getInitials } from '@/utils/CommonUtils'
 import { useMenuStore } from '@/stores/menuStore'
 import { useRouter } from 'vue-router'
+import BInputCho from './base/BInputCho.vue'
 
 const menuStore = useMenuStore()
 const apiMenu = useApiMenu()
@@ -30,9 +31,6 @@ apiMenuCtg.select().then((list) => {
 const selCtg = ref<MenuCategoryEntity | 'all' | null>('all')
 
 const srchText = ref('')
-function onInput(e: any) {
-  srchText.value = e.target.value
-}
 
 const isEdit = ref(false)
 function onToggleEdit() {
@@ -96,7 +94,7 @@ function onAddItem() {
   <section class="comp-menu-tab">
     <section class="top">
       <!-- 초성 검색 구현 -->
-      <input type="text" placeholder="검색" v-model="srchText" @input="onInput" />
+      <BInputCho v-model="srchText" />
       <button @click="onToggleEdit" class="edit" :class="{ on: isEdit }">
         <font-awesome-icon :icon="['fas', 'pen']" />
       </button>
@@ -127,8 +125,14 @@ function onAddItem() {
         </Transition>
       </ul>
       <section class="grid">
-        <button v-for="item in cFilteredItems" :key="item.id" @click="onClickItem(item)">
-          {{ item['name'] ?? '' }}
+        <button
+          class="item"
+          v-for="item in cFilteredItems"
+          :key="item.id"
+          @click="onClickItem(item)"
+        >
+          <span class="main">{{ item['name'] }}</span>
+          <span class="sub">{{ item['price'] }}</span>
         </button>
         <Transition name="slide">
           <button v-show="isEdit" class="add" @click="onAddItem">

@@ -53,7 +53,12 @@
     background-color: blue;
 
     background-color: grey;
-    button {
+    button.item {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      row-gap: 6px;
       padding: 10px;
       border: 1px solid grey;
       
@@ -62,7 +67,15 @@
         background-color: #2aac8e;
         color: #fff;
         border: none;
-      }   
+      }
+
+      span.main {
+        font-weight: bold;
+        font-size: 18px;
+      }
+      span.sub {
+        font-size: 14px;
+      }
     }
   }
 }

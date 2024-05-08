@@ -2,11 +2,11 @@
 import { computed, ref } from 'vue'
 import useApiStoreCtg from '@/api/useApiStoreCtg'
 import type { StoreCategoryEntity, StoreEntity } from '@/@types/Database'
-import _ from 'lodash'
 import useApiStore from '@/api/useApiStore'
 import { useRouter } from 'vue-router'
 import { useStoreStore } from '@/stores/storeStore'
 import { getInitials } from '@/utils/CommonUtils'
+import BInputCho from './base/BInputCho.vue'
 
 const storeStore = useStoreStore()
 const apiStore = useApiStore()
@@ -30,9 +30,6 @@ apiStoreCtg.select().then((list) => {
 const selCtg = ref<StoreCategoryEntity | 'all' | null>('all')
 
 const srchText = ref('')
-function onInput(e: any) {
-  srchText.value = e.target.value
-}
 
 const isEdit = ref(false)
 function onToggleEdit() {
@@ -101,7 +98,7 @@ function onClickItem(item: StoreEntity) {
   <section class="comp-store-tap" :class="{ edit: isEdit }">
     <section class="top">
       <!-- 초성 검색 구현 -->
-      <input type="text" placeholder="검색" v-model="srchText" @input="onInput" />
+      <BInputCho v-model="srchText" />
       <button @click="onToggleEdit" class="edit" :class="{ on: isEdit }">
         <font-awesome-icon :icon="['fas', 'pen']" />
       </button>
