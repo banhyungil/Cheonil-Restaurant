@@ -1,8 +1,8 @@
-import type { Order } from '@/@types/cheonil'
+import type { OrderResult } from '@/api/useApiOrder'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 export const useOrderStore = defineStore('order', () => {
-  const orders = ref([] as Order[])
+  const orders = ref([] as OrderResult[])
 
   return { orders }
 })

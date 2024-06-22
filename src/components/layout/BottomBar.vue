@@ -3,8 +3,8 @@
 <template>
   <section class="btt-bar">
     <RouterLink class="item" to="/">주문</RouterLink>
-    <RouterLink class="item" to="/orderstate">주문현황</RouterLink>
-    <RouterLink class="item" to="/admin" v-tooltip.top="'관리자 화면'">
+    <RouterLink class="item" to="/orderState">주문현황</RouterLink>
+    <RouterLink class="item" to="/account" v-tooltip.top="'관리자 화면'">
       <font-awesome-icon :icon="['fas', 'user']" />
     </RouterLink>
   </section>

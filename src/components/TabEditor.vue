@@ -8,11 +8,10 @@ interface Props {
   categories: S[]
   ctgKey?: string
   items: T[]
-  itemKey?: string
+  itemKey: string
   isEdit?: boolean
 }
 const props = withDefaults(defineProps<Props>(), {
-  itemKey: 'id',
   ctgKey: 'name',
 })
 

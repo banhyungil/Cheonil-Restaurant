@@ -1,4 +1,3 @@
-import type { MenuCategoryEntity } from '@/@types/Database'
 import useApi from './useApi'
 
 export default function useApiMenuCtg() {

@@ -1,4 +1,5 @@
 @import './base.css';
+@import './var.css';
 
 .slide-enter-active,
 .slide-leave-active {
@@ -11,3 +12,6 @@
   opacity: 0;
 }
 
+.point {
+  
+}

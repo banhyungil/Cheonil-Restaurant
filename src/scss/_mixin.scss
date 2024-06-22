@@ -1,3 +1,15 @@
+
+/// 
+/// @param {type} $type [point, r, u] -
+/// @param {Boolean} $isHover [false] -
+/// @output 
+@mixin color($type: point, $isHover: false){
+  $color: var(--color-#{$type});
+  
+  background-color: $color;
+  color: #fff;
+}
+
 @mixin vueSlide($distance: 30px, $direction: x, $time: 0.3s, $isOpacity: true) {
   .vueSlide-enter-active,
   .vueSlide-leave-active {

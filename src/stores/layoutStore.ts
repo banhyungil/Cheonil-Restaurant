@@ -1,7 +1,7 @@
 import AdminLayout from '@/layout/AdminLayout.vue'
 import DefaultLayout from '@/layout/DefaultLayout.vue'
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 type Layout = 'default' | 'admin'
 export const useLayoutStore = defineStore('layout', () => {
@@ -11,14 +11,16 @@ export const useLayoutStore = defineStore('layout', () => {
     layout.value = lo
   }
 
-  const getComp = () => {
+  const cLayoutComp = computed(() => {
     switch (layout.value) {
       case 'default':
         return DefaultLayout
       case 'admin':
         return AdminLayout
+      default:
+        return DefaultLayout
     }
-  }
+  })
 
-  return { set, getComp }
+  return { set, cLayoutComp }
 })

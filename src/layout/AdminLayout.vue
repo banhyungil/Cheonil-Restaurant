@@ -1,12 +1,30 @@
 <script setup lang="ts">
-import SideBar from '@/components/SideBar.vue'
+import SideBar from '@/components/layout/SideBar.vue'
 </script>
 
 <template>
-  <div>
-    admin
-    <slot></slot>
+  <div class="admin-layout">
+    <SideBar></SideBar>
+    <div class="right"><slot></slot></div>
   </div>
 </template>
 
-<style scoped></style>
+<style lang="scss">
+.admin-layout {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  background-color: #e7e7ff;
+  height: 100vh;
+  padding-top: 20px;
+
+  & > * {
+    height: 100%;
+    background-color: #fff;
+  }
+
+  .right {
+    margin: 20px;
+    margin-top: 0;
+  }
+}
+</style>

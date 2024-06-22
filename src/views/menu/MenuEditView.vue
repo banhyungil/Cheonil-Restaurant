@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import type { MenuEntity } from '@/@types/Database'
-import { computed, onMounted, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import _ from 'lodash'
 import useSwal from '@/composable/useSwal'
@@ -12,30 +11,31 @@ import BInputNumFormat from '@/components/base/BInputNumFormat.vue'
 // 가게, 카테고리 목록은 store에 저장된 데이터 사용
 const menuStore = useMenuStore()
 const apiMenu = useApiMenu()
-const Toast = useSwal({ toast: true })
 const Swal = useSwal()
 const router = useRouter()
 const route = useRoute()
 
 interface Props {
-  id?: string
+  name?: string
 }
 
 const props = defineProps<Props>()
-const cIsUpdate = computed(() => (props.id ? true : false))
+const cIsUpdate = computed(() => (props.name ? true : false))
 const cText = computed(() => (cIsUpdate.value ? '수정' : '등록'))
-const menu = ref({ categoryName: route.query['ctgName'], name: '', price: 0 } as MenuEntity)
-if (props.id) {
-  menu.value = _.cloneDeep(menuStore.items.find((item) => item.id == props.id)) as MenuEntity
+const menu = ref({ ctgNm: route.query['ctgName'], name: '', price: 0 } as MenuEntity)
+if (props.name) {
+  menu.value = _.cloneDeep(menuStore.items.find((item) => item.name == props.name)) as MenuEntity
 }
 
 async function onSave() {
   if (cIsUpdate.value) {
-    await apiMenu.update(props.id!, menu.value)
-    Toast.update()
+    await apiMenu.update(menu.value)
+    Swal.fireCustom({ toast: true, messageType: 'update' })
   } else {
+    if (menu.value.abv == null) menu.value.abv = menu.value.name.slice(0, 2)
     await apiMenu.create(menu.value)
-    Toast.create()
+
+    Swal.fireCustom({ toast: true, messageType: 'save' })
   }
   menuStore.items = await apiMenu.select()
 
@@ -43,11 +43,11 @@ async function onSave() {
 }
 
 async function onRemove() {
-  if (await Swal.isConfirm('remove')) {
-    await apiMenu.remove(props.id!)
+  if (await Swal.fireCustom({ isConfirm: true, messageType: 'remove' })) {
+    await apiMenu.remove(props.name!)
     menuStore.items = await apiMenu.select()
 
-    Toast.remove()
+    Swal.fireCustom({ toast: true, messageType: 'remove' })
     router.back()
   }
 }
@@ -60,16 +60,14 @@ function onCancel() {
 <template>
   <section class="menu-view">
     <section class="wrapper g-form">
-      <section class="top">{{ `매장 카테고리 ${cText}` }}</section>
+      <section class="top">{{ `메뉴 ${cText}` }}</section>
       <section class="content">
         <div class="row">
-          <span class="label required">카테고리</span>
-          <select class="val" v-model="menu.categoryName">
-            <option :value="null">미지정</option>
-            <option v-for="ctg in menuStore.categories" :key="ctg.name" :value="ctg.name">
-              {{ ctg.name }}
-            </option>
-          </select>
+          <span class="label">카테고리</span>
+          <v-select
+            :items="menuStore.categories.map((ctg) => ctg.name)"
+            v-model="menu.ctgNm"
+          ></v-select>
         </div>
         <div class="row">
           <span class="label required">메뉴명</span>
@@ -77,12 +75,7 @@ function onCancel() {
         </div>
         <div class="row">
           <span class="label">메뉴명(축약)</span>
-          <input
-            class="val"
-            type="text"
-            v-model="menu.nameAbv"
-            :placeholder="menu.name.slice(0, 2)"
-          />
+          <input class="val" type="text" v-model="menu.abv" :placeholder="menu.name.slice(0, 2)" />
         </div>
         <div class="row">
           <span class="label required">가격</span>
@@ -90,7 +83,15 @@ function onCancel() {
         </div>
         <div class="row">
           <span>비고</span>
-          <input class="val" type="text" v-model="menu.cmt" />
+          <v-textarea
+            class="val"
+            v-model="menu.cmt"
+            rows="1"
+            auto-grow
+            bg-color="#fff"
+            variant="outlined"
+            style="height: fit-content"
+          ></v-textarea>
         </div>
       </section>
       <section class="btt">

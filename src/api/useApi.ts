@@ -1,16 +1,27 @@
-import useToast from '@/composable/useToast'
+import useSwal from '@/composable/useSwal'
 import axios from 'axios'
 
+export const Op: OpTypesCustom = {
+  eq: 'eq',
+  lt: 'lt',
+  lte: 'lte',
+  gt: 'gt',
+  gte: 'gte',
+}
 export default function useApi() {
   const api = axios.create({ baseURL: '/app' })
-  const Toast = useToast()
+  const Swal = useSwal()
 
   api.interceptors.response.use(
-    (response) => response,
+    (response) => {
+      if (response.data == '') response.data = null
+      return response
+    },
     (error) => {
-      debugger
       // whatever you want to do with the error
-      Toast.fire({
+      Swal.fireCustom({
+        toast: true,
+        icon: 'error',
         title: error,
         timer: 10000,
       })

@@ -1,14 +1,27 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import OrderView from '@/views/OrderView.vue'
-import OrderStateView from '@/views/OrderStateView.vue'
-import AdminView from '@/views/AdminView.vue'
+import OrderView from '@/views/order/OrderView.vue'
+import OrderStateView from '@/views/order/OrderStateView.vue'
+import { useLayoutStore } from '@/stores/layoutStore'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
+      path: '/account',
+      name: 'account',
+      component: () => import('../views/order/AccountView.vue'),
+    },
+    {
       path: '/',
-      name: 'order',
+      redirect: '/order',
+    },
+    {
+      path: '/order', // orderId, 수정
+      component: OrderView,
+    },
+    {
+      path: '/order/:id', // orderId, 수정
+      props: true,
       component: OrderView,
     },
     {
@@ -17,45 +30,62 @@ const router = createRouter({
       component: OrderStateView,
     },
     {
-      path: '/admin',
-      name: 'admin',
-      component: AdminView,
-    },
-    {
-      path: '/store',
-      component: () => import('../views/StoreView.vue'),
-    },
-    {
-      path: '/store/:id',
-      props: true,
-      component: () => import('../views/StoreView.vue'),
-    },
-    {
-      path: '/storeCtg',
-      component: () => import('../views/StoreCtgView.vue'),
-    },
-    {
-      path: '/storeCtg/:name',
-      props: true,
-      component: () => import('../views/StoreCtgView.vue'),
+      path: '/orderList',
+      name: 'orderList',
+      component: () => import('../views/order/OrderListView.vue'),
     },
     {
       path: '/menu',
-      component: () => import('../views/MenuView.vue'),
+      component: () => import('../views/menu/MenuView.vue'),
     },
     {
-      path: '/menu/:id',
+      path: '/menuEdit',
+      component: () => import('../views/menu/MenuEditView.vue'),
+    },
+    {
+      path: '/menuEdit/:name',
       props: true,
-      component: () => import('../views/MenuView.vue'),
+      component: () => import('../views/menu/MenuEditView.vue'),
     },
     {
-      path: '/menuCtg',
-      component: () => import('../views/MenuCtgView.vue'),
+      path: '/menuCtgEdit',
+      component: () => import('../views/menu/MenuCtgEditView.vue'),
     },
     {
-      path: '/menuCtg/:name',
+      path: '/menuCtgEdit/:name',
       props: true,
-      component: () => import('../views/MenuCtgView.vue'),
+      component: () => import('../views/menu/MenuCtgEditView.vue'),
+    },
+    {
+      path: '/placeCtgEdit',
+      component: () => import('../views/store/PlaceCtgEditView.vue'),
+    },
+    {
+      path: '/placeCtgEdit/:name',
+      props: true,
+      component: () => import('../views/store/PlaceCtgEditView.vue'),
+    },
+    {
+      path: '/store',
+      component: () => import('../views/store/StoreView.vue'),
+    },
+    {
+      path: '/storeEdit',
+      component: () => import('../views/store/StoreEditView.vue'),
+    },
+    {
+      path: '/storeEdit/:name',
+      props: true,
+      component: () => import('../views/store/StoreEditView.vue'),
+    },
+    {
+      path: '/storeCtgEdit',
+      component: () => import('../views/store/StoreCtgEditView.vue'),
+    },
+    {
+      path: '/storeCtgEdit/:name',
+      props: true,
+      component: () => import('../views/store/StoreCtgEditView.vue'),
     },
     {
       path: '/test',
@@ -64,6 +94,26 @@ const router = createRouter({
       component: () => import('../components/MenuTab.vue'),
     },
   ],
+})
+
+// layout 설정
+// path에 따라 자신의 layout을 결정한다.
+const layoutRoutePathDict = {
+  default: ['/order'],
+  admin: ['/account', 'orderList', '/store', '/menu'],
+}
+router.getRoutes().forEach((route) => {
+  Object.entries(layoutRoutePathDict).forEach(([key, paths]) => {
+    if (paths.includes(route.path)) {
+      route.meta.layout = key
+    }
+  })
+})
+
+router.beforeEach((to, from) => {
+  const layoutStore = useLayoutStore()
+  if (to.meta.layout == 'default') layoutStore.set('default')
+  else if (to.meta.layout == 'admin') layoutStore.set('admin')
 })
 
 export default router

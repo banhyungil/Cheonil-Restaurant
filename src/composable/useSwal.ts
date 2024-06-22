@@ -1,64 +1,78 @@
-import type { SweetAlertOptions } from 'sweetalert2'
-import Swal from 'sweetalert2'
+import Swal, { type SweetAlertIcon, type SweetAlertOptions } from 'sweetalert2'
 
-export const MESSAGE_INFO = {
-  create: '등록 되었습니다.',
-  update: '수정 되었습니다.',
-  remove: '삭제 되었습니다.',
-  confirm: {
-    create: '등록 하시겠습니까?',
-    update: '수정 하시겠습니까?',
-    remove: '삭제 하시겠습니까?',
-  },
+const MESSAGE_TYPE_WORD: Record<MessageType, string> = {
+  save: '저장',
+  update: '수정',
+  remove: '삭제',
 }
-export default function useSwal(option?: SweetAlertOptions) {
-  let result: typeof Swal
-  if (option?.toast) {
-    result = Swal.mixin({
-      toast: true,
-      position: 'top-end',
-      showConfirmButton: false,
-      timer: 2000,
-      timerProgressBar: true,
-      didOpen: (toast) => {
-        toast.onmouseenter = Swal.stopTimer
-        toast.onmouseleave = Swal.resumeTimer
-      },
-      ...option,
-    })
-  } else {
-    result = Swal.mixin({
-      showConfirmButton: true,
-      showCancelButton: true,
-      ...option,
-    })
+const MESSAGE = {
+  save: '저장 하시겠습니까?',
+  update: '수정 하시겠습니까?',
+  remove: '삭제 하시겠습니까?',
+}
+// Swal theme 적용이 안되서 composable로 대체...
+// * 공식 페이지 대로 진행 했으나 실패.
+export default function useSwal(options?: SweetAlertOptions) {
+  const nSwal = Swal.mixin({
+    color: 'white',
+    background: '#2d2d2d',
+    iconColor: '#bc4f30',
+    confirmButtonColor: '#bc4f30',
+    denyButtonColor: 'gray',
+    cancelButtonColor: 'gray',
+    icon: 'info',
+    showCancelButton: true,
+    ...options,
+  })
+  const nToast = nSwal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    showCancelButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+    didOpen: (toast) => {
+      toast.onmouseenter = Swal.stopTimer
+      toast.onmouseleave = Swal.resumeTimer
+    },
+  })
+
+  const fireCustom = (options?: SweetAlertOptionsCustom) => {
+    const swal = options?.toast ? nToast : nSwal
+    const messageType = options?.messageType ?? 'save'
+
+    let icon: SweetAlertIcon = 'success'
+    const word = MESSAGE_TYPE_WORD[messageType]
+    let title = `${word} 되었습니다`
+    if (options?.isConfirm) {
+      icon = 'question'
+      title = `${word} 하시겠습니까?`
+    }
+
+    if (options?.isConfirm) {
+      return swal
+        .fire({
+          title,
+          icon,
+          ...options,
+        })
+        .then((res) => {
+          return res.isConfirmed
+        })
+    } else {
+      return swal.fire({
+        title,
+        icon,
+        ...options,
+      })
+    }
   }
 
-  const create = () => {
-    result.fire({ title: MESSAGE_INFO.create, icon: 'success' })
-  }
-  const update = () => {
-    result.fire({ title: MESSAGE_INFO.update, icon: 'success' })
-  }
-  const remove = () => {
-    result.fire({ title: MESSAGE_INFO.remove, icon: 'success' })
-  }
+  return Object.assign(nSwal, { fireCustom, MESSAGE })
+}
 
-  const isConfirm = async (type: 'create' | 'update' | 'remove') => {
-    const res = await (() => {
-      switch (type) {
-        case 'create':
-          return result.fire({ title: MESSAGE_INFO.confirm.create, icon: 'question' })
-        case 'update':
-          return result.fire({ title: MESSAGE_INFO.confirm.update, icon: 'question' })
-        case 'remove':
-          return result.fire({ title: MESSAGE_INFO.confirm.remove, icon: 'question' })
-        default:
-          throw new Error('not support case')
-      }
-    })()
-    return res.isConfirmed
-  }
-
-  return Object.assign(result, { create, update, remove, isConfirm })
+type MessageType = 'save' | 'update' | 'remove'
+type SweetAlertOptionsCustom = SweetAlertOptions & {
+  isConfirm?: boolean
+  messageType?: MessageType
 }

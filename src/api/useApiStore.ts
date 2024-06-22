@@ -1,4 +1,3 @@
-import type { StoreEntity } from './../@types/Database'
 import useApi from './useApi'
 
 export default function useApiStore() {
@@ -10,14 +9,14 @@ export default function useApiStore() {
 
     return res.data.list as StoreEntity[]
     // return [
-    //   { id: '1', name: '중앙1', categoryName: '중앙' },
-    //   { id: '2', name: '중앙2', categoryName: '중앙' },
-    //   { id: '3', name: '중앙3', categoryName: '중앙' },
-    //   { id: '4', name: '중앙4', categoryName: '중앙' },
-    //   { id: '5', name: '농협1', categoryName: '농협' },
-    //   { id: '6', name: '농협2', categoryName: '농협' },
-    //   { id: '7', name: '농협3', categoryName: '농협' },
-    //   { id: '8', name: '농협4', categoryName: '농협' },
+    //   { name: '1', name: '중앙1', categoryName: '중앙' },
+    //   { name: '2', name: '중앙2', categoryName: '중앙' },
+    //   { name: '3', name: '중앙3', categoryName: '중앙' },
+    //   { name: '4', name: '중앙4', categoryName: '중앙' },
+    //   { name: '5', name: '농협1', categoryName: '농협' },
+    //   { name: '6', name: '농협2', categoryName: '농협' },
+    //   { name: '7', name: '농협3', categoryName: '농협' },
+    //   { name: '8', name: '농협4', categoryName: '농협' },
     // ] as StoreEntity[]
   }
 
@@ -25,12 +24,12 @@ export default function useApiStore() {
     return api.post(prefix, store)
   }
 
-  const update = (id: string, store: StoreEntity) => {
-    return api.put(`${prefix}/${store.id}`, store)
+  const update = (name: string, store: StoreEntity) => {
+    return api.put(`${prefix}/${store.name}`, store)
   }
 
-  const remove = (id: string) => {
-    return api.delete(`${prefix}/${id}`)
+  const remove = (name: string) => {
+    return api.delete(`${prefix}/${name}`)
   }
 
   return { select, create, update, remove }

@@ -1,4 +1,3 @@
-import type { StoreCategoryEntity } from '@/@types/Database'
 import useApi from './useApi'
 
 export default function useApiStoreCtg() {

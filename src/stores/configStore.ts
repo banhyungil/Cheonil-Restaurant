@@ -1,7 +1,6 @@
-import type { ConfigEntity } from '@/@types/Database'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-export const useConfigStore = defineStore('order', () => {
+export const useConfigStore = defineStore('config', () => {
   const config = ref({} as ConfigEntity)
   return { config }
 })

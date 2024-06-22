@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import useApiStoreCtg from '@/api/useApiStoreCtg'
-import type { StoreCategoryEntity, StoreEntity } from '@/@types/Database'
 import useApiStore from '@/api/useApiStore'
 import { useRouter } from 'vue-router'
 import { useStoreStore } from '@/stores/storeStore'
 import { getInitials } from '@/utils/CommonUtils'
 import BInputCho from './base/BInputCho.vue'
+import { useEventListener } from '@vueuse/core'
 
 const storeStore = useStoreStore()
 const apiStore = useApiStore()
@@ -39,12 +39,12 @@ const cFilteredItems = computed(() => {
   // 카테고리 필터링
   const items = (() => {
     if (selCtg.value == null) {
-      return storeStore.items?.filter((item) => item.categoryName == null)
+      return storeStore.items?.filter((item) => item.ctgNm == null)
     } else if (selCtg.value == 'all') {
       return storeStore.items
     } else {
       return storeStore.items?.filter(
-        (item) => item.categoryName == (selCtg.value as StoreCategoryEntity).name
+        (item) => item.ctgNm == (selCtg.value as StoreCategoryEntity).name
       )
     }
   })() as StoreEntity[]
@@ -63,29 +63,38 @@ const cFilteredItems = computed(() => {
   }
 })
 
-function onClickCategory(ctg: StoreCategoryEntity | null | 'all') {
+function onClickCategory(ctg: StoreCategoryEntity | 'all') {
   selCtg.value = ctg
 
-  if (isEdit.value && typeof ctg == 'object' && ctg != null) {
-    router.push({ path: `/storeCtg/${ctg.name}` })
+  if (isEdit.value && typeof ctg == 'object') {
+    selCtg.value = 'all'
+    router.push({ path: `/storeCtgEdit/${ctg.name}` })
   }
 }
 
 function onAddCategory() {
-  router.push('/storeCtg')
+  router.push('/storeCtgEdit')
 }
 
 function onAddItem() {
-  router.push('/store')
+  router.push('/storeEdit')
 }
 
 function onClickItem(item: StoreEntity) {
   if (isEdit.value) {
-    router.push({ path: `/store/${item.id}` })
+    router.push({ path: `/storeEdit/${item.name}` })
   } else {
     emit('selectItem', item)
   }
 }
+
+useEventListener(document, 'keyup', (e) => {
+  if (e.key == 'Escape') {
+    if (isEdit.value) {
+      isEdit.value = false
+    }
+  }
+})
 </script>
 
 <!-- 
@@ -95,13 +104,13 @@ function onClickItem(item: StoreEntity) {
 <!-- 클릭하면 등록 화면으로 이동 -->
 <!-- 편집이아닌경우는 메뉴 화면으로 이동  -->
 <template>
-  <section class="comp-store-tap" :class="{ edit: isEdit }">
+  <section class="comp-store-tap c-tab">
     <section class="top">
       <!-- 초성 검색 구현 -->
       <BInputCho v-model="srchText" />
-      <button @click="onToggleEdit" class="edit" :class="{ on: isEdit }">
+      <v-btn @click="onToggleEdit" class="edit" :class="{ on: isEdit }">
         <font-awesome-icon :icon="['fas', 'pen']" />
-      </button>
+      </v-btn>
     </section>
     <!-- tab.scss 참조 -->
     <section class="tab" :class="{ edit: isEdit }">
@@ -120,11 +129,8 @@ function onClickItem(item: StoreEntity) {
         >
           <span>{{ ctg.name ?? '' }}</span>
         </button>
-        <button @click="onClickCategory(null)" :class="{ on: selCtg == null }">
-          <span>{{ '미지정' }}</span>
-        </button>
         <Transition name="slide">
-          <button v-show="isEdit" class="itemd" @click="onAddCategory">
+          <button v-show="isEdit" class="item" @click="onAddCategory">
             <font-awesome-icon :icon="['fas', 'plus']" />
           </button>
         </Transition>
@@ -133,13 +139,13 @@ function onClickItem(item: StoreEntity) {
         <button
           class="item"
           v-for="item in cFilteredItems"
-          :key="item.id"
+          :key="item.name"
           @click="onClickItem(item)"
         >
           {{ item['name'] ?? '' }}
         </button>
         <Transition name="slide">
-          <button v-show="isEdit" class="add" @click="onAddItem">
+          <button v-show="isEdit" class="item add" @click="onAddItem">
             <font-awesome-icon :icon="['fas', 'plus']" />
           </button>
         </Transition>
@@ -148,24 +154,4 @@ function onClickItem(item: StoreEntity) {
   </section>
 </template>
 
-<style lang="scss" scoped>
-.comp-store-tap {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-
-  .top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    button.edit {
-      padding: 6px 10px;
-      &.on {
-        background-color: #2aac8e;
-        color: #fff;
-      }
-    }
-  }
-}
-</style>
+<style lang="scss"></style>

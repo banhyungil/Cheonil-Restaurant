@@ -1,5 +1,4 @@
 import useApi from './useApi'
-import type { MenuEntity } from '@/@types/Database'
 
 export default function useApiMenu() {
   const api = useApi()
@@ -12,14 +11,14 @@ export default function useApiMenu() {
 
     return res.data.list as MenuEntity[]
     // return [
-    //   { categoryName: '찌개', id: '1', name: '김치찌개', price: 8000 },
-    //   { categoryName: '찌개', id: '2', name: '된장찌개', price: 8000 },
-    //   { categoryName: '기본', id: '3', name: '정식', price: 8000 },
-    //   { categoryName: '기본', id: '4', name: '제육볶음', price: 8000 },
-    //   { categoryName: '기본', id: '5', name: '떡만두국', price: 8000 },
-    //   { categoryName: '기본', id: '6', name: '돈가스', price: 8000 },
-    //   { categoryName: '기본', id: '7', name: '치즈돈가스', nameAbv: '치돈', price: 8000 },
-    //   { categoryName: '기본', id: '8', name: '고구마치즈돈가스', nameAbv: '고치돈', price: 8000 },
+    //   { categoryName: '찌개', seq: '1', name: '김치찌개', price: 8000 },
+    //   { categoryName: '찌개', seq: '2', name: '된장찌개', price: 8000 },
+    //   { categoryName: '기본', seq: '3', name: '정식', price: 8000 },
+    //   { categoryName: '기본', seq: '4', name: '제육볶음', price: 8000 },
+    //   { categoryName: '기본', seq: '5', name: '떡만두국', price: 8000 },
+    //   { categoryName: '기본', seq: '6', name: '돈가스', price: 8000 },
+    //   { categoryName: '기본', seq: '7', name: '치즈돈가스', nameAbv: '치돈', price: 8000 },
+    //   { categoryName: '기본', seq: '8', name: '고구마치즈돈가스', nameAbv: '고치돈', price: 8000 },
     // ] as MenuEntity[]
   }
 
@@ -27,12 +26,12 @@ export default function useApiMenu() {
     return api.post(prefix, menu)
   }
 
-  const update = (id: string, menu: MenuEntity) => {
-    return api.put(`${prefix}/${menu.id}`, menu)
+  const update = (menu: MenuEntity) => {
+    return api.put(`${prefix}/${menu.name}`, menu)
   }
 
-  const remove = (id: string) => {
-    return api.delete(`${prefix}/${id}`)
+  const remove = (menu: string) => {
+    return api.delete(`${prefix}/${menu}`)
   }
 
   return { select, create, update, remove }

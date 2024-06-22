@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import useApiMenuCtg from '@/api/useApiMenuCtg'
-import { computed, ref, type Ref } from 'vue'
-import type { MenuCategoryEntity, MenuEntity } from '@/@types/Database'
-import _ from 'lodash'
+import { computed, ref } from 'vue'
 import useApiMenu from '@/api/useApiMenu'
 import { getInitials } from '@/utils/CommonUtils'
 import { useMenuStore } from '@/stores/menuStore'
 import { useRouter } from 'vue-router'
 import BInputCho from './base/BInputCho.vue'
+import { useEventListener } from '@vueuse/core'
 
 const menuStore = useMenuStore()
 const apiMenu = useApiMenu()
@@ -40,12 +39,12 @@ const cFilteredItems = computed(() => {
   // 카테고리 필터링
   const items = (() => {
     if (selCtg.value == null) {
-      return menuStore.items.filter((item) => item.categoryName == null)
+      return menuStore.items.filter((item) => item.ctgNm == null)
     } else if (selCtg.value == 'all') {
       return menuStore.items
     } else {
       return menuStore.items?.filter(
-        (item) => item.categoryName == (selCtg.value as MenuCategoryEntity).name
+        (item) => item.ctgNm == (selCtg.value as MenuCategoryEntity).name
       )
     }
   })() as MenuEntity[]
@@ -64,40 +63,48 @@ const cFilteredItems = computed(() => {
   }
 })
 
-function onClickCategory(ctg: MenuCategoryEntity | 'all' | null) {
+function onClickCategory(ctg: MenuCategoryEntity | 'all') {
   selCtg.value = ctg
 
-  if (isEdit.value && typeof ctg == 'object' && ctg != null) {
-    router.push({ path: `/menuCtg/${ctg.name}` })
+  if (isEdit.value && typeof ctg == 'object') {
+    selCtg.value = 'all'
+    router.push({ path: `/menuCtgEdit/${ctg.name}` })
   }
 }
 
 function onAddCategory() {
-  router.push({ path: '/menuCtg' })
+  router.push({ path: '/menuCtgEdit' })
 }
 
 function onClickItem(item: MenuEntity) {
   emit('selectItem', item)
 
   if (isEdit.value) {
-    router.push({ path: `/menu/${item.id}` })
+    router.push({ path: `/menuEdit/${item.name}` })
   }
 }
 
 function onAddItem() {
   const ctgName = selCtg.value != null && typeof selCtg.value == 'object' ? selCtg.value.name : null
-  router.push({ path: '/menu', query: { ctgName: ctgName } })
+  router.push({ path: '/menuEdit', query: { ctgName: ctgName } })
 }
+useEventListener(document, 'keyup', (e) => {
+  if (e.key == 'Escape') {
+    if (isEdit.value) {
+      isEdit.value = false
+    }
+  }
+})
 </script>
 
 <template>
-  <section class="comp-menu-tab">
+  <section class="comp-menu-tab c-tab">
     <section class="top">
       <!-- 초성 검색 구현 -->
       <BInputCho v-model="srchText" />
-      <button @click="onToggleEdit" class="edit" :class="{ on: isEdit }">
+      <v-btn @click="onToggleEdit" class="edit" :class="{ on: isEdit }">
         <font-awesome-icon :icon="['fas', 'pen']" />
-      </button>
+      </v-btn>
     </section>
     <!-- tab.scss 참조 -->
     <section class="tab">
@@ -115,11 +122,8 @@ function onAddItem() {
         >
           <span>{{ ctg.name ?? '' }}</span>
         </button>
-        <button @click="onClickCategory(null)" :class="{ on: selCtg == null }">
-          <span>{{ '미지정' }}</span>
-        </button>
         <Transition name="slide">
-          <button v-show="isEdit" class="itemd" @click="onAddCategory">
+          <button v-show="isEdit" class="item" @click="onAddCategory">
             <font-awesome-icon :icon="['fas', 'plus']" />
           </button>
         </Transition>
@@ -128,14 +132,14 @@ function onAddItem() {
         <button
           class="item"
           v-for="item in cFilteredItems"
-          :key="item.id"
+          :key="item.name"
           @click="onClickItem(item)"
         >
           <span class="main">{{ item['name'] }}</span>
-          <span class="sub">{{ item['price'] }}</span>
+          <span class="sub">{{ item['price'].toLocaleString() }}</span>
         </button>
         <Transition name="slide">
-          <button v-show="isEdit" class="add" @click="onAddItem">
+          <button v-show="isEdit" class="item add" @click="onAddItem">
             <font-awesome-icon :icon="['fas', 'plus']" />
           </button>
         </Transition>
@@ -144,23 +148,4 @@ function onAddItem() {
   </section>
 </template>
 
-<style lang="scss" scoped>
-.comp-menu-tab {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  .top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    button.edit {
-      padding: 6px 10px;
-      &.on {
-        background-color: #2aac8e;
-        color: #fff;
-      }
-    }
-  }
-}
-</style>
+<style lang="scss"></style>

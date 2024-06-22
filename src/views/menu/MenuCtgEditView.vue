@@ -1,17 +1,15 @@
 <script setup lang="ts">
-import type { StoreCategoryEntity } from '@/@types/Database'
-import useApiStoreCtg from '@/api/useApiStoreCtg'
 import useSwal from '@/composable/useSwal'
-import { useStoreStore } from '@/stores/storeStore'
 import { computed, ref, type Ref } from 'vue'
 import { useRouter } from 'vue-router'
 import _ from 'lodash'
+import { useMenuStore } from '@/stores/menuStore'
+import useApiMenuCtg from '@/api/useApiMenuCtg'
 
-const storeStore = useStoreStore()
-const Toast = useSwal({ toast: true })
+const menuStore = useMenuStore()
+const apiMenuCtg = useApiMenuCtg()
 const Swal = useSwal()
 const router = useRouter()
-const apiStoreCtg = useApiStoreCtg()
 
 interface Props {
   name?: string
@@ -19,37 +17,37 @@ interface Props {
 const props = defineProps<Props>()
 const cIsUpdate = computed(() => (props.name ? true : false))
 const cText = computed(() => (cIsUpdate.value ? '수정' : '등록'))
-const ctg = ref<StoreCategoryEntity>({ name: '' })
+const ctg = ref<MenuCategoryEntity>({ name: '' })
 if (props.name) {
-  ctg.value = _.cloneDeep(storeStore.categories.find((ctg) => ctg.name == props.name))!
+  ctg.value = _.cloneDeep(menuStore.categories.find((ctg) => ctg.name == props.name))!
 }
 
 const inp = ref() as Ref<HTMLInputElement>
 async function onSave() {
   // 검증
-  if (storeStore.categories.some((iCtg) => iCtg.name == ctg.value.name)) {
-    Toast.fire({ title: '중복된 카테고리가 존재합니다.', icon: 'warning' })
+  if (!cIsUpdate.value && menuStore.categories.some((iCtg) => iCtg.name == ctg.value.name)) {
+    Swal.fire({ title: '중복된 카테고리가 존재합니다.', icon: 'warning' })
 
     inp.value.focus()
   } else {
     if (cIsUpdate.value) {
-      await apiStoreCtg.update(props.name!, ctg.value)
-      Toast.update()
+      await apiMenuCtg.update(props.name!, ctg.value)
+      Swal.fireCustom({ toast: true, messageType: 'update' })
     } else {
-      await apiStoreCtg.create(ctg.value)
-      Toast.create()
+      await apiMenuCtg.create(ctg.value)
+      Swal.fireCustom({ toast: true, messageType: 'save' })
     }
-    storeStore.categories = await apiStoreCtg.select()
+    menuStore.categories = await apiMenuCtg.select()
     router.back()
   }
 }
 
 async function onRemove() {
-  if (await Swal.isConfirm('remove')) {
-    await apiStoreCtg.remove(ctg.value.name)
-    storeStore.categories = await apiStoreCtg.select()
+  if (await Swal.fireCustom({ isConfirm: true, messageType: 'remove' })) {
+    await apiMenuCtg.remove(ctg.value.name)
+    menuStore.categories = await apiMenuCtg.select()
 
-    Toast.remove()
+    Swal.fireCustom({ toast: true, messageType: 'remove' })
     router.back()
   }
 }
@@ -60,7 +58,7 @@ function onCancel() {
 <template>
   <section class="store-ctg-view">
     <section class="wrapper g-form">
-      <section class="top">{{ `매장 카테고리 ${cText}` }}</section>
+      <section class="top">{{ `메뉴 카테고리 ${cText}` }}</section>
       <section class="content">
         <div class="row">
           <span class="label">카테고리 명</span>

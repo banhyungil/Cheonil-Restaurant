@@ -6,8 +6,8 @@
 /* 설정
 각종 설정을 json 타입으로 저장한다. */
 interface ConfigEntity {
-  key?: string
-  config?: object
+  key: string
+  config: string
 }
 
 /* 메뉴 */
@@ -16,10 +16,10 @@ interface MenuEntity {
   name: string
 
   /* 카테고리명 */
-  categoryName?: string
+  ctgNm: string
 
-  /* 이름 약어 */
-  nameAbv?: string | null
+  /* 메뉴 약어 */
+  abv?: string | null
   price: number
   cmt?: string | null
   createdAt?: Date | null
@@ -37,107 +37,13 @@ interface MenuCategoryEntity {
   updatedAt?: Date | null
 }
 
-/* 주문 메뉴 */
-interface OrderMenuRsvEntity {
-  /* 메뉴명 */
-  menuName?: string
-
-  /* 주문예약ID */
-  orderRsvId?: number
-
-  /* 가격
-menu는 가격이 바뀔수가 있음 */
-  price?: number
-
-  /* 수량 */
-  cnt?: number
-}
-
-/* 주문 예약
-예약 정보에 따라 t_order를 생성한다 */
-interface OrderRsvEntity {
-  /* 주문예약 ID */
-  id?: number
-
-  /* 매장명 */
-  storeName?: string
-
-  /* 총 금액 */
-  amount?: number
-
-  /* HH:MM */
-  rsvTime?: string
-
-  /* 요일 배열
-ex) 
-월요일: [1]
-월, 수: [1,3] */
-  weekDay?: string
-
-  /* 기타 정보 */
-  reqCmt?: string | null
-  createdAt?: Date | null
-  updatedAt?: Date | null
-}
-
-/* 결재 */
-interface PaymentEntity {
-  /* 결재 ID */
-  id?: number
-  orderId?: number
-
-  /* 결재금액 */
-  amount?: number
-
-  /* 결재방식 */
-  payType?: 'CASH' | 'CARD'
-
-  /* 결재일 */
-  payDate?: Date
-}
-
-/* 장소 카테고리 */
-interface PlaceCategoryEntity {
-  name: string
-  cmt?: string | null
-}
-
-/* 매장 */
-interface StoreEntity {
-  name: string
-  categoryName?: string
-
-  /* 기본적으로 매장 카테고리에 등록된 값과 일치 */
-  placeCtgName?: string
-
-  /* 기타 정보 */
-  cmt?: string | null
-
-  /* 위도 */
-  latitude?: string | null
-
-  /* 경도 */
-  longitude?: string | null
-  createdAt?: Date | null
-  updatedAt?: Date | null
-}
-
-/* 매장 카테고리 */
-interface StoreCategoryEntity {
-  name: string
-  placeCtgName?: string
-  order?: number | null
-  createdAt?: Date | null
-  updatedAt?: Date | null
-}
-
 /* 주문 */
-interface TOrderEntity {
-  /* 주문 ID */
-  id?: number
+interface OrderEntity {
+  /* 주문 SEQ */
+  seq?: number
 
   /* 매장명 */
-  storeName: string
+  storeNm: string
 
   /* 총 금액
 외상인 경우는 어떻게 처리하지?... */
@@ -160,12 +66,12 @@ interface TOrderEntity {
 }
 
 /* 주문 메뉴 */
-interface TOrderMenuEntity {
+interface OrderMenuEntity {
   /* 메뉴명 */
-  menuName: string
+  menuNm: string
 
   /* 주문 ID */
-  orderId?: number
+  orderSeq: number
 
   /* 가격
 menu는 가격이 바뀔수가 있음 */
@@ -173,4 +79,100 @@ menu는 가격이 바뀔수가 있음 */
 
   /* 수량 */
   cnt: number
+}
+
+/* 주문 메뉴 */
+interface OrderMenuRsvEntity {
+  /* 메뉴명 */
+  menuNm: string
+
+  /* 주문예약 Seq */
+  orderRsvSeq: number
+
+  /* 가격
+menu는 가격이 바뀔수가 있음 */
+  price: number
+
+  /* 수량 */
+  cnt: number
+}
+
+/* 주문 예약
+예약 정보에 따라 t_order를 생성한다 */
+interface OrderRsvEntity {
+  /* 주문예약 SEQ */
+  seq?: number
+
+  /* 매장명 */
+  storeNm: string
+
+  /* 총 금액 */
+  amount: number
+
+  /* HH:MM */
+  rsvTime: string
+
+  /* 요일 배열
+ex) 
+월요일: [1]
+월, 수: [1,3] */
+  weekDay: string
+
+  /* 기타 정보 */
+  reqCmt?: string | null
+  createdAt?: Date | null
+  updatedAt?: Date | null
+}
+
+/* 결재 */
+interface PaymentEntity {
+  /* 결재 SEQ */
+  seq?: number
+
+  /* 주문 Seq */
+  orderSeq: number
+
+  /* 결재금액 */
+  amount: number
+
+  /* 결재방식 */
+  payType: 'CASH' | 'CARD'
+
+  /* 결재일 */
+  payDate: Date
+}
+
+/* 장소 카테고리 */
+interface PlaceCategoryEntity {
+  name: string
+  cmt?: string | null
+}
+
+/* 매장 */
+interface StoreEntity {
+  name: string
+  ctgNm: string
+
+  /* 기본적으로 매장 카테고리에 등록된 값과 일치 */
+  placeCtgNm?: string | null
+
+  /* 기타 정보 */
+  cmt?: string | null
+
+  /* 위도 */
+  latitude?: string | null
+
+  /* 경도 */
+  longitude?: string | null
+  createdAt?: Date | null
+  updatedAt?: Date | null
+}
+
+/* 매장 카테고리 */
+interface StoreCategoryEntity {
+  name: string
+  placeCtgNm?: string | null
+  order?: number | null
+  createdAt?: Date | null
+  updatedAt?: Date | null
 }
