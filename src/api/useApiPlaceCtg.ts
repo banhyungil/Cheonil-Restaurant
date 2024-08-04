@@ -4,7 +4,7 @@ export default function useApiPlaceCtg() {
   const api = useApi()
   const prefix = '/placeCategory'
 
-  const select = async () => {
+  const selectList = async () => {
     const res = await api.get(prefix)
 
     return res.data.list as PlaceCategoryEntity[]
@@ -22,5 +22,5 @@ export default function useApiPlaceCtg() {
     return api.delete(`${prefix}/${name}`)
   }
 
-  return { select, create, update, remove }
+  return { selectList, create, update, remove }
 }

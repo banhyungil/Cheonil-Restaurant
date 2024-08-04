@@ -1,4 +1,6 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+const Route = useRoute()
+</script>
 <template>
   <div class="sidebar">
     <div class="c-home">
@@ -7,10 +9,12 @@
       </RouterLink>
     </div>
     <div class="c-menues">
-      <RouterLink to="/account">정산</RouterLink>
-      <RouterLink to="/orderList">주문내역</RouterLink>
-      <RouterLink to="/menu">메뉴 등록</RouterLink>
-      <RouterLink to="/store">매장 등록</RouterLink>
+      <RouterLink to="/account" activeClass="active">정산</RouterLink>
+      <RouterLink to="/collection" activeClass="active">수금</RouterLink>
+      <RouterLink to="/expenseList" activeClass="active">지출내역</RouterLink>
+      <RouterLink to="/orderList" activeClass="active">주문내역</RouterLink>
+      <RouterLink to="/menu" activeClass="active">메뉴 등록</RouterLink>
+      <RouterLink to="/store" activeClass="active">매장 등록</RouterLink>
     </div>
   </div>
 </template>
@@ -42,6 +46,11 @@
       width: 120px;
       padding: 20px 10px;
       box-shadow: var(--box-shadow);
+      text-align: center;
+    }
+    & > .active {
+      color: #fff;
+      background-color: var(--color-point);
     }
   }
 }

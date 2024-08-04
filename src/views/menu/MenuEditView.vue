@@ -6,6 +6,8 @@ import useSwal from '@/composable/useSwal'
 import { useMenuStore } from '@/stores/menuStore'
 import useApiMenu from '@/api/useApiMenu'
 import BInputNumFormat from '@/components/base/BInputNumFormat.vue'
+import { useVuelidate, type ValidationArgs } from '@vuelidate/core'
+import { required, helpers } from '@vuelidate/validators'
 
 // 주문 화면 다음으로 이동될 화면
 // 가게, 카테고리 목록은 store에 저장된 데이터 사용
@@ -26,8 +28,32 @@ const menu = ref({ ctgNm: route.query['ctgName'], name: '', price: 0 } as MenuEn
 if (props.name) {
   menu.value = _.cloneDeep(menuStore.items.find((item) => item.name == props.name)) as MenuEntity
 }
+const oMenuProp: { [k in keyof MenuEntity]: { label: string } } = {
+  ctgNm: { label: '카테고리' },
+  name: { label: '메뉴명' },
+  abv: { label: '메뉴명(축약)' },
+  price: { label: '가격' },
+  cmt: { label: '비고' },
+}
+
+const rules = {
+  ctgNm: {
+    required: helpers.withMessage(`${oMenuProp.ctgNm.label}를 선택해주세요.`, required),
+  },
+  name: {
+    required: helpers.withMessage(`${oMenuProp.name.label}을 입력해주세요.`, required),
+  },
+  price: {
+    required: helpers.withMessage(`${oMenuProp.price.label}을 입력해주세요.`, required),
+  },
+} as ValidationArgs<MenuEntity>
+const v$ = useVuelidate(rules, menu)
 
 async function onSave() {
+  if ((await v$.value.$validate()) == false) {
+    Swal.fireCustom({ toast: true, title: v$.value.$silentErrors[0].$message, icon: 'warning' })
+    return
+  }
   if (cIsUpdate.value) {
     await apiMenu.update(menu.value)
     Swal.fireCustom({ toast: true, messageType: 'update' })
@@ -37,7 +63,7 @@ async function onSave() {
 
     Swal.fireCustom({ toast: true, messageType: 'save' })
   }
-  menuStore.items = await apiMenu.select()
+  menuStore.items = await apiMenu.selectList()
 
   router.back()
 }
@@ -45,7 +71,7 @@ async function onSave() {
 async function onRemove() {
   if (await Swal.fireCustom({ isConfirm: true, messageType: 'remove' })) {
     await apiMenu.remove(props.name!)
-    menuStore.items = await apiMenu.select()
+    menuStore.items = await apiMenu.selectList()
 
     Swal.fireCustom({ toast: true, messageType: 'remove' })
     router.back()
@@ -63,26 +89,27 @@ function onCancel() {
       <section class="top">{{ `메뉴 ${cText}` }}</section>
       <section class="content">
         <div class="row">
-          <span class="label">카테고리</span>
+          <span class="label required">{{ oMenuProp.ctgNm.label }}</span>
           <v-select
             :items="menuStore.categories.map((ctg) => ctg.name)"
             v-model="menu.ctgNm"
+            density="comfortable"
           ></v-select>
         </div>
         <div class="row">
-          <span class="label required">메뉴명</span>
+          <span class="label required">{{ oMenuProp.name.label }}</span>
           <input class="val" type="text" v-model="menu.name" />
         </div>
         <div class="row">
-          <span class="label">메뉴명(축약)</span>
+          <span class="label">{{ oMenuProp.abv!.label }}</span>
           <input class="val" type="text" v-model="menu.abv" :placeholder="menu.name.slice(0, 2)" />
         </div>
         <div class="row">
-          <span class="label required">가격</span>
-          <BInputNumFormat v-model="menu.price"></BInputNumFormat>
+          <span class="label required">{{ oMenuProp.price.label }}</span>
+          <BInputNumFormat class="val" v-model="menu.price"></BInputNumFormat>
         </div>
         <div class="row">
-          <span>비고</span>
+          <span>{{ oMenuProp.cmt!.label }}</span>
           <v-textarea
             class="val"
             v-model="menu.cmt"

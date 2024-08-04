@@ -37,7 +37,7 @@ async function onSave() {
       await apiMenuCtg.create(ctg.value)
       Swal.fireCustom({ toast: true, messageType: 'save' })
     }
-    menuStore.categories = await apiMenuCtg.select()
+    menuStore.categories = await apiMenuCtg.selectList()
     router.back()
   }
 }
@@ -45,7 +45,7 @@ async function onSave() {
 async function onRemove() {
   if (await Swal.fireCustom({ isConfirm: true, messageType: 'remove' })) {
     await apiMenuCtg.remove(ctg.value.name)
-    menuStore.categories = await apiMenuCtg.select()
+    menuStore.categories = await apiMenuCtg.selectList()
 
     Swal.fireCustom({ toast: true, messageType: 'remove' })
     router.back()

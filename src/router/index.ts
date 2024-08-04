@@ -12,6 +12,16 @@ const router = createRouter({
       component: () => import('../views/order/AccountView.vue'),
     },
     {
+      path: '/collection',
+      name: 'collection',
+      component: () => import('../views/order/CollectionView.vue'),
+    },
+    {
+      path: '/expenseList',
+      name: 'expenseList',
+      component: () => import('../views/order/ExpenseListView.vue'),
+    },
+    {
       path: '/',
       redirect: '/order',
     },
@@ -19,6 +29,7 @@ const router = createRouter({
       path: '/order', // orderId, 수정
       component: OrderView,
     },
+
     {
       path: '/order/:id', // orderId, 수정
       props: true,
@@ -100,7 +111,7 @@ const router = createRouter({
 // path에 따라 자신의 layout을 결정한다.
 const layoutRoutePathDict = {
   default: ['/order'],
-  admin: ['/account', 'orderList', '/store', '/menu'],
+  admin: ['/account', '/collection', '/expenseList', '/orderList', '/store', '/menu'],
 }
 router.getRoutes().forEach((route) => {
   Object.entries(layoutRoutePathDict).forEach(([key, paths]) => {
@@ -112,6 +123,7 @@ router.getRoutes().forEach((route) => {
 
 router.beforeEach((to, from) => {
   const layoutStore = useLayoutStore()
+
   if (to.meta.layout == 'default') layoutStore.set('default')
   else if (to.meta.layout == 'admin') layoutStore.set('admin')
 })

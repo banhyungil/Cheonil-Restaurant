@@ -4,6 +4,8 @@ const MESSAGE_TYPE_WORD: Record<MessageType, string> = {
   save: '저장',
   update: '수정',
   remove: '삭제',
+  error: 'Error',
+  info: '알림',
 }
 const MESSAGE = {
   save: '저장 하시겠습니까?',
@@ -41,13 +43,26 @@ export default function useSwal(options?: SweetAlertOptions) {
     const swal = options?.toast ? nToast : nSwal
     const messageType = options?.messageType ?? 'save'
 
-    let icon: SweetAlertIcon = 'success'
-    const word = MESSAGE_TYPE_WORD[messageType]
-    let title = `${word} 되었습니다`
-    if (options?.isConfirm) {
-      icon = 'question'
-      title = `${word} 하시겠습니까?`
-    }
+    const { icon, title } = (() => {
+      let word: string
+      let icon: SweetAlertIcon
+      let title: string
+      switch (messageType) {
+        case 'save':
+        case 'update':
+        case 'remove':
+          word = MESSAGE_TYPE_WORD[messageType]
+          icon = options?.isConfirm ? 'question' : 'success'
+          title = options?.isConfirm ? `${word} 하시겠습니까?` : `${word} 되었습니다`
+          break
+        case 'error':
+        case 'info':
+          title = MESSAGE_TYPE_WORD[messageType]
+          icon = messageType
+          break
+      }
+      return { icon, title }
+    })()
 
     if (options?.isConfirm) {
       return swal
@@ -71,7 +86,7 @@ export default function useSwal(options?: SweetAlertOptions) {
   return Object.assign(nSwal, { fireCustom, MESSAGE })
 }
 
-type MessageType = 'save' | 'update' | 'remove'
+type MessageType = 'save' | 'update' | 'remove' | 'error' | 'info'
 type SweetAlertOptionsCustom = SweetAlertOptions & {
   isConfirm?: boolean
   messageType?: MessageType

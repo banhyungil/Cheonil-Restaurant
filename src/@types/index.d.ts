@@ -488,7 +488,7 @@ type WhereInfo<T> = {
     [ot in keyof OpTypes]?: T[k]
   }
 } & {
-  offest?: number
+  offset?: number
   limit?: number
   sortBy?: (keyof T | 'DESC')[][]
 }

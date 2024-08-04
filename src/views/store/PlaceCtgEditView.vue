@@ -22,7 +22,7 @@ const cText = computed(() => (cIsUpdate.value ? '수정' : '등록'))
 const ctg = ref<PlaceCategoryEntity>({ name: '' })
 
 onMounted(async () => {
-  await apiPlaceCtg.select().then((res) => {
+  await apiPlaceCtg.selectList().then((res) => {
     list.value = res
   })
 
@@ -46,7 +46,7 @@ async function onSave() {
       await apiPlaceCtg.create(ctg.value)
       Swal.fireCustom({ toast: true, messageType: 'save' })
     }
-    list.value = await apiPlaceCtg.select()
+    list.value = await apiPlaceCtg.selectList()
     router.back()
   }
 }
@@ -54,7 +54,7 @@ async function onSave() {
 async function onRemove() {
   if (await Swal.fireCustom({ isConfirm: true, messageType: 'update' })) {
     await apiPlaceCtg.remove(ctg.value.name)
-    list.value = await apiPlaceCtg.select()
+    list.value = await apiPlaceCtg.selectList()
 
     Swal.fireCustom({ toast: true, messageType: 'remove' })
     router.back()

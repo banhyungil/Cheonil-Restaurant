@@ -7,6 +7,8 @@ import _ from 'lodash'
 import useSwal from '@/composable/useSwal'
 import { usePlaceCtgStore } from '@/stores/placeCtgStore'
 import useApiPlaceCtg from '@/api/useApiPlaceCtg'
+import { useVuelidate, type ValidationArgs } from '@vuelidate/core'
+import { required, helpers } from '@vuelidate/validators'
 
 // 주문 화면 다음으로 이동될 화면
 // 가게, 카테고리 목록은 store에 저장된 데이터 사용
@@ -16,7 +18,7 @@ const Swal = useSwal()
 const router = useRouter()
 const apiPlaceCtg = useApiPlaceCtg()
 const placeCtgStore = usePlaceCtgStore()
-apiPlaceCtg.select().then((res) => {
+apiPlaceCtg.selectList().then((res) => {
   placeCtgStore.items = res
 })
 
@@ -33,7 +35,21 @@ if (props.name) {
   store.value = _.cloneDeep(storeStore.items.find((item) => item.name == props.name)) as StoreEntity
 }
 
+const rules = {
+  ctgNm: {
+    required: helpers.withMessage('카테고리를 선택해주세요.', required),
+  },
+  name: {
+    required: helpers.withMessage('이름을 입력해주세요.', required),
+  },
+} as ValidationArgs
+const v$ = useVuelidate(rules, store)
+
 async function onSave() {
+  if ((await v$.value.$validate()) == false) {
+    Swal.fireCustom({ toast: true, title: v$.value.$silentErrors[0].$message, icon: 'warning' })
+    return
+  }
   if (cIsUpdate.value) {
     await apiStore.update(props.name!, store.value)
     Swal.fireCustom({ toast: true, messageType: 'update' })
@@ -41,7 +57,7 @@ async function onSave() {
     await apiStore.create(store.value)
     Swal.fireCustom({ toast: true, messageType: 'save' })
   }
-  storeStore.items = await apiStore.select()
+  storeStore.items = await apiStore.selectList()
 
   router.back()
 }
@@ -57,7 +73,7 @@ function onEditPlaceCtg(name: string) {
 async function onRemove() {
   if (await Swal.fireCustom({ isConfirm: true, messageType: 'update' })) {
     await apiStore.remove(props.name!)
-    storeStore.items = await apiStore.select()
+    storeStore.items = await apiStore.selectList()
 
     Swal.fireCustom({ toast: true, messageType: 'remove' })
     router.back()
@@ -75,16 +91,18 @@ function onCancel() {
       <section class="top">{{ `매장 카테고리 ${cText}` }}</section>
       <section class="content">
         <div class="row">
-          <span class="label">카테고리</span>
-          <select class="val" v-model="store.categoryName">
-            <option :value="null">미지정</option>
-            <option v-for="ctg in storeStore.categories" :key="ctg.name" :value="ctg.name">
-              {{ ctg.name }}
-            </option>
-          </select>
+          <span class="label required">카테고리</span>
+          <v-select
+            :items="storeStore.categories"
+            item-title="name"
+            item-value="name"
+            v-model="store.ctgNm"
+            density="comfortable"
+          >
+          </v-select>
         </div>
         <div class="row">
-          <span class="label">매장명</span>
+          <span class="label required">매장명</span>
           <input class="val" type="text" v-model="store.name" />
         </div>
         <div class="row">
@@ -95,7 +113,8 @@ function onCancel() {
           >
             <v-select
               :items="placeCtgStore.items.map((ctg) => ctg.name)"
-              v-model="store.placeCtgName"
+              v-model="store.placeCtgNm"
+              density="comfortable"
             >
               <template v-slot:item="{ props, item }">
                 <v-list-item v-bind="props">

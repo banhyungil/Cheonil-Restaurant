@@ -18,12 +18,12 @@ const emit = defineEmits<{
 }>()
 
 // 메뉴 조회
-apiMenu.select().then((list) => {
+apiMenu.selectList().then((list) => {
   menuStore.items = list
 })
 
 // 메뉴 카테고리 조회
-apiMenuCtg.select().then((list) => {
+apiMenuCtg.selectList().then((list) => {
   menuStore.categories = list
 })
 

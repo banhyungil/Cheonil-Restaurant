@@ -4,7 +4,7 @@ export default function useApiMenuCtg() {
   const api = useApi()
   const prefix = '/menuCategory'
 
-  const select = async () => {
+  const selectList = async () => {
     const res = await api.get(prefix)
 
     return res.data.list as MenuCategoryEntity[]
@@ -22,5 +22,5 @@ export default function useApiMenuCtg() {
     return api.delete(`${prefix}/${name}`)
   }
 
-  return { select, create, update, remove }
+  return { selectList, create, update, remove }
 }

@@ -7,6 +7,7 @@ import { useStoreStore } from '@/stores/storeStore'
 import { getInitials } from '@/utils/CommonUtils'
 import BInputCho from './base/BInputCho.vue'
 import { useEventListener } from '@vueuse/core'
+import useSwal from '@/composable/useSwal'
 
 const storeStore = useStoreStore()
 const apiStore = useApiStore()
@@ -18,12 +19,12 @@ const emit = defineEmits<{
 }>()
 
 // 매장 조회
-apiStore.select().then((list) => {
+apiStore.selectList().then((list) => {
   storeStore.items = list
 })
 
 // 매장 카테고리 조회
-apiStoreCtg.select().then((list) => {
+apiStoreCtg.selectList().then((list) => {
   storeStore.categories = list
 })
 

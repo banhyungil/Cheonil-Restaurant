@@ -2,14 +2,13 @@
 import useApiOrder, { type OrderResult } from '@/api/useApiOrder'
 import { ref } from 'vue'
 import dayjs from 'dayjs'
-import { useEventBus, useIntervalFn, useNow } from '@vueuse/core'
+import { useIntervalFn, useNow } from '@vueuse/core'
 import useSwal from '@/composable/useSwal'
 import { useOrderStore } from '@/stores/orderStore'
 import { useRouter } from 'vue-router'
 import _ from 'lodash'
 
 const apiOrder = useApiOrder()
-const orderStore = useOrderStore()
 const orders = ref<OrderResult[]>([])
 const completeOrders = ref<OrderResult[]>([])
 const dLoading = ref<Record<string, boolean>>({})
@@ -25,6 +24,10 @@ useIntervalFn(
   1000000,
   { immediateCallback: true }
 )
+
+apiOrder.selectList({ status: { eq: 'COMPLETE' } }).then((res) => {
+  completeOrders.value = res
+})
 
 const Swal = useSwal()
 
@@ -111,7 +114,7 @@ async function onRemove(orderId: number) {
           </div>
           <div v-if="order.reqCmt">{{ `요청사항: ${order.reqCmt}` }}</div>
           <div class="time">
-            <span class="order-time">
+            <span class="order-time" v-tooltip="'주문접수시간'">
               <font-awesome-icon :icon="['fas', 'timer']" />
               {{ dayjs(order.orderTime).format('hh:MM a') }}
             </span>
@@ -128,34 +131,38 @@ async function onRemove(orderId: number) {
     <!-- 
       주문처리완료 목록
     -->
-    <div class="react-grid-col">
-      <TransitionGroup name="slide">
-        <div v-for="order in completeOrders" :key="order.seq" class="c-order">
-          <div class="store">
-            <span>{{ order.store.name }}</span>
-          </div>
-          <div class="menues">
-            <div v-for="(om, idx) in order.orderMenues" :key="om.menuNm" class="text">
-              <span>{{ `${om.menu.abv ?? om.menu.name} ${om.cnt}` }}</span>
-              <span v-if="idx != order.orderMenues.length">,</span>
+
+    <div class="c-completed">
+      <div class="title">주문완료 목록</div>
+      <div class="react-grid-col">
+        <TransitionGroup name="slide">
+          <div v-for="order in completeOrders" :key="order.seq" class="c-order">
+            <div class="store">
+              <span>{{ order.store.name }}</span>
             </div>
+            <div class="menues">
+              <div v-for="(om, idx) in order.orderMenues" :key="om.menuNm" class="text">
+                <span>{{ `${om.menu.abv ?? om.menu.name} ${om.cnt}` }}</span>
+                <span v-if="idx != order.orderMenues.length">,</span>
+              </div>
+            </div>
+            <div v-if="order.reqCmt">{{ `요청사항: ${order.reqCmt}` }}</div>
+            <div class="time" v-tooltip="'완료시간'">
+              <span class="order-time" style="color: var(--color-point)">
+                <font-awesome-icon :icon="['fas', 'timer']" />
+                {{ dayjs(order.completeTime).format('HH:MM') }}
+              </span>
+            </div>
+            <v-btn
+              class="complete"
+              style="background-color: var(--color-d)"
+              @click="onUnComplete(order)"
+              :loading="dLoading[order.seq!]"
+              >완료 취소</v-btn
+            >
           </div>
-          <div v-if="order.reqCmt">{{ `요청사항: ${order.reqCmt}` }}</div>
-          <div class="time">
-            <span class="order-time" style="color: var(--color-point)">
-              <font-awesome-icon :icon="['fas', 'timer']" />
-              {{ dayjs(order.completeTime).format('HH:MM') }}
-            </span>
-          </div>
-          <v-btn
-            class="complete"
-            style="background-color: var(--color-d)"
-            @click="onUnComplete(order)"
-            :loading="dLoading[order.seq!]"
-            >완료 취소</v-btn
-          >
-        </div>
-      </TransitionGroup>
+        </TransitionGroup>
+      </div>
     </div>
   </div>
 </template>
@@ -245,6 +252,19 @@ $height-item: 194px;
         background-color: var(--color-point);
         color: #fff;
       }
+    }
+  }
+
+  .c-completed {
+    .title {
+      padding: 8px;
+      font-size: 18px;
+      color: #fff;
+      background-color: var(--color-point);
+      opacity: 0.9;
+      width: 100%;
+      min-width: 140px;
+      margin-bottom: 10px;
     }
   }
 }

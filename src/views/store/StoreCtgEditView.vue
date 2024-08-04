@@ -14,7 +14,7 @@ const router = useRouter()
 const apiStoreCtg = useApiStoreCtg()
 const apiPlaceCtg = useApiPlaceCtg()
 const placeCtgStore = usePlaceCtgStore()
-apiPlaceCtg.select().then((res) => {
+apiPlaceCtg.selectList().then((res) => {
   placeCtgStore.items = res
 })
 
@@ -44,7 +44,7 @@ async function onSave() {
       await apiStoreCtg.create(ctg.value)
       Swal.fireCustom({ toast: true, messageType: 'save' })
     }
-    storeStore.categories = await apiStoreCtg.select()
+    storeStore.categories = await apiStoreCtg.selectList()
     router.back()
   }
 }
@@ -58,9 +58,9 @@ function onEditPlaceCtg(name: string) {
 }
 
 async function onRemove() {
-  if (await Swal.fireCustom({ isConfirm: true, messageType: 'update' })) {
+  if (await Swal.fireCustom({ isConfirm: true, messageType: 'remove' })) {
     await apiStoreCtg.remove(ctg.value.name)
-    storeStore.categories = await apiStoreCtg.select()
+    storeStore.categories = await apiStoreCtg.selectList()
 
     Swal.fireCustom({ toast: true, messageType: 'remove' })
     router.back()
@@ -85,10 +85,7 @@ function onCancel() {
             class="val"
             style="display: flex; justify-content: center; align-items: center; height: 56px"
           >
-            <v-select
-              :items="placeCtgStore.items.map((ctg) => ctg.name)"
-              v-model="ctg.placeCtgName"
-            >
+            <v-select :items="placeCtgStore.items.map((ctg) => ctg.name)" v-model="ctg.placeCtgNm">
               <template v-slot:item="{ props, item }">
                 <v-list-item v-bind="props">
                   <template v-slot:append>

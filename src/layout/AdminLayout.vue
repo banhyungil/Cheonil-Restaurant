@@ -5,7 +5,9 @@ import SideBar from '@/components/layout/SideBar.vue'
 <template>
   <div class="admin-layout">
     <SideBar></SideBar>
-    <div class="right"><slot></slot></div>
+    <div class="right">
+      <slot></slot>
+    </div>
   </div>
 </template>
 

@@ -8,7 +8,9 @@ const layoutStore = useLayoutStore()
 <template>
   <component :is="layoutStore.cLayoutComp">
     <RouterView v-slot="{ Component }">
-      <component :is="Component"></component>
+      <KeepAlive :include="['StoreView', 'MenuView', 'AccountView', 'OrderListView', 'OrderView']">
+        <component :is="Component"></component>
+      </KeepAlive>
     </RouterView>
   </component>
 </template>

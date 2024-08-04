@@ -61,6 +61,13 @@ interface OrderEntity {
 
   /* 요청 사항 */
   reqCmt?: string | null
+
+  /* 추가정보 */
+  orderMenues: OrderMenuEntity[]
+  payments: PaymentEntity[]
+  store: StoreEntity
+  /* 추가정보 */
+
   createdAt?: Date | null
   updatedAt?: Date | null
 }

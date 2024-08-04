@@ -22,14 +22,14 @@ button {
 }
 
 input {
-  border: none;
-  outline: none;
+  // border: none;
+  // outline: none;
 
-  &::-webkit-outer-spin-button,
-  &::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
+  // &::-webkit-outer-spin-button,
+  // &::-webkit-inner-spin-button {
+  //   -webkit-appearance: none;
+  //   margin: 0;
+  // }
 }
 * {
   // scrollbar-* 적용 순간 webkit이 동작하지 않음
@@ -69,4 +69,9 @@ input {
       grid-template-columns: repeat(1, 1fr);
     }
   }
+}
+
+.v-data-table-column--align-start.v-data-table__td i.v-icon.notranslate.v-theme--light.v-icon--size-default
+{
+  border: 1px solid #AEAEAE;
 }

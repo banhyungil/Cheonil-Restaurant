@@ -4,7 +4,7 @@ export default function useApiStoreCtg() {
   const api = useApi()
   const prefix = '/storeCategory'
 
-  const select = async () => {
+  const selectList = async () => {
     const res = await api.get(prefix)
 
     return res.data.list as StoreCategoryEntity[]
@@ -22,5 +22,5 @@ export default function useApiStoreCtg() {
     return api.delete(`${prefix}/${name}`)
   }
 
-  return { select, create, update, remove }
+  return { selectList, create, update, remove }
 }

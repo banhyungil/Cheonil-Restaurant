@@ -3,7 +3,7 @@
 <template>
   <div class="account-view">
     <section class="right">
-      <div>정산</div>
+      <div>지출내역</div>
     </section>
   </div>
 </template>
