@@ -7,7 +7,6 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    BButton: typeof import('./src/components/base/BButton.vue')['default']
     BInputCho: typeof import('./src/components/base/BInputCho.vue')['default']
     BInputNumFormat: typeof import('./src/components/base/BInputNumFormat.vue')['default']
     BottomBar: typeof import('./src/components/layout/BottomBar.vue')['default']
