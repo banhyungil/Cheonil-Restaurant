@@ -18,17 +18,17 @@ const router = useRouter()
 const route = useRoute()
 
 interface Props {
-  name?: string
+  seq?: number
 }
 
 const props = defineProps<Props>()
-const cIsUpdate = computed(() => (props.name ? true : false))
+const cIsUpdate = computed(() => (props.seq ? true : false))
 const cText = computed(() => (cIsUpdate.value ? '수정' : '등록'))
-const menu = ref({ ctgNm: route.query['ctgName'], name: '', price: 0 } as MenuEntity)
-if (props.name) {
-  menu.value = _.cloneDeep(menuStore.items.find((item) => item.name == props.name)) as MenuEntity
+const menu = ref({ ctgNm: route.query['ctgName'], name: '', price: 0 } as MenuEntityCreation)
+if (props.seq) {
+  menu.value = _.cloneDeep(menuStore.items.find((item) => item.seq == props.seq)) as MenuEntityCreation
 }
-const oMenuProp: { [k in keyof MenuEntity]: { label: string } } = {
+const oMenuProp: { [k in keyof MenuEntityCreation]: { label: string } } = {
   ctgNm: { label: '카테고리' },
   name: { label: '메뉴명' },
   abv: { label: '메뉴명(축약)' },
@@ -46,7 +46,7 @@ const rules = {
   price: {
     required: helpers.withMessage(`${oMenuProp.price.label}을 입력해주세요.`, required),
   },
-} as ValidationArgs<MenuEntity>
+} as ValidationArgs<MenuEntityCreation>
 const v$ = useVuelidate(rules, menu)
 
 async function onSave() {
@@ -55,7 +55,7 @@ async function onSave() {
     return
   }
   if (cIsUpdate.value) {
-    await apiMenu.update(menu.value)
+    await apiMenu.update(menu.value as MenuEntity)
     Swal.fireCustom({ toast: true, messageType: 'update' })
   } else {
     if (menu.value.abv == null) menu.value.abv = menu.value.name.slice(0, 2)
@@ -70,7 +70,7 @@ async function onSave() {
 
 async function onRemove() {
   if (await Swal.fireCustom({ isConfirm: true, messageType: 'remove' })) {
-    await apiMenu.remove(props.name!)
+    await apiMenu.remove(props.seq!)
     menuStore.items = await apiMenu.selectList()
 
     Swal.fireCustom({ toast: true, messageType: 'remove' })
@@ -90,11 +90,7 @@ function onCancel() {
       <section class="content">
         <div class="row">
           <span class="label required">{{ oMenuProp.ctgNm.label }}</span>
-          <v-select
-            :items="menuStore.categories.map((ctg) => ctg.name)"
-            v-model="menu.ctgNm"
-            density="comfortable"
-          ></v-select>
+          <v-select :items="menuStore.categories.map((ctg) => ctg.name)" v-model="menu.ctgNm" density="comfortable"></v-select>
         </div>
         <div class="row">
           <span class="label required">{{ oMenuProp.name.label }}</span>
@@ -110,15 +106,7 @@ function onCancel() {
         </div>
         <div class="row">
           <span>{{ oMenuProp.cmt!.label }}</span>
-          <v-textarea
-            class="val"
-            v-model="menu.cmt"
-            rows="1"
-            auto-grow
-            bg-color="#fff"
-            variant="outlined"
-            style="height: fit-content"
-          ></v-textarea>
+          <v-textarea class="val" v-model="menu.cmt" rows="1" auto-grow bg-color="#fff" variant="outlined" style="height: fit-content"></v-textarea>
         </div>
       </section>
       <section class="btt">

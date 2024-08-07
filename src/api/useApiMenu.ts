@@ -22,7 +22,7 @@ export default function useApiMenu() {
     // ] as MenuEntity[]
   }
 
-  const create = async (menu: MenuEntity) => {
+  const create = async (menu: MenuEntityCreation) => {
     const res = await api.post(prefix, menu)
     return res.data
   }

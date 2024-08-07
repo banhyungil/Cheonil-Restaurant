@@ -54,7 +54,7 @@ const router = createRouter({
       component: () => import('../views/menu/MenuEditView.vue'),
     },
     {
-      path: '/menuEdit/:name',
+      path: '/menuEdit/:seq',
       props: true,
       component: () => import('../views/menu/MenuEditView.vue'),
     },
