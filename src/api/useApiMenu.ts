@@ -9,7 +9,7 @@ export default function useApiMenu() {
       data: '',
     })
 
-    return res.data.list as MenuEntity[]
+    return res.data as MenuEntity[]
     // return [
     //   { ctgNm: '찌개', seq: '1', name: '김치찌개', price: 8000 },
     //   { ctgNm: '찌개', seq: '2', name: '된장찌개', price: 8000 },
@@ -22,16 +22,18 @@ export default function useApiMenu() {
     // ] as MenuEntity[]
   }
 
-  const create = (menu: MenuEntity) => {
-    return api.post(prefix, menu)
+  const create = async (menu: MenuEntity) => {
+    const res = await api.post(prefix, menu)
+    return res.data
   }
 
-  const update = (menu: MenuEntity) => {
-    return api.put(`${prefix}/${menu.name}`, menu)
+  const update = async (menu: MenuEntity) => {
+    const res = await api.put(`${prefix}/${menu.seq}`, menu)
+    return res.data
   }
 
-  const remove = (menu: string) => {
-    return api.delete(`${prefix}/${menu}`)
+  const remove = (seq: number) => {
+    return api.delete(`${prefix}/${seq}`)
   }
 
   return { selectList, create, update, remove }

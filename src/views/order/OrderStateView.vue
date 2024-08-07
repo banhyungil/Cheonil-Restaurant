@@ -1,16 +1,15 @@
 <script setup lang="ts">
-import useApiOrder, { type OrderResult } from '@/api/useApiOrder'
+import useApiOrder from '@/api/useApiOrder'
 import { ref } from 'vue'
 import dayjs from 'dayjs'
 import { useIntervalFn, useNow } from '@vueuse/core'
 import useSwal from '@/composable/useSwal'
-import { useOrderStore } from '@/stores/orderStore'
 import { useRouter } from 'vue-router'
 import _ from 'lodash'
 
 const apiOrder = useApiOrder()
-const orders = ref<OrderResult[]>([])
-const completeOrders = ref<OrderResult[]>([])
+const orders = ref<Order[]>([])
+const completeOrders = ref<Order[]>([])
 const dLoading = ref<Record<string, boolean>>({})
 const router = useRouter()
 useIntervalFn(
@@ -31,39 +30,39 @@ apiOrder.selectList({ status: { eq: 'COMPLETE' } }).then((res) => {
 
 const Swal = useSwal()
 
-async function onComplete(order: OrderResult) {
+async function onComplete(order: Order) {
   dLoading.value[order.seq!] = true
 
   order.status = 'COMPLETE'
   const data = {
     seq: order.seq,
     status: order.status,
-    completeTime: new Date(),
-  } as OrderEntity
+    completeAt: new Date(),
+  } as MyOrderEntity
 
   await apiOrder.update(data)
   Swal.fireCustom({ toast: true, title: '주문이 처리되었습니다.', icon: 'success' })
   _.remove(orders.value, order)
-  order.completeTime = new Date()
+  order.completeAt = new Date()
   completeOrders.value.splice(0, 0, order)
 
   dLoading.value[order.seq!] = false
 }
 
-async function onUnComplete(order: OrderResult) {
+async function onUnComplete(order: Order) {
   dLoading.value[order.seq!] = true
 
   order.status = 'READY'
   const data = {
     seq: order.seq,
     status: order.status,
-    completeTime: new Date(),
-  } as OrderEntity
+    completeAt: new Date(),
+  } as MyOrderEntity
 
   await apiOrder.update(data)
   _.remove(completeOrders.value, order)
   orders.value.push(order)
-  orders.value.sort((a, b) => a.orderTime!.getTime() - b.orderTime!.getTime())
+  orders.value.sort((a, b) => a.orderAt!.getTime() - b.orderAt!.getTime())
 
   dLoading.value[order.seq!] = false
 }
@@ -107,24 +106,20 @@ async function onRemove(orderId: number) {
             </VDropdown>
           </div>
           <div class="menues">
-            <div v-for="(om, idx) in order.orderMenues" :key="om.menuNm" class="text">
+            <div v-for="(om, idx) in order.orderMenues" :key="om.menuSeq" class="text">
               <span>{{ `${om.menu.abv ?? om.menu.name} ${om.cnt}` }}</span>
               <span v-if="idx != order.orderMenues.length">,</span>
             </div>
           </div>
-          <div v-if="order.reqCmt">{{ `요청사항: ${order.reqCmt}` }}</div>
+          <div v-if="order.cmt">{{ `요청사항: ${order.cmt}` }}</div>
           <div class="time">
             <span class="order-time" v-tooltip="'주문접수시간'">
               <font-awesome-icon :icon="['fas', 'timer']" />
-              {{ dayjs(order.orderTime).format('hh:MM a') }}
+              {{ dayjs(order.orderAt).format('hh:MM a') }}
             </span>
-            <span class="elapsed">
-              {{ `${formatTime(dayjs(now).diff(order.orderTime, 'second'))}` }}</span
-            >
+            <span class="elapsed"> {{ `${formatTime(dayjs(now).diff(order.orderAt, 'second'))}` }}</span>
           </div>
-          <v-btn class="complete" @click="onComplete(order)" :loading="dLoading[order.seq!]"
-            >완료</v-btn
-          >
+          <v-btn class="complete" @click="onComplete(order)" :loading="dLoading[order.seq!]">완료</v-btn>
         </div>
       </TransitionGroup>
     </div>
@@ -141,25 +136,19 @@ async function onRemove(orderId: number) {
               <span>{{ order.store.name }}</span>
             </div>
             <div class="menues">
-              <div v-for="(om, idx) in order.orderMenues" :key="om.menuNm" class="text">
+              <div v-for="(om, idx) in order.orderMenues" :key="om.menuSeq" class="text">
                 <span>{{ `${om.menu.abv ?? om.menu.name} ${om.cnt}` }}</span>
                 <span v-if="idx != order.orderMenues.length">,</span>
               </div>
             </div>
-            <div v-if="order.reqCmt">{{ `요청사항: ${order.reqCmt}` }}</div>
+            <div v-if="order.cmt">{{ `요청사항: ${order.cmt}` }}</div>
             <div class="time" v-tooltip="'완료시간'">
               <span class="order-time" style="color: var(--color-point)">
                 <font-awesome-icon :icon="['fas', 'timer']" />
-                {{ dayjs(order.completeTime).format('HH:MM') }}
+                {{ dayjs(order.completeAt).format('HH:MM') }}
               </span>
             </div>
-            <v-btn
-              class="complete"
-              style="background-color: var(--color-d)"
-              @click="onUnComplete(order)"
-              :loading="dLoading[order.seq!]"
-              >완료 취소</v-btn
-            >
+            <v-btn class="complete" style="background-color: var(--color-d)" @click="onUnComplete(order)" :loading="dLoading[order.seq!]">완료 취소</v-btn>
           </div>
         </TransitionGroup>
       </div>

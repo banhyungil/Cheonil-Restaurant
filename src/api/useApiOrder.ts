@@ -1,49 +1,44 @@
-import useApi, { Op } from './useApi'
+import useApi from './useApi'
 import qs from 'qs'
 
-export type OrderResult = OrderEntity & {
-  store: StoreEntity
-  orderMenues: (OrderMenuEntity & { menu: MenuEntity })[]
-}
+export type OrderMenuCreation = PartialK<OrderMenuEntity, 'orderSeq'>
 
 export default function useApiOrder() {
   const api = useApi()
   const prefix = '/order'
 
-  const selectList = async (whereInfo?: WhereInfo<OrderEntity>) => {
+  const selectList = async (whereInfo?: WhereInfo<MyOrderEntity>) => {
     const queryStr = qs.stringify(whereInfo)
     const res = await api.get(`${prefix}?${queryStr}`)
 
     return res.data.list.map((od: any) => {
-      return { ...od, orderTime: new Date(od.orderTime) }
-    }) as OrderResult[]
+      return { ...od, orderAt: new Date(od.orderAt) }
+    }) as Order[]
   }
 
   const select = async (seq: string) => {
     const res = await api.get(`${prefix}/${seq}`)
 
-    return res.data as OrderResult
+    return res.data as Order
   }
 
-  const create = async (
-    order: PartialK<OrderEntity, 'seq'>,
-    orderMenues: PartialK<OrderMenuEntity, 'orderSeq'>[]
-  ) => {
-    return api.post(prefix, {
+  const create = async (order: MyOrderEntityCreation, orderMenues: OrderMenuCreation[]) => {
+    const res = await api.post(prefix, {
       order,
       orderMenues,
     })
+    return res.data
   }
 
-  const update = async (order: OrderEntity, orderMenues: OrderMenuEntity[] = []) => {
+  const update = async (order: MyOrderEntity, orderMenues: OrderMenuCreation[] = []) => {
     return api.patch(`${prefix}/${order.seq!}`, {
       order,
       orderMenues,
     })
   }
 
-  const remove = async (orderId: number) => {
-    return api.delete(`${prefix}/${orderId}`)
+  const remove = async (seq: number) => {
+    return api.delete(`${prefix}/${seq}`)
   }
 
   return { selectList, select, create, update, remove }

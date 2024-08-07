@@ -24,12 +24,12 @@ export default function useApiStore() {
     return api.post(prefix, store)
   }
 
-  const update = (name: string, store: StoreEntity) => {
-    return api.put(`${prefix}/${store.name}`, store)
+  const update = (store: StoreEntity) => {
+    return api.put(`${prefix}/${store.seq}`, store)
   }
 
-  const remove = (name: string) => {
-    return api.delete(`${prefix}/${name}`)
+  const remove = (seq: number) => {
+    return api.delete(`${prefix}/${seq}`)
   }
 
   return { selectList, create, update, remove }

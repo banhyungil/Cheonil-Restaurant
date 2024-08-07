@@ -7,15 +7,17 @@ export default function useApiMenuCtg() {
   const selectList = async () => {
     const res = await api.get(prefix)
 
-    return res.data.list as MenuCategoryEntity[]
+    return res.data as MenuCategoryEntity[]
   }
 
-  const create = (menuCtg: MenuCategoryEntity) => {
-    return api.post(prefix, menuCtg)
+  const create = async (menuCtg: MenuCategoryEntity) => {
+    const res = await api.post(prefix, menuCtg)
+    return res.data
   }
 
-  const update = (name: string, menuCtg: MenuCategoryEntity) => {
-    return api.put(`${prefix}/${name}`, menuCtg)
+  const update = async (name: string, menuCtg: MenuCategoryEntity) => {
+    const res = await api.put(`${prefix}/${name}`, menuCtg)
+    return res.data
   }
 
   const remove = (name: string) => {

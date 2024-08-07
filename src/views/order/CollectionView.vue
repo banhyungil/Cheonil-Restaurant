@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { type OrderResult } from '@/api/useApiOrder'
 import type { VDataTable } from 'vuetify/components'
 
-const orders = ref<OrderResult[]>([])
+const orders = ref<Order[]>([])
 
 const headers = [
   {
@@ -103,13 +102,7 @@ const selected = ref([])
 
 <template>
   <!-- <OrderList v-model="orders" title="수금"></OrderList> -->
-  <v-data-table
-    v-model="selected"
-    :headers="headers"
-    :items="desserts"
-    item-value="name"
-    show-select
-  ></v-data-table>
+  <v-data-table v-model="selected" :headers="headers" :items="desserts" item-value="name" show-select></v-data-table>
 </template>
 
 <style lang="scss" scoped></style>

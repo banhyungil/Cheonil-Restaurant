@@ -4,7 +4,7 @@ import StoreTab from '@/components/StoreTab.vue'
 import { useMenuStore } from '@/stores/menuStore'
 import { computed, ref, watch } from 'vue'
 import _ from 'lodash'
-import useApiOrder from '@/api/useApiOrder'
+import useApiOrder, { type OrderMenuCreation } from '@/api/useApiOrder'
 import { useEventListener, useWindowSize } from '@vueuse/core'
 import useSwal from '@/composable/useSwal'
 import { useRouter } from 'vue-router'
@@ -25,10 +25,10 @@ const { width } = useWindowSize()
 // 주문완료시 Order 저장 후 리셋
 const tab = ref<'store' | 'menu'>('store')
 
-// 주문 목록 entity는 주문을 할떄 만들어진다\
+// 주문 목록 entity는 주문을 할떄 만들어진다
 const selStore = ref({} as StoreEntity)
-const orderMenues = ref<PartialK<OrderMenuEntity, 'orderSeq'>[]>([])
-const order = ref({ amount: 0, status: 'READY' } as OrderEntity)
+const orderMenues = ref<OrderMenuCreation[]>([])
+const order = ref({ amount: 0, status: 'READY' } as MyOrderEntity)
 
 if (props.seq) {
   apiOrder.select(props.seq).then((orderResult) => {
@@ -66,12 +66,12 @@ function onChoiceMenu(menu: MenuEntity) {
   console.log('onChoiceMenu', menu)
   // menu 가 존재하면 수량만 증가
   // 없으면 메뉴 추가
-  const orderMenu = orderMenues.value?.find((om) => om.menuNm == menu.name)
+  const orderMenu = orderMenues.value?.find((om) => om.menuSeq == menu.seq)
   if (orderMenu) {
     ++orderMenu.cnt
   } else {
     orderMenues.value.push({
-      menuNm: menu.name,
+      menuSeq: menu.seq,
       cnt: 1,
       price: menu.price,
     })
@@ -83,13 +83,13 @@ function onClickStoreName() {
 }
 
 async function onComplete() {
-  order.value.storeNm = selStore.value.name!
+  order.value.seq = selStore.value.seq
   orderMenues.value.forEach((om) => {
     order.value.amount += om.price * om.cnt
   })
 
   if (props.seq) {
-    await apiOrder.update(order.value, orderMenues.value as OrderMenuEntity[])
+    await apiOrder.update(order.value, orderMenues.value)
     Swal.fireCustom({ toast: true, messageType: 'update' })
     router.back()
   } else {
@@ -100,7 +100,7 @@ async function onComplete() {
 }
 
 function init() {
-  order.value = { amount: 0 } as OrderEntity
+  order.value = { amount: 0 } as MyOrderEntity
   orderMenues.value = []
   tab.value = 'store'
   selStore.value = {} as StoreEntity
@@ -134,10 +134,8 @@ useEventListener(document, 'keyup', (e) => {
             <div class="main">
               <!-- price 반응형 레이아웃 적용 -->
               <div class="c-title">
-                <span class="name">{{ menuStore.dict[om.menuNm].name }}</span>
-                <span v-if="width < 1024" style="float: right">{{
-                  ` ${om.price.toLocaleString('ko-KR')}`
-                }}</span>
+                <span class="name">{{ menuStore.dict[om.menuSeq].name }}</span>
+                <span v-if="width < 1024" style="float: right">{{ ` ${om.price.toLocaleString('ko-KR')}` }}</span>
               </div>
               <div class="c-cnt-btn">
                 <v-btn @click="() => om.cnt++">
@@ -158,12 +156,7 @@ useEventListener(document, 'keyup', (e) => {
         </div>
       </section>
       <section class="btt">
-        <v-btn
-          class="complete"
-          :class="{ update: seq }"
-          @click="onComplete"
-          :disabled="orderMenues.length < 1"
-        >
+        <v-btn class="complete" :class="{ update: seq }" @click="onComplete" :disabled="orderMenues.length < 1">
           {{ seq ? '수정완료' : '주문완료' }}
         </v-btn>
       </section>

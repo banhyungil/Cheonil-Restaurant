@@ -73,14 +73,7 @@ function onClickCategory(ctg: S | 'all' | null) {
       <button @click="onClickCategory('all')" class="item" :class="{ on: selCtg == 'all' }">
         <span>{{ '전체' }}</span>
       </button>
-      <button
-        v-for="ctg in categories"
-        :key="ctg[ctgKey]"
-        :category="ctg"
-        @click="onClickCategory(ctg)"
-        class="item"
-        :class="{ on: selCtg == ctg[ctgKey] }"
-      >
+      <button v-for="ctg in categories" :key="ctg[ctgKey]" :category="ctg" @click="onClickCategory(ctg)" class="item" :class="{ on: selCtg == ctg[ctgKey] }">
         <span>{{ ctg[ctgKey] ?? '' }}</span>
       </button>
       <button @click="onClickCategory(null)" class="item" :class="{ on: selCtg == null }">

@@ -9,7 +9,7 @@ export const Op: OpTypesCustom = {
   gte: 'gte',
 }
 export default function useApi() {
-  const api = axios.create({ baseURL: '/app' })
+  const api = axios.create({ baseURL: '/api' })
   const Swal = useSwal()
 
   api.interceptors.response.use(

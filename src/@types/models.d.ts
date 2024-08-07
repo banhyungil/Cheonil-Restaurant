@@ -3,115 +3,129 @@
  * Rerun sql-ts to regenerate this file.
  */
 
-/* 설정
-각종 설정을 json 타입으로 저장한다. */
-interface ConfigEntity {
-  key: string
-  config: string
-}
-
 /* 메뉴 */
 interface MenuEntity {
-  /* 메뉴명 */
-  name: string
+  /* 메뉴 Seq */
+  seq: number
 
-  /* 카테고리명 */
+  /* 카테고리 명 */
   ctgNm: string
 
-  /* 메뉴 약어 */
+  /* 메뉴 명 */
+  name: string
+
+  /* 이름 약어 */
   abv?: string | null
+
+  /* 가격 */
   price: number
+
+  /* 비고 */
   cmt?: string | null
+
+  /* 추가정보 */
+  options?: string | null
+
+  /* 생성시간 */
   createdAt?: Date | null
+
+  /* 수정시간 */
   updatedAt?: Date | null
 }
 
+type MenuEntityCreation = PartialK<MenuEntity, 'seq'>
+
 /* 메뉴 카테고리 */
 interface MenuCategoryEntity {
-  /* 카테고리명 */
+  /* 메뉴 카테고리 명 */
   name: string
 
-  /* 표시순서 */
-  order?: number
+  /* 추가정보 */
+  options?: string | null
+
+  /* 생성시간 */
   createdAt?: Date | null
+
+  /* 수정시간 */
   updatedAt?: Date | null
 }
 
 /* 주문 */
-interface OrderEntity {
-  /* 주문 SEQ */
-  seq?: number
+interface MyOrderEntity {
+  /* 주문 Seq */
+  seq: number
 
-  /* 매장명 */
-  storeNm: string
+  /* 매장 Seq */
+  storeSeq: number
 
-  /* 총 금액
-외상인 경우는 어떻게 처리하지?... */
+  /* 총 금액 */
   amount: number
 
-  /* READY: 준비, COMPLETE: 처리 완료, PARTIAL_PAY: 부분 결재, PAY: 결재 완료
-   */
-  status?: 'READY' | 'COMPLETE' | 'PARTIAL_PAY' | 'PAY'
+  /* READY: 준비, COMPLETE: 완료 */
+  status?: 'READY' | 'COMPLETE'
 
   /* 주문 시간 */
-  orderTime?: Date
+  orderAt?: Date
 
   /* 조리완료 시간 */
-  completeTime?: Date | null
+  completeAt?: Date | null
 
-  /* 요청 사항 */
-  reqCmt?: string | null
+  /* 비고 */
+  cmt?: string | null
 
-  /* 추가정보 */
-  orderMenues: OrderMenuEntity[]
+  /* 수정시간 */
+  updatedAt?: Date
+}
+
+type MyOrderEntityCreation = PartialK<MyOrderEntity, 'seq'>
+
+interface Order extends MyOrderEntity {
+  orderMenues: OrderMenu[]
   payments: PaymentEntity[]
   store: StoreEntity
-  /* 추가정보 */
-
-  createdAt?: Date | null
-  updatedAt?: Date | null
 }
 
 /* 주문 메뉴 */
 interface OrderMenuEntity {
-  /* 메뉴명 */
-  menuNm: string
+  /* 메뉴 Seq */
+  menuSeq: number
 
-  /* 주문 ID */
+  /* 주문 Seq */
   orderSeq: number
 
-  /* 가격
-menu는 가격이 바뀔수가 있음 */
+  /* 가격 menu는 가격이 바뀔수가 있음 */
   price: number
 
   /* 수량 */
   cnt: number
 }
 
-/* 주문 메뉴 */
+interface OrderMenu extends OrderMenuEntity {
+  menu: MenuEntity
+}
+
+/* 주문 메뉴 예약 */
 interface OrderMenuRsvEntity {
-  /* 메뉴명 */
-  menuNm: string
+  /* 메뉴 Seq */
+  menuSeq: number
 
   /* 주문예약 Seq */
   orderRsvSeq: number
 
-  /* 가격
-menu는 가격이 바뀔수가 있음 */
+  /* 가격 menu는 가격이 바뀔수가 있음 */
   price: number
 
   /* 수량 */
   cnt: number
 }
 
-/* 주문 예약
-예약 정보에 따라 t_order를 생성한다 */
+/* 주문 예약 */
 interface OrderRsvEntity {
-  /* 주문예약 SEQ */
-  seq?: number
+  /* 주문예약 Seq */
+  seq: number
 
-  /* 매장명 */
-  storeNm: string
+  /* 매장 Seq */
+  storeSeq: number
 
   /* 총 금액 */
   amount: number
@@ -119,67 +133,111 @@ interface OrderRsvEntity {
   /* HH:MM */
   rsvTime: string
 
-  /* 요일 배열
-ex) 
-월요일: [1]
-월, 수: [1,3] */
-  weekDay: string
+  /* 요일 */
+  dayType?: 'MON' | 'TUE' | 'WED' | 'THU' | 'FRI' | 'SAT' | 'SUN' | null
 
-  /* 기타 정보 */
-  reqCmt?: string | null
+  /* 비고 */
+  cmt?: string | null
+
+  /* 추가정보 */
+  options?: string | null
+
+  /* 생성시간 */
   createdAt?: Date | null
+
+  /* 수정시간 */
   updatedAt?: Date | null
 }
 
+type OrderRsvEntityCreation = PartialK<OrderRsvEntity, 'seq'>
+
 /* 결재 */
 interface PaymentEntity {
-  /* 결재 SEQ */
-  seq?: number
+  /* 결재 Seq */
+  seq: number
 
   /* 주문 Seq */
   orderSeq: number
 
-  /* 결재금액 */
+  /* 결재 금액 */
   amount: number
 
-  /* 결재방식 */
-  payType: 'CASH' | 'CARD'
+  /* CASH: 현금, CARD: 카드 */
+  payType?: 'CASH' | 'CARD'
 
-  /* 결재일 */
-  payDate: Date
+  /* 지급날짜 */
+  payAt: Date
 }
+
+type PaymentEntityCreation = PartialK<PaymentEntity, 'seq'>
 
 /* 장소 카테고리 */
 interface PlaceCategoryEntity {
+  /* 장소 카테고리 명 */
   name: string
+
+  /* 비고 */
   cmt?: string | null
+
+  /* 추가정보 */
+  options?: string | null
+}
+
+/* 설정 */
+interface SettingEntity {
+  /* 설정 정보 */
+  config: string
 }
 
 /* 매장 */
 interface StoreEntity {
-  name: string
+  /* 매장 Seq */
+  seq: number
+
+  /* 매장 카테고리 명 */
   ctgNm: string
 
-  /* 기본적으로 매장 카테고리에 등록된 값과 일치 */
-  placeCtgNm?: string | null
+  /* 장소 카테고리 명 */
+  placeCtgNm: string
+
+  /* 매장 명 */
+  name: string
 
   /* 기타 정보 */
   cmt?: string | null
 
   /* 위도 */
-  latitude?: string | null
+  latitude?: number | null
 
   /* 경도 */
-  longitude?: string | null
+  longitude?: number | null
+
+  /* 추가정보 */
+  options?: string | null
+
+  /* 생성시간 */
   createdAt?: Date | null
+
+  /* 수정시간 */
   updatedAt?: Date | null
 }
 
+type StoreEntityCreation = PartialK<StoreEntity, 'seq'>
+
 /* 매장 카테고리 */
 interface StoreCategoryEntity {
+  /* 매장 카테고리 명 */
   name: string
-  placeCtgNm?: string | null
-  order?: number | null
+
+  /* 장소 카테고리 이름 */
+  placeCtgNm: string
+
+  /* 추가정보 */
+  options?: string | null
+
+  /* 생성시간 */
   createdAt?: Date | null
+
+  /* 수정시간 */
   updatedAt?: Date | null
 }

@@ -44,9 +44,7 @@ const cFilteredItems = computed(() => {
     } else if (selCtg.value == 'all') {
       return storeStore.items
     } else {
-      return storeStore.items?.filter(
-        (item) => item.ctgNm == (selCtg.value as StoreCategoryEntity).name
-      )
+      return storeStore.items?.filter((item) => item.ctgNm == (selCtg.value as StoreCategoryEntity).name)
     }
   })() as StoreEntity[]
 
@@ -120,14 +118,7 @@ useEventListener(document, 'keyup', (e) => {
         <button @click="onClickCategory('all')" :class="{ on: selCtg == 'all' }">
           <span>{{ '전체' }}</span>
         </button>
-        <button
-          class="item"
-          v-for="ctg in storeStore.categories"
-          :key="ctg.name"
-          :category="ctg"
-          @click="onClickCategory(ctg)"
-          :class="{ on: selCtg == ctg }"
-        >
+        <button class="item" v-for="ctg in storeStore.categories" :key="ctg.name" :category="ctg" @click="onClickCategory(ctg)" :class="{ on: selCtg == ctg }">
           <span>{{ ctg.name ?? '' }}</span>
         </button>
         <Transition name="slide">
@@ -137,12 +128,7 @@ useEventListener(document, 'keyup', (e) => {
         </Transition>
       </ul>
       <section class="grid">
-        <button
-          class="item"
-          v-for="item in cFilteredItems"
-          :key="item.name"
-          @click="onClickItem(item)"
-        >
+        <button class="item" v-for="item in cFilteredItems" :key="item.name" @click="onClickItem(item)">
           {{ item['name'] ?? '' }}
         </button>
         <Transition name="slide">

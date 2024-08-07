@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import { type OrderResult } from '@/api/useApiOrder'
-
-const orders = ref<OrderResult[]>([])
+const orders = ref<Order[]>([])
 const isEdit = ref(false)
-const selected = ref<OrderResult[]>([])
+const selected = ref<Order[]>([])
 </script>
 
 <template>
