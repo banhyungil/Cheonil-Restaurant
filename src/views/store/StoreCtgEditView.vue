@@ -81,10 +81,7 @@ function onCancel() {
         </div>
         <div class="row">
           <span class="label">구역 </span>
-          <div
-            class="val"
-            style="display: flex; justify-content: center; align-items: center; height: 56px"
-          >
+          <div class="val" style="display: flex; justify-content: center; align-items: center; height: 56px">
             <v-select :items="placeCtgStore.items.map((ctg) => ctg.name)" v-model="ctg.placeCtgNm">
               <template v-slot:item="{ props, item }">
                 <v-list-item v-bind="props">
