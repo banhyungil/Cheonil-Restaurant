@@ -78,7 +78,7 @@ function onClickItem(item: MenuEntity) {
   emit('selectItem', item)
 
   if (isEdit.value) {
-    router.push({ path: `/menuEdit/${item.name}` })
+    router.push({ path: `/menuEdit/${item.seq}` })
   }
 }
 

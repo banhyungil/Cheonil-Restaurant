@@ -24,12 +24,12 @@ export default function useApiMenu() {
 
   const create = async (menu: MenuEntityCreation) => {
     const res = await api.post(prefix, menu)
-    return res.data
+    return res.data as MenuEntity
   }
 
   const update = async (menu: MenuEntity) => {
     const res = await api.put(`${prefix}/${menu.seq}`, menu)
-    return res.data
+    return res.data as MenuEntity
   }
 
   const remove = (seq: number) => {

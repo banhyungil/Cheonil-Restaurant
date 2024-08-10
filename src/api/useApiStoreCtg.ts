@@ -7,15 +7,19 @@ export default function useApiStoreCtg() {
   const selectList = async () => {
     const res = await api.get(prefix)
 
-    return res.data.list as StoreCategoryEntity[]
+    return res.data as StoreCategoryEntity[]
   }
 
-  const create = (storeCtg: StoreCategoryEntity) => {
-    return api.post(prefix, storeCtg)
+  const create = async (storeCtg: StoreCategoryEntity) => {
+    const res = await api.post(prefix, storeCtg)
+
+    return res.data as StoreCategoryEntity
   }
 
-  const update = (name: string, storeCtg: StoreCategoryEntity) => {
-    return api.put(`${prefix}/${name}`, storeCtg)
+  const update = async (name: string, storeCtg: StoreCategoryEntity) => {
+    const res = await api.put(`${prefix}/${name}`, storeCtg)
+
+    return res.data as StoreCategoryEntity
   }
 
   const remove = (name: string) => {

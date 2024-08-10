@@ -85,7 +85,7 @@ const router = createRouter({
       component: () => import('../views/store/StoreEditView.vue'),
     },
     {
-      path: '/storeEdit/:name',
+      path: '/storeEdit/:seq',
       props: true,
       component: () => import('../views/store/StoreEditView.vue'),
     },

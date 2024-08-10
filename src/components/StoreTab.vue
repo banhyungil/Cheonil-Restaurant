@@ -81,7 +81,7 @@ function onAddItem() {
 
 function onClickItem(item: StoreEntity) {
   if (isEdit.value) {
-    router.push({ path: `/storeEdit/${item.name}` })
+    router.push({ path: `/storeEdit/${item.seq}` })
   } else {
     emit('selectItem', item)
   }

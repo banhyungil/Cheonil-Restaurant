@@ -14,7 +14,6 @@ export default function useApi() {
 
   api.interceptors.response.use(
     (response) => {
-      if (response.data == '') response.data = null
       return response
     },
     (error) => {

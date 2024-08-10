@@ -75,15 +75,7 @@ function onCancel() {
         </div>
         <div class="row">
           <span class="label">비고</span>
-          <v-textarea
-            class="val"
-            v-model="ctg.cmt"
-            rows="1"
-            auto-grow
-            bg-color="#fff"
-            variant="outlined"
-            style="height: fit-content"
-          ></v-textarea>
+          <v-textarea class="val" v-model="ctg.cmt" rows="1" auto-grow bg-color="#fff" variant="outlined" style="height: fit-content"></v-textarea>
         </div>
       </section>
       <section class="btt">

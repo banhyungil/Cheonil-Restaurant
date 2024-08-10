@@ -230,7 +230,7 @@ interface StoreCategoryEntity {
   name: string
 
   /* 장소 카테고리 이름 */
-  placeCtgNm: string
+  placeCtgNm?: string
 
   /* 추가정보 */
   options?: string | null

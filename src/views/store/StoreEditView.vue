@@ -23,16 +23,16 @@ apiPlaceCtg.selectList().then((res) => {
 })
 
 interface Props {
-  name?: string
+  seq?: number
 }
 
 const props = defineProps<Props>()
-const cIsUpdate = computed(() => (props.name ? true : false))
+const cIsUpdate = computed(() => (props.seq ? true : false))
 const cText = computed(() => (cIsUpdate.value ? '수정' : '등록'))
 
 const store = ref({} as StoreEntity)
-if (props.name) {
-  store.value = _.cloneDeep(storeStore.items.find((item) => item.name == props.name)) as StoreEntity
+if (props.seq) {
+  store.value = _.cloneDeep(storeStore.items.find((item) => item.seq == props.seq)) as StoreEntity
 }
 
 const rules = {
@@ -51,7 +51,7 @@ async function onSave() {
     return
   }
   if (cIsUpdate.value) {
-    await apiStore.update(props.name!, store.value)
+    await apiStore.update(store.value)
     Swal.fireCustom({ toast: true, messageType: 'update' })
   } else {
     await apiStore.create(store.value)
@@ -66,13 +66,13 @@ function onAddPlaceCtg() {
   router.push('/placeCtgEdit')
 }
 
-function onEditPlaceCtg(name: string) {
-  router.push({ path: `/placeCtgEdit/${name}` })
+function onEditPlaceCtg(seq: string) {
+  router.push({ path: `/placeCtgEdit/${seq}` })
 }
 
 async function onRemove() {
-  if (await Swal.fireCustom({ isConfirm: true, messageType: 'update' })) {
-    await apiStore.remove(props.name!)
+  if (await Swal.fireCustom({ isConfirm: true, messageType: 'remove' })) {
+    await apiStore.remove(props.seq!)
     storeStore.items = await apiStore.selectList()
 
     Swal.fireCustom({ toast: true, messageType: 'remove' })
@@ -88,18 +88,11 @@ function onCancel() {
 <template>
   <section class="store-view">
     <section class="wrapper g-form">
-      <section class="top">{{ `매장 카테고리 ${cText}` }}</section>
+      <section class="top">{{ `매장 ${cText}` }}</section>
       <section class="content">
         <div class="row">
           <span class="label required">카테고리</span>
-          <v-select
-            :items="storeStore.categories"
-            item-title="name"
-            item-value="name"
-            v-model="store.ctgNm"
-            density="comfortable"
-          >
-          </v-select>
+          <v-select :items="storeStore.categories" item-title="name" item-value="name" v-model="store.ctgNm" density="comfortable"> </v-select>
         </div>
         <div class="row">
           <span class="label required">매장명</span>
@@ -107,15 +100,8 @@ function onCancel() {
         </div>
         <div class="row">
           <span class="label">구역</span>
-          <div
-            class="val"
-            style="display: flex; justify-content: center; align-items: center; height: 56px"
-          >
-            <v-select
-              :items="placeCtgStore.items.map((ctg) => ctg.name)"
-              v-model="store.placeCtgNm"
-              density="comfortable"
-            >
+          <div class="val" style="display: flex; justify-content: center; align-items: center; height: 56px">
+            <v-select :items="placeCtgStore.items.map((ctg) => ctg.name)" v-model="store.placeCtgNm" density="comfortable">
               <template v-slot:item="{ props, item }">
                 <v-list-item v-bind="props">
                   <template v-slot:append>
@@ -131,15 +117,7 @@ function onCancel() {
         </div>
         <div class="row">
           <span>비고</span>
-          <v-textarea
-            class="val"
-            v-model="store.cmt"
-            rows="1"
-            auto-grow
-            bg-color="#fff"
-            variant="outlined"
-            style="height: fit-content"
-          ></v-textarea>
+          <v-textarea class="val" v-model="store.cmt" rows="1" auto-grow bg-color="#fff" variant="outlined" style="height: fit-content"></v-textarea>
         </div>
       </section>
       <section class="btt">

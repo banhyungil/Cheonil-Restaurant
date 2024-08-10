@@ -12,12 +12,12 @@ export default function useApiMenuCtg() {
 
   const create = async (menuCtg: MenuCategoryEntity) => {
     const res = await api.post(prefix, menuCtg)
-    return res.data
+    return res.data as MenuCategoryEntity
   }
 
   const update = async (name: string, menuCtg: MenuCategoryEntity) => {
     const res = await api.put(`${prefix}/${name}`, menuCtg)
-    return res.data
+    return res.data as MenuCategoryEntity
   }
 
   const remove = (name: string) => {

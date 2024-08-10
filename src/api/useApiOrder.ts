@@ -2,6 +2,7 @@ import useApi from './useApi'
 import qs from 'qs'
 
 export type OrderMenuCreation = PartialK<OrderMenuEntity, 'orderSeq'>
+type OrderCURes = Omit<Order, 'payments' | 'store'>
 
 export default function useApiOrder() {
   const api = useApi()
@@ -27,14 +28,15 @@ export default function useApiOrder() {
       order,
       orderMenues,
     })
-    return res.data
+    return res.data as OrderCURes
   }
 
   const update = async (order: MyOrderEntity, orderMenues: OrderMenuCreation[] = []) => {
-    return api.patch(`${prefix}/${order.seq!}`, {
+    const res = await api.patch(`${prefix}/${order.seq!}`, {
       order,
       orderMenues,
     })
+    return res.data as OrderCURes
   }
 
   const remove = async (seq: number) => {
