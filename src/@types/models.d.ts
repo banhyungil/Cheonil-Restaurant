@@ -198,7 +198,7 @@ interface StoreEntity {
   ctgNm: string
 
   /* 장소 카테고리 명 */
-  placeCtgNm: string
+  placeCtgNm?: string | null
 
   /* 매장 명 */
   name: string
@@ -230,7 +230,7 @@ interface StoreCategoryEntity {
   name: string
 
   /* 장소 카테고리 이름 */
-  placeCtgNm?: string
+  placeCtgNm?: string | null
 
   /* 추가정보 */
   options?: string | null
