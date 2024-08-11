@@ -19,13 +19,7 @@ declare module 'vue' {
     StoreTab: typeof import('./src/components/StoreTab.vue')['default']
     TabEditor: typeof import('./src/components/TabEditor.vue')['default']
     VBtn: typeof import('vuetify/components')['VBtn']
-    VDataTable: typeof import('vuetify/components')['VDataTable']
-    VDropdown: typeof import('vuetify/components')['VDropdown']
     VListItem: typeof import('vuetify/components')['VListItem']
-    VPagination: typeof import('vuetify/components')['VPagination']
     VSelect: typeof import('vuetify/components')['VSelect']
-    VTextarea: typeof import('vuetify/components')['VTextarea']
-    VToolbar: typeof import('vuetify/components')['VToolbar']
-    VToolbarTitle: typeof import('vuetify/components')['VToolbarTitle']
   }
 }

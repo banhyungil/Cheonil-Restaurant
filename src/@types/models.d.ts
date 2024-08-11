@@ -8,7 +8,7 @@ interface MenuEntity {
   /* 메뉴 Seq */
   seq: number
 
-  /* 카테고리 Seq */
+  /* 메뉴 카테고리 Seq */
   ctgSeq: number
 
   /* 메뉴 명 */
