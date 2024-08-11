@@ -19,14 +19,14 @@ apiPlaceCtg.selectList().then((res) => {
 })
 
 interface Props {
-  name?: string
+  seq?: number
 }
 const props = defineProps<Props>()
-const cIsUpdate = computed(() => (props.name ? true : false))
+const cIsUpdate = computed(() => (props.seq ? true : false))
 const cText = computed(() => (cIsUpdate.value ? '수정' : '등록'))
-const ctg = ref<StoreCategoryEntity>({ name: '' })
-if (props.name) {
-  ctg.value = _.cloneDeep(storeStore.categories.find((ctg) => ctg.name == props.name))!
+const ctg = ref<StoreCategoryEntityCreation>({ name: '' })
+if (props.seq) {
+  ctg.value = _.cloneDeep(storeStore.categories.find((ctg) => ctg.seq == props.seq))!
 }
 
 const inp = ref() as Ref<HTMLInputElement>
@@ -38,7 +38,7 @@ async function onSave() {
     inp.value.focus()
   } else {
     if (cIsUpdate.value) {
-      await apiStoreCtg.update(props.name!, ctg.value)
+      await apiStoreCtg.update(ctg.value as StoreCategoryEntity)
       Swal.fireCustom({ toast: true, messageType: 'update' })
     } else {
       await apiStoreCtg.create(ctg.value)
@@ -53,13 +53,13 @@ function onAddPlaceCtg() {
   router.push('/placeCtgEdit')
 }
 
-function onEditPlaceCtg(name: string) {
-  router.push(`/placeCtgEdit/${name}`)
+function onEditPlaceCtg(seq: number) {
+  router.push(`/placeCtgEdit/${seq}`)
 }
 
 async function onRemove() {
   if (await Swal.fireCustom({ isConfirm: true, messageType: 'remove' })) {
-    await apiStoreCtg.remove(ctg.value.name)
+    await apiStoreCtg.remove(ctg.value.seq!)
     storeStore.categories = await apiStoreCtg.selectList()
 
     Swal.fireCustom({ toast: true, messageType: 'remove' })
@@ -82,11 +82,11 @@ function onCancel() {
         <div class="row">
           <span class="label">구역 </span>
           <div class="val" style="display: flex; justify-content: center; align-items: center; height: 56px">
-            <v-select :items="placeCtgStore.items.map((ctg) => ctg.name)" v-model="ctg.placeCtgNm">
+            <v-select :items="placeCtgStore.items" item-value="seq" item-title="name" v-model="ctg.placeCtgseq">
               <template v-slot:item="{ props, item }">
                 <v-list-item v-bind="props">
                   <template v-slot:append>
-                    <button @click="onEditPlaceCtg(item.raw)">
+                    <button @click="onEditPlaceCtg(item.raw.seq)">
                       <font-awesome-icon :icon="['fas', 'pen']" />
                     </button>
                   </template>

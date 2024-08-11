@@ -4,7 +4,7 @@ import StoreTab from '@/components/StoreTab.vue'
 import { useMenuStore } from '@/stores/menuStore'
 import { computed, ref, watch } from 'vue'
 import _ from 'lodash'
-import useApiOrder, { type OrderMenuCreation } from '@/api/useApiOrder'
+import useApiOrder from '@/api/useApiOrder'
 import { useEventListener, useWindowSize } from '@vueuse/core'
 import useSwal from '@/composable/useSwal'
 import { useRouter } from 'vue-router'
@@ -27,7 +27,7 @@ const tab = ref<'store' | 'menu'>('store')
 
 // 주문 목록 entity는 주문을 할떄 만들어진다
 const selStore = ref({} as StoreEntity)
-const orderMenues = ref<OrderMenuCreation[]>([])
+const orderMenues = ref<OrderMenuEntityCreation[]>([])
 const order = ref({ amount: 0, status: 'READY' } as MyOrderEntity)
 
 if (props.seq) {
@@ -58,6 +58,7 @@ const cTotalAmount = computed(() => {
 function onChoiceStore(store: StoreEntity) {
   console.log('onChoiceStore')
   selStore.value = store
+  order.value.storeSeq = selStore.value.seq
 
   tab.value = 'menu'
 }
@@ -83,7 +84,6 @@ function onClickStoreName() {
 }
 
 async function onComplete() {
-  order.value.seq = selStore.value.seq
   orderMenues.value.forEach((om) => {
     order.value.amount += om.price * om.cnt
   })
@@ -148,7 +148,7 @@ useEventListener(document, 'keyup', (e) => {
                 </v-btn>
               </div>
             </div>
-            <div v-if="width >= 1024" class="sub">{{ om.price.toLocaleString('ko-KR') }}</div>
+            <div v-if="width >= 1024" class="sub">{{ (om.price * om.cnt).toLocaleString('ko-KR') }}</div>
           </li>
         </ul>
         <div class="c-total">

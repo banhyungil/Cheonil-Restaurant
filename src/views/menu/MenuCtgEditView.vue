@@ -12,14 +12,21 @@ const Swal = useSwal()
 const router = useRouter()
 
 interface Props {
-  name?: string
+  seq?: number
 }
 const props = defineProps<Props>()
-const cIsUpdate = computed(() => (props.name ? true : false))
+const cIsUpdate = computed(() => (props.seq ? true : false))
+const cIsUpdated = computed(
+  () =>
+    _.isEqual(
+      ctg.value,
+      menuStore.categories.find((ctg) => ctg.seq == props.seq)
+    ) == false
+)
 const cText = computed(() => (cIsUpdate.value ? '수정' : '등록'))
-const ctg = ref<MenuCategoryEntity>({ name: '' })
-if (props.name) {
-  ctg.value = _.cloneDeep(menuStore.categories.find((ctg) => ctg.name == props.name))!
+const ctg = ref<MenuCategoryEntityCreation>({ name: '' })
+if (props.seq) {
+  ctg.value = _.cloneDeep(menuStore.categories.find((ctg) => ctg.seq == props.seq))!
 }
 
 const inp = ref() as Ref<HTMLInputElement>
@@ -31,7 +38,7 @@ async function onSave() {
     inp.value.focus()
   } else {
     if (cIsUpdate.value) {
-      await apiMenuCtg.update(props.name!, ctg.value)
+      await apiMenuCtg.update(ctg.value as MenuCategoryEntity)
       Swal.fireCustom({ toast: true, messageType: 'update' })
     } else {
       await apiMenuCtg.create(ctg.value)
@@ -43,8 +50,8 @@ async function onSave() {
 }
 
 async function onRemove() {
-  if (await Swal.fireCustom({ isConfirm: true, messageType: 'remove' })) {
-    await apiMenuCtg.remove(ctg.value.name)
+  if (ctg.value.seq && (await Swal.fireCustom({ isConfirm: true, messageType: 'remove' }))) {
+    await apiMenuCtg.remove(ctg.value.seq)
     menuStore.categories = await apiMenuCtg.selectList()
 
     Swal.fireCustom({ toast: true, messageType: 'remove' })
@@ -66,9 +73,9 @@ function onCancel() {
         </div>
       </section>
       <section class="btt">
-        <button @click="onSave">{{ cText }}</button>
-        <button v-if="cIsUpdate" @click="onRemove">삭제</button>
-        <button @click="onCancel">취소</button>
+        <v-btn @click="onSave" :disabled="cIsUpdated == false">{{ cText }}</v-btn>
+        <v-btn v-if="cIsUpdate" @click="onRemove">삭제</v-btn>
+        <v-btn @click="onCancel">취소</v-btn>
       </section>
     </section>
   </section>

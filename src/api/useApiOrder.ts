@@ -1,7 +1,6 @@
 import useApi from './useApi'
 import qs from 'qs'
 
-export type OrderMenuCreation = PartialK<OrderMenuEntity, 'orderSeq'>
 type OrderCURes = Omit<Order, 'payments' | 'store'>
 
 export default function useApiOrder() {
@@ -12,7 +11,7 @@ export default function useApiOrder() {
     const queryStr = qs.stringify(whereInfo)
     const res = await api.get(`${prefix}?${queryStr}`)
 
-    return res.data.list.map((od: any) => {
+    return res.data.map((od: any) => {
       return { ...od, orderAt: new Date(od.orderAt) }
     }) as Order[]
   }
@@ -23,7 +22,7 @@ export default function useApiOrder() {
     return res.data as Order
   }
 
-  const create = async (order: MyOrderEntityCreation, orderMenues: OrderMenuCreation[]) => {
+  const create = async (order: MyOrderEntityCreation, orderMenues: OrderMenuEntityCreation[]) => {
     const res = await api.post(prefix, {
       order,
       orderMenues,
@@ -31,7 +30,7 @@ export default function useApiOrder() {
     return res.data as OrderCURes
   }
 
-  const update = async (order: MyOrderEntity, orderMenues: OrderMenuCreation[] = []) => {
+  const update = async (order: MyOrderEntity, orderMenues: OrderMenuEntityCreation[] = []) => {
     const res = await api.patch(`${prefix}/${order.seq!}`, {
       order,
       orderMenues,

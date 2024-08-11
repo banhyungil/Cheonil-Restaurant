@@ -17,7 +17,7 @@ export default function useApiStore() {
   }
 
   const update = async (store: StoreEntity) => {
-    const res = await api.put(`${prefix}/${store.seq}`, store)
+    const res = await api.patch(`${prefix}/${store.seq}`, store)
 
     return res.data as StoreEntity
   }

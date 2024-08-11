@@ -8,8 +8,8 @@ interface MenuEntity {
   /* 메뉴 Seq */
   seq: number
 
-  /* 카테고리 명 */
-  ctgNm: string
+  /* 카테고리 Seq */
+  ctgSeq: number
 
   /* 메뉴 명 */
   name: string
@@ -37,6 +37,9 @@ type MenuEntityCreation = PartialK<MenuEntity, 'seq'>
 
 /* 메뉴 카테고리 */
 interface MenuCategoryEntity {
+  /* 메뉴 카테고리 Seq */
+  seq: number
+
   /* 메뉴 카테고리 명 */
   name: string
 
@@ -49,6 +52,8 @@ interface MenuCategoryEntity {
   /* 수정시간 */
   updatedAt?: Date | null
 }
+
+type MenuCategoryEntityCreation = PartialK<MenuCategoryEntity, 'seq'>
 
 /* 주문 */
 interface MyOrderEntity {
@@ -99,6 +104,8 @@ interface OrderMenuEntity {
   /* 수량 */
   cnt: number
 }
+
+type OrderMenuEntityCreation = PartialK<OrderMenuEntity, 'orderSeq'>
 
 interface OrderMenu extends OrderMenuEntity {
   menu: MenuEntity
@@ -173,6 +180,9 @@ type PaymentEntityCreation = PartialK<PaymentEntity, 'seq'>
 
 /* 장소 카테고리 */
 interface PlaceCategoryEntity {
+  /* 장소 카테고리 Seq */
+  seq: number
+
   /* 장소 카테고리 명 */
   name: string
 
@@ -182,6 +192,8 @@ interface PlaceCategoryEntity {
   /* 추가정보 */
   options?: string | null
 }
+
+type PlaceCategoryEntityCreation = PartialK<PlaceCategoryEntity, 'seq'>
 
 /* 설정 */
 interface SettingEntity {
@@ -194,11 +206,11 @@ interface StoreEntity {
   /* 매장 Seq */
   seq: number
 
-  /* 매장 카테고리 명 */
-  ctgNm: string
+  /* 매장 카테고리 Seq */
+  ctgSeq: number
 
-  /* 장소 카테고리 명 */
-  placeCtgNm?: string | null
+  /* 장소 카테고리 Seq */
+  placeCtgseq?: number | null
 
   /* 매장 명 */
   name: string
@@ -222,15 +234,18 @@ interface StoreEntity {
   updatedAt?: Date | null
 }
 
-type StoreEntityCreation = PartialK<StoreEntity, 'seq'>
+type StoreCategoryEntityCreation = PartialK<StoreCategoryEntity, 'seq'>
 
 /* 매장 카테고리 */
 interface StoreCategoryEntity {
+  /* 매장 카테고리 Seq */
+  seq: number
+
+  /* 장소 카테고리 Seq */
+  placeCtgseq?: number | null
+
   /* 매장 카테고리 명 */
   name: string
-
-  /* 장소 카테고리 이름 */
-  placeCtgNm?: string | null
 
   /* 추가정보 */
   options?: string | null

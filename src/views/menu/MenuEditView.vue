@@ -24,12 +24,12 @@ interface Props {
 const props = defineProps<Props>()
 const cIsUpdate = computed(() => (props.seq ? true : false))
 const cText = computed(() => (cIsUpdate.value ? '수정' : '등록'))
-const menu = ref({ ctgNm: route.query['ctgName'], name: '', price: 0 } as MenuEntityCreation)
+const menu = ref({ ctgSeq: props.seq, name: '', price: 0 } as MenuEntityCreation)
 if (props.seq) {
   menu.value = _.cloneDeep(menuStore.items.find((item) => item.seq == props.seq)) as MenuEntityCreation
 }
 const oMenuProp: { [k in keyof MenuEntityCreation]: { label: string } } = {
-  ctgNm: { label: '카테고리' },
+  ctgSeq: { label: '카테고리' },
   name: { label: '메뉴명' },
   abv: { label: '메뉴명(축약)' },
   price: { label: '가격' },
@@ -37,8 +37,8 @@ const oMenuProp: { [k in keyof MenuEntityCreation]: { label: string } } = {
 }
 
 const rules = {
-  ctgNm: {
-    required: helpers.withMessage(`${oMenuProp.ctgNm.label}를 선택해주세요.`, required),
+  ctgSeq: {
+    required: helpers.withMessage(`${oMenuProp.ctgSeq.label}를 선택해주세요.`, required),
   },
   name: {
     required: helpers.withMessage(`${oMenuProp.name.label}을 입력해주세요.`, required),
@@ -55,11 +55,12 @@ async function onSave() {
     return
   }
   if (cIsUpdate.value) {
-    await apiMenu.update(menu.value as MenuEntity)
+    const uMenu = await apiMenu.update(menu.value as MenuEntity)
+
     Swal.fireCustom({ toast: true, messageType: 'update' })
   } else {
     if (menu.value.abv == null) menu.value.abv = menu.value.name.slice(0, 2)
-    await apiMenu.create(menu.value)
+    const nMenu = await apiMenu.create(menu.value)
 
     Swal.fireCustom({ toast: true, messageType: 'save' })
   }
@@ -89,8 +90,8 @@ function onCancel() {
       <section class="top">{{ `메뉴 ${cText}` }}</section>
       <section class="content">
         <div class="row">
-          <span class="label required">{{ oMenuProp.ctgNm.label }}</span>
-          <v-select :items="menuStore.categories.map((ctg) => ctg.name)" v-model="menu.ctgNm" density="comfortable"></v-select>
+          <span class="label required">{{ oMenuProp.ctgSeq.label }}</span>
+          <v-select :items="menuStore.categories" item-value="seq" item-title="name" v-model="menu.ctgSeq" density="comfortable"></v-select>
         </div>
         <div class="row">
           <span class="label required">{{ oMenuProp.name.label }}</span>

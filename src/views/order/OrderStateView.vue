@@ -6,6 +6,7 @@ import { useIntervalFn, useNow } from '@vueuse/core'
 import useSwal from '@/composable/useSwal'
 import { useRouter } from 'vue-router'
 import _ from 'lodash'
+import { Dropdown } from 'floating-vue'
 
 const apiOrder = useApiOrder()
 const orders = ref<Order[]>([])
@@ -20,7 +21,7 @@ useIntervalFn(
 
     console.log('selectList')
   },
-  1000000,
+  10000,
   { immediateCallback: true }
 )
 
@@ -93,7 +94,7 @@ async function onRemove(orderId: number) {
         <div v-for="order in orders" :key="order.seq" class="c-order">
           <div class="store">
             <span>{{ order.store.name }}</span>
-            <VDropdown class="c-choice">
+            <Dropdown class="c-choice">
               <button class="choice">
                 <font-awesome-icon :icon="['fas', 'ellipsis-vertical']" />
               </button>
@@ -103,7 +104,7 @@ async function onRemove(orderId: number) {
                   <button class="remove" @click="onRemove(order.seq!)">삭제</button>
                 </div>
               </template>
-            </VDropdown>
+            </Dropdown>
           </div>
           <div class="menues">
             <div v-for="(om, idx) in order.orderMenues" :key="om.menuSeq" class="text">
@@ -115,7 +116,7 @@ async function onRemove(orderId: number) {
           <div class="time">
             <span class="order-time" v-tooltip="'주문접수시간'">
               <font-awesome-icon :icon="['fas', 'timer']" />
-              {{ dayjs(order.orderAt).format('hh:MM a') }}
+              {{ dayjs(order.orderAt).format('hh:MM A') }}
             </span>
             <span class="elapsed"> {{ `${formatTime(dayjs(now).diff(order.orderAt, 'second'))}` }}</span>
           </div>
@@ -145,7 +146,7 @@ async function onRemove(orderId: number) {
             <div class="time" v-tooltip="'완료시간'">
               <span class="order-time" style="color: var(--color-point)">
                 <font-awesome-icon :icon="['fas', 'timer']" />
-                {{ dayjs(order.completeAt).format('HH:MM') }}
+                {{ dayjs(order.completeAt).format('hh:MM A') }}
               </span>
             </div>
             <v-btn class="complete" style="background-color: var(--color-d)" @click="onUnComplete(order)" :loading="dLoading[order.seq!]">완료 취소</v-btn>

@@ -10,20 +10,20 @@ export default function useApiPlaceCtg() {
     return res.data as PlaceCategoryEntity[]
   }
 
-  const create = async (placeCtg: PlaceCategoryEntity) => {
+  const create = async (placeCtg: PlaceCategoryEntityCreation) => {
     const res = await api.post(prefix, placeCtg)
 
     return res.data as PlaceCategoryEntity
   }
 
-  const update = async (name: string, placeCtg: PlaceCategoryEntity) => {
-    const res = await api.put(`${prefix}/${name}`, placeCtg)
+  const update = async (placeCtg: PlaceCategoryEntity) => {
+    const res = await api.patch(`${prefix}/${placeCtg.seq}`, placeCtg)
 
     return res.data as PlaceCategoryEntity
   }
 
-  const remove = (name: string) => {
-    return api.delete(`${prefix}/${name}`)
+  const remove = (seq: number) => {
+    return api.delete(`${prefix}/${seq}`)
   }
 
   return { selectList, create, update, remove }
