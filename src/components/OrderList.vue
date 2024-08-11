@@ -6,7 +6,7 @@ import dayjs from 'dayjs'
 import usePagination from '@/composable/usePagination'
 
 const orders = defineModel<Order[]>({ default: [], required: true })
-const selected = defineModel<Order[]>('selected')
+const checkedSeqs = ref<Order['seq'][]>([])
 
 interface Props {
   title: string
@@ -22,8 +22,9 @@ const headers = ref([
   { title: '메뉴', key: 'menuNm', align: 'center' },
   { title: '주문시간', key: 'orderAtF', align: 'center' },
   { title: '완료시간', key: 'completeAtF', align: 'center' },
-  { title: '결재방식', key: 'payWay', align: 'center' },
+  { title: '결재방식', key: 'payInfo', align: 'center' },
   { title: '결재날짜', key: 'payAt', align: 'center' },
+  { title: 'Actions', key: 'actions', align: 'center' },
 ]) as Ref<NonNullable<VDataTable['$props']['headers']>>
 const cHeaders = computed(() => headers.value.filter((item) => item.key))
 
@@ -33,25 +34,30 @@ apiOrder.selectList().then((res) => {
   orders.value = res
 })
 
+const isEdit = ref(false)
+
 const cDtOrders = computed(() =>
   orders.value.map((od, idx) => {
     const menuNm = od.orderMenues.map((om) => om.menu.name + om.cnt).join(', ')
     const orderAtF = dayjs(od.orderAt).format('YY.MM.DD HH:MM')
 
-    const [payWay, payAt] = (() => {
-      if (od.payments.length == 0) return ['미수', null]
-      else {
-        const date = _.last(od.payments)!.payAt
-        const payTypes = _.uniq(od.payments.map((p) => p.payType))
-        if (payTypes.length > 1) return ['복합', date]
-        else if (payTypes[0] == 'CASH') return ['현금', date]
-        else return ['카드', date]
-      }
+    const payAt = _.last(od.payments)?.payAt
+    const payType = (() => {
+      if (od.payments.length == 0) return '미수'
+
+      const payTypes = _.uniq(od.payments.map((p) => p.payType))
+      if (payTypes.length > 1) return '복합'
+      else if (payTypes[0] == 'CASH') return '현금'
+      else return '카드'
     })()
+    const payInfo = {
+      type: payType,
+      seqs: od.payments.map((p) => p.seq),
+    }
 
     const completeAtF = dayjs(od.completeAt).format('YY.MM.DD HH:MM')
 
-    return { ...od, no: idx + 1, menuNm, orderAtF, payWay, payAt, completeAtF }
+    return { ...od, no: idx + 1, storeNm: od.store.name, menuNm, orderAtF, payInfo, payAt, completeAtF }
   })
 )
 
@@ -73,17 +79,43 @@ watch(
   },
   { immediate: true }
 )
+
+function collectionCash() {}
+function collectionCard() {}
+function cancelCollection() {}
 </script>
 
 <template>
-  <v-data-table :show-select="Array.isArray(selected)" v-model="selected" :headers="cHeaders" :items="cDtOrders" item-value="seq">
-    <template v-slot:top>
+  <v-data-table class="order-list" :show-select="isEdit" v-model="checkedSeqs" :headers="cHeaders" :items="cDtOrders" item-value="seq">
+    <template #top>
       <v-toolbar flat>
         <v-toolbar-title>{{ title }}</v-toolbar-title>
       </v-toolbar>
-      <slot name="top"></slot>
+      <section class="top">
+        <!-- <v-btn @click="onRemove" class="toggle" :class="{ on: isEdit }"> 삭제 </v-btn> -->
+        <v-btn>현금</v-btn>
+        <v-btn>카드</v-btn>
+        <v-btn @click="() => (isEdit = !isEdit)" class="toggle" :class="{ on: isEdit }" v-tooltip="'편집'">
+          <font-awesome-icon :icon="['fas', 'pen']" />
+        </v-btn>
+      </section>
     </template>
-    <template v-slot:bottom>
+    <template #item.actions>
+      <button style="color: var(--color-d)" v-tooltip="'삭제'"><font-awesome-icon :icon="['fas', 'trash']" /></button>
+    </template>
+    <template #item.payInfo="{ value }">
+      <div class="pay-info">
+        <span>{{ value.type }}</span>
+        <div class="c-btn">
+          <template v-if="value.seqs.length == 0">
+            <v-btn baseColor="var(--color-point)" text="현금" @click="collectionCash" style="color: #fff"></v-btn>
+            <v-btn baseColor="var(--color-point)" @click="collectionCard" style="color: #fff">카드</v-btn>
+          </template>
+          <v-btn v-else @click="cancelCollection" base-color="var(--color-d)">수금 취소</v-btn>
+        </div>
+      </div>
+    </template>
+    <template #bottom>
       <div class="c-page" style="display: flex">
         <v-pagination class="page" v-model="pageNo" :length="cTotalPage"></v-pagination>
         <v-select class="select" :items="PAGE_SIZE_LIST" v-model="pageSize" density="comfortable"></v-select>
@@ -93,14 +125,34 @@ watch(
 </template>
 
 <style lang="scss" scoped>
-.c-page {
-  display: flex;
-
-  .page {
-    width: 100%;
+.order-list {
+  section.top {
+    display: flex;
+    justify-content: end;
   }
-  .select {
-    width: 100px;
+
+  .pay-info {
+    .c-btn {
+      display: flex;
+      justify-content: center;
+      gap: 4px;
+
+      button {
+        min-width: 0;
+        width: 46px;
+      }
+    }
+  }
+
+  .c-page {
+    display: flex;
+
+    .page {
+      width: 100%;
+    }
+    .select {
+      width: 100px;
+    }
   }
 }
 </style>
