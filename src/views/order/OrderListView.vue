@@ -5,11 +5,10 @@ const selected = ref<Order[]>([])
 </script>
 
 <template>
-  {{ selected }}
   <OrderList v-model:selected="selected" v-model="orders" title="주문내역" class="order-list-view">
     <template #top>
       <section class="top">
-        <v-btn @click="() => (isEdit = !isEdit)"> 편집 </v-btn>
+        <v-btn @click="() => (isEdit = !isEdit)" class="toggle" :class="{ on: isEdit }"> <font-awesome-icon :icon="['fas', 'pen']" /> </v-btn>
       </section>
     </template>
   </OrderList>
@@ -20,6 +19,10 @@ const selected = ref<Order[]>([])
   section.top {
     display: flex;
     justify-content: end;
+
+    .toggle {
+      width: 40px;
+    }
   }
 }
 </style>

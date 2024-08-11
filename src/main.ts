@@ -13,6 +13,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 /* import specific icons */
 // import { fas } from '@fortawesome/free-solid-svg-icons'
 import { fas } from '@fortawesome/pro-solid-svg-icons'
+import { faSquare } from '@fortawesome/pro-regular-svg-icons'
 import FloatingVue from 'floating-vue'
 import 'floating-vue/dist/style.css'
 
@@ -37,6 +38,7 @@ const app = createApp(App)
 
 /* add icons to the library */
 library.add(fas)
+library.add(faSquare)
 app.component('font-awesome-icon', FontAwesomeIcon)
 
 app.use(createPinia())

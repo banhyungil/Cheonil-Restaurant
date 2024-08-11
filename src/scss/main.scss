@@ -19,6 +19,13 @@ button {
   &:hover {
     opacity: 0.8;
   }
+
+  &.toggle {
+      &.on {
+        background-color: #2aac8e;
+        color: #fff;
+      }
+  }
 }
 
 input {
