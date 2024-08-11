@@ -10,18 +10,18 @@ export default function useApiMenuCtg() {
     return res.data as MenuCategoryEntity[]
   }
 
-  const create = async (menuCtg: MenuCategoryEntity) => {
+  const create = async (menuCtg: MenuCategoryEntityCreation) => {
     const res = await api.post(prefix, menuCtg)
     return res.data as MenuCategoryEntity
   }
 
-  const update = async (name: string, menuCtg: MenuCategoryEntity) => {
-    const res = await api.put(`${prefix}/${name}`, menuCtg)
+  const update = async (menuCtg: MenuCategoryEntity) => {
+    const res = await api.patch(`${prefix}/${menuCtg.seq}`, menuCtg)
     return res.data as MenuCategoryEntity
   }
 
-  const remove = (name: string) => {
-    return api.delete(`${prefix}/${name}`)
+  const remove = (seq: number) => {
+    return api.delete(`${prefix}/${seq}`)
   }
 
   return { selectList, create, update, remove }

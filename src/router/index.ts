@@ -31,7 +31,7 @@ const router = createRouter({
     },
 
     {
-      path: '/order/:id', // orderId, 수정
+      path: '/order/:seq', // orderId, 수정
       props: true,
       component: OrderView,
     },
@@ -63,7 +63,7 @@ const router = createRouter({
       component: () => import('../views/menu/MenuCtgEditView.vue'),
     },
     {
-      path: '/menuCtgEdit/:name',
+      path: '/menuCtgEdit/:seq',
       props: true,
       component: () => import('../views/menu/MenuCtgEditView.vue'),
     },
@@ -72,7 +72,7 @@ const router = createRouter({
       component: () => import('../views/store/PlaceCtgEditView.vue'),
     },
     {
-      path: '/placeCtgEdit/:name',
+      path: '/placeCtgEdit/:seq',
       props: true,
       component: () => import('../views/store/PlaceCtgEditView.vue'),
     },
@@ -94,7 +94,7 @@ const router = createRouter({
       component: () => import('../views/store/StoreCtgEditView.vue'),
     },
     {
-      path: '/storeCtgEdit/:name',
+      path: '/storeCtgEdit/:seq',
       props: true,
       component: () => import('../views/store/StoreCtgEditView.vue'),
     },

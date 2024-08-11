@@ -53,6 +53,8 @@ interface MenuCategoryEntity {
   updatedAt?: Date | null
 }
 
+type MenuCategoryEntityCreation = PartialK<MenuCategoryEntity, 'seq'>
+
 /* 주문 */
 interface MyOrderEntity {
   /* 주문 Seq */
@@ -102,6 +104,8 @@ interface OrderMenuEntity {
   /* 수량 */
   cnt: number
 }
+
+type OrderMenuEntityCreation = PartialK<OrderMenuEntity, 'orderSeq'>
 
 interface OrderMenu extends OrderMenuEntity {
   menu: MenuEntity
@@ -189,6 +193,8 @@ interface PlaceCategoryEntity {
   options?: string | null
 }
 
+type PlaceCategoryEntityCreation = PartialK<PlaceCategoryEntity, 'seq'>
+
 /* 설정 */
 interface SettingEntity {
   /* 설정 정보 */
@@ -228,7 +234,7 @@ interface StoreEntity {
   updatedAt?: Date | null
 }
 
-type StoreEntityCreation = PartialK<StoreEntity, 'seq'>
+type StoreCategoryEntityCreation = PartialK<StoreCategoryEntity, 'seq'>
 
 /* 매장 카테고리 */
 interface StoreCategoryEntity {

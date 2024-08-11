@@ -4,7 +4,7 @@ import _ from 'lodash'
 
 export const useMenuStore = defineStore('menu', () => {
   const items = ref<MenuEntity[]>([])
-  const dict = computed(() => _.keyBy(items.value, 'name'))
+  const dict = computed(() => _.keyBy(items.value, 'seq'))
   const categories = ref<MenuCategoryEntity[]>([])
 
   return { items, dict, categories }

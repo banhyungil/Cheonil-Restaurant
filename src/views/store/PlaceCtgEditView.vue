@@ -4,57 +4,80 @@ import useSwal from '@/composable/useSwal'
 import { computed, onMounted, ref, type Ref } from 'vue'
 import { useRouter } from 'vue-router'
 import _ from 'lodash'
+import { useStoreStore } from '@/stores/storeStore'
 
 const Swal = useSwal()
 const router = useRouter()
 
+const storeStore = useStoreStore()
 const apiPlaceCtg = useApiPlaceCtg()
 const list = ref([] as PlaceCategoryEntity[])
 
 interface Props {
-  name?: string
+  seq?: number
 }
 
 const props = defineProps<Props>()
 
-const cIsUpdate = computed(() => (props.name ? true : false))
+const cIsUpdate = computed(() => (props.seq ? true : false))
+const cIsUpdated = computed(
+  () =>
+    _.isEqual(
+      ctg.value,
+      list.value.find((ctg) => ctg.seq == props.seq)
+    ) == false
+)
 const cText = computed(() => (cIsUpdate.value ? '수정' : '등록'))
-const ctg = ref<PlaceCategoryEntity>({ name: '' })
+const ctg = ref<PlaceCategoryEntityCreation>({ name: '' })
 
 onMounted(async () => {
   await apiPlaceCtg.selectList().then((res) => {
     list.value = res
   })
 
-  if (props.name) {
-    ctg.value = _.cloneDeep(list.value.find((ctg) => ctg.name == props.name))!
+  if (props.seq) {
+    ctg.value = _.cloneDeep(list.value.find((ctg) => ctg.seq == props.seq))!
   }
 })
 
 const inp = ref() as Ref<HTMLInputElement>
 async function onSave() {
   // 검증
-  if (list.value.some((iCtg) => iCtg.name == ctg.value.name)) {
-    Swal.fire({ title: '중복된 구역이 존재합니다.', icon: 'warning' })
-
-    inp.value.focus()
+  if (cIsUpdate.value) {
+    await apiPlaceCtg.update(ctg.value as PlaceCategoryEntity)
+    Swal.fireCustom({ toast: true, messageType: 'update' })
   } else {
-    if (cIsUpdate.value) {
-      await apiPlaceCtg.update(props.name!, ctg.value)
-      Swal.fireCustom({ toast: true, messageType: 'update' })
-    } else {
-      await apiPlaceCtg.create(ctg.value)
-      Swal.fireCustom({ toast: true, messageType: 'save' })
+    if (list.value.some((iCtg) => iCtg.name == ctg.value.name)) {
+      Swal.fire({ title: '중복된 구역이 존재합니다.', icon: 'warning' })
+
+      inp.value.focus()
     }
-    list.value = await apiPlaceCtg.selectList()
-    router.back()
+
+    await apiPlaceCtg.create(ctg.value)
+    Swal.fireCustom({ toast: true, messageType: 'save' })
   }
+
+  list.value = await apiPlaceCtg.selectList()
+  router.back()
 }
 
 async function onRemove() {
-  if (await Swal.fireCustom({ isConfirm: true, messageType: 'update' })) {
-    await apiPlaceCtg.remove(ctg.value.name)
-    list.value = await apiPlaceCtg.selectList()
+  if (ctg.value.seq && (await Swal.fireCustom({ isConfirm: true, messageType: 'remove' }))) {
+    await apiPlaceCtg.remove(ctg.value.seq)
+    // 카테고리 중 해당 구역 설정되어 있는 경우 수정
+    // 매장 중 해당 구역 설정되어 있는 경우 수정
+    storeStore.categories.forEach((storeCtg) => {
+      if (storeCtg.placeCtgseq == ctg.value.seq) {
+        storeCtg.placeCtgseq = null
+      }
+    })
+    storeStore.items.forEach((store) => {
+      if (store.placeCtgseq == ctg.value.seq) {
+        store.placeCtgseq = null
+      }
+    })
+
+    _.remove(list.value, (item) => item.seq == ctg.value.seq)
 
     Swal.fireCustom({ toast: true, messageType: 'remove' })
     router.back()
@@ -79,9 +102,9 @@ function onCancel() {
         </div>
       </section>
       <section class="btt">
-        <button @click="onSave">{{ cText }}</button>
-        <button v-if="cIsUpdate" @click="onRemove">삭제</button>
-        <button @click="onCancel">취소</button>
+        <v-btn @click="onSave" :disabled="cIsUpdated == false">{{ cText }}</v-btn>
+        <v-btn v-if="cIsUpdate" @click="onRemove">삭제</v-btn>
+        <v-btn @click="onCancel">취소</v-btn>
       </section>
     </section>
   </section>

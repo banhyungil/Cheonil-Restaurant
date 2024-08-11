@@ -27,7 +27,7 @@ apiMenuCtg.selectList().then((list) => {
   menuStore.categories = list
 })
 
-const selCtg = ref<MenuCategoryEntity | 'all' | null>('all')
+const selCtg = ref<MenuCategoryEntity | 'all'>('all')
 
 const srchText = ref('')
 
@@ -38,12 +38,10 @@ function onToggleEdit() {
 const cFilteredItems = computed(() => {
   // 카테고리 필터링
   const items = (() => {
-    if (selCtg.value == null) {
-      return menuStore.items.filter((item) => item.ctgNm == null)
-    } else if (selCtg.value == 'all') {
+    if (selCtg.value == 'all') {
       return menuStore.items
     } else {
-      return menuStore.items?.filter((item) => item.ctgNm == (selCtg.value as MenuCategoryEntity).name)
+      return menuStore.items?.filter((item) => item.ctgSeq == (selCtg.value as MenuCategoryEntity).seq)
     }
   })() as MenuEntity[]
 
@@ -66,7 +64,7 @@ function onClickCategory(ctg: MenuCategoryEntity | 'all') {
 
   if (isEdit.value && typeof ctg == 'object') {
     selCtg.value = 'all'
-    router.push({ path: `/menuCtgEdit/${ctg.name}` })
+    router.push({ path: `/menuCtgEdit/${ctg.seq}` })
   }
 }
 
@@ -75,10 +73,10 @@ function onAddCategory() {
 }
 
 function onClickItem(item: MenuEntity) {
-  emit('selectItem', item)
-
   if (isEdit.value) {
     router.push({ path: `/menuEdit/${item.seq}` })
+  } else {
+    emit('selectItem', item)
   }
 }
 
@@ -105,7 +103,7 @@ useEventListener(document, 'keyup', (e) => {
       </v-btn>
     </section>
     <!-- tab.scss 참조 -->
-    <section class="tab">
+    <section class="tab" :class="{ edit: isEdit }">
       <ul class="ctgs">
         <!-- 카테고리 목록 표시 -->
         <button @click="onClickCategory('all')" :class="{ on: selCtg == 'all' }">

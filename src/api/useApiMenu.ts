@@ -28,7 +28,7 @@ export default function useApiMenu() {
   }
 
   const update = async (menu: MenuEntity) => {
-    const res = await api.put(`${prefix}/${menu.seq}`, menu)
+    const res = await api.patch(`${prefix}/${menu.seq}`, menu)
     return res.data as MenuEntity
   }
 

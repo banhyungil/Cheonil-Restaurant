@@ -10,20 +10,20 @@ export default function useApiStoreCtg() {
     return res.data as StoreCategoryEntity[]
   }
 
-  const create = async (storeCtg: StoreCategoryEntity) => {
+  const create = async (storeCtg: StoreCategoryEntityCreation) => {
     const res = await api.post(prefix, storeCtg)
 
     return res.data as StoreCategoryEntity
   }
 
-  const update = async (name: string, storeCtg: StoreCategoryEntity) => {
-    const res = await api.put(`${prefix}/${name}`, storeCtg)
+  const update = async (storeCtg: StoreCategoryEntity) => {
+    const res = await api.patch(`${prefix}/${storeCtg.seq}`, storeCtg)
 
     return res.data as StoreCategoryEntity
   }
 
-  const remove = (name: string) => {
-    return api.delete(`${prefix}/${name}`)
+  const remove = (seq: number) => {
+    return api.delete(`${prefix}/${seq}`)
   }
 
   return { selectList, create, update, remove }

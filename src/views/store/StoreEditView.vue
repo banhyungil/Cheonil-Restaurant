@@ -36,7 +36,7 @@ if (props.seq) {
 }
 
 const rules = {
-  ctgNm: {
+  ctgSeq: {
     required: helpers.withMessage('카테고리를 선택해주세요.', required),
   },
   name: {
@@ -66,7 +66,7 @@ function onAddPlaceCtg() {
   router.push('/placeCtgEdit')
 }
 
-function onEditPlaceCtg(seq: string) {
+function onEditPlaceCtg(seq: number) {
   router.push({ path: `/placeCtgEdit/${seq}` })
 }
 
@@ -92,7 +92,7 @@ function onCancel() {
       <section class="content">
         <div class="row">
           <span class="label required">카테고리</span>
-          <v-select :items="storeStore.categories" item-title="name" item-value="name" v-model="store.ctgNm" density="comfortable"> </v-select>
+          <v-select :items="storeStore.categories" item-title="name" item-value="seq" v-model="store.ctgSeq" density="comfortable"> </v-select>
         </div>
         <div class="row">
           <span class="label required">매장명</span>
@@ -101,11 +101,11 @@ function onCancel() {
         <div class="row">
           <span class="label">구역</span>
           <div class="val" style="display: flex; justify-content: center; align-items: center; height: 56px">
-            <v-select :items="placeCtgStore.items.map((ctg) => ctg.name)" v-model="store.placeCtgNm" density="comfortable">
+            <v-select :items="placeCtgStore.items" item-value="seq" item-title="name" v-model="store.placeCtgseq" density="comfortable">
               <template v-slot:item="{ props, item }">
                 <v-list-item v-bind="props">
                   <template v-slot:append>
-                    <button @click="onEditPlaceCtg(item.raw)">
+                    <button @click="onEditPlaceCtg(item.raw.seq)">
                       <font-awesome-icon :icon="['fas', 'pen']" />
                     </button>
                   </template>

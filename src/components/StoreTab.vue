@@ -28,7 +28,7 @@ apiStoreCtg.selectList().then((list) => {
   storeStore.categories = list
 })
 
-const selCtg = ref<StoreCategoryEntity | 'all' | null>('all')
+const selCtg = ref<StoreCategoryEntity | 'all'>('all')
 
 const srchText = ref('')
 
@@ -39,12 +39,10 @@ function onToggleEdit() {
 const cFilteredItems = computed(() => {
   // 카테고리 필터링
   const items = (() => {
-    if (selCtg.value == null) {
-      return storeStore.items?.filter((item) => item.ctgNm == null)
-    } else if (selCtg.value == 'all') {
+    if (selCtg.value == 'all') {
       return storeStore.items
     } else {
-      return storeStore.items?.filter((item) => item.ctgNm == (selCtg.value as StoreCategoryEntity).name)
+      return storeStore.items?.filter((item) => item.ctgSeq == (selCtg.value as StoreCategoryEntity).seq)
     }
   })() as StoreEntity[]
 
@@ -67,7 +65,7 @@ function onClickCategory(ctg: StoreCategoryEntity | 'all') {
 
   if (isEdit.value && typeof ctg == 'object') {
     selCtg.value = 'all'
-    router.push({ path: `/storeCtgEdit/${ctg.name}` })
+    router.push({ path: `/storeCtgEdit/${ctg.seq}` })
   }
 }
 
