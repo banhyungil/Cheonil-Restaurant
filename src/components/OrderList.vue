@@ -46,7 +46,11 @@ const cCancelAble = computed(() => checkedSeqs.value.some((seq) => cOrderDict.va
 const cCollectAble = computed(() => checkedSeqs.value.some((seq) => cOrderDict.value[seq].payments.length == 0))
 
 const srch = ref({
-  isOnlyNotPaid: false,
+  payType: {
+    isCash: false,
+    isCard: false,
+    isNotPaid: false,
+  },
   isToday: false,
 })
 
@@ -96,10 +100,15 @@ const cDtOrders = computed(() =>
 )
 
 watch(
-  [pageNo, pageSize, () => srch.value.isOnlyNotPaid, () => srch.value.isToday],
+  [pageNo, pageSize, () => srch.value, () => srch.value.isToday],
   () => {
-    const statusIn = (srch.value.isOnlyNotPaid ? ['COOKED'] : ['COOKED', 'PAID']) as Order['status'][]
+    const statusIn = (srch.value.payType.isNotPaid ? ['COOKED'] : ['COOKED', 'PAID']) as Order['status'][]
     const orderAt = srch.value.isToday ? dayjs(new Date().setHours(0, 0, 0, 0)).toDate() : undefined
+    const payTypes = (() => {
+      if (srch.value.payType.isCard) return ['CARD']
+      else if (srch.value.payType.isCash) return ['CASH']
+      else return null
+    })() as PaymentEntity['payType'][] | undefined
 
     apiOrder
       .selectList({
@@ -107,13 +116,14 @@ watch(
         orderAt: { gte: orderAt },
         limit: pageSize.value,
         offset: cOffset.value,
+        payTypes,
       })
       .then((res) => {
         orders.value = res.orders
         totalOrderCnt.value = res.totalCnt
       })
   },
-  { immediate: true }
+  { immediate: true, deep: true }
 )
 
 const COLLECT_MESSAGE_OPTION = { toast: true, messageType: 'save' } as SweetAlertOptionsCustom
@@ -187,6 +197,22 @@ async function onRemove(seq: number) {
 
   Swal.fireCustom({ toast: true, messageType: 'remove' })
 }
+
+function filterPayType(payType: PaymentEntity['payType'] | null) {
+  if (payType == 'CASH') {
+    srch.value.payType.isCash = !srch.value.payType.isCash
+    srch.value.payType.isCard = false
+    srch.value.payType.isNotPaid = false
+  } else if (payType == 'CARD') {
+    srch.value.payType.isCash = false
+    srch.value.payType.isCard = !srch.value.payType.isCard
+    srch.value.payType.isNotPaid = false
+  } else {
+    srch.value.payType.isCash = false
+    srch.value.payType.isCard = false
+    srch.value.payType.isNotPaid = !srch.value.payType.isNotPaid
+  }
+}
 </script>
 
 <template>
@@ -200,8 +226,17 @@ async function onRemove(seq: number) {
           <v-btn v-tooltip="'필터'"><font-awesome-icon :icon="['fas', 'filter']" /></v-btn>
           <template #popper>
             <div>
-              <v-btn :base-color="srch.isOnlyNotPaid ? 'success' : ''" @click="srch.isOnlyNotPaid = !srch.isOnlyNotPaid">미수</v-btn>
-              <v-btn :base-color="srch.isToday ? 'success' : ''" @click="srch.isToday = !srch.isToday">당일</v-btn>
+              <div>
+                <h3>결제 방식</h3>
+                <v-btn :base-color="srch.payType.isNotPaid ? 'success' : ''" @click="filterPayType(null)">미수</v-btn>
+                <v-btn :base-color="srch.payType.isCash ? 'success' : ''" @click="filterPayType('CASH')">현금</v-btn>
+                <v-btn :base-color="srch.payType.isCard ? 'success' : ''" @click="filterPayType('CARD')">카드</v-btn>
+              </div>
+
+              <div>
+                <h3>기타</h3>
+                <v-btn :base-color="srch.isToday ? 'success' : ''" @click="srch.isToday = !srch.isToday">당일</v-btn>
+              </div>
             </div>
           </template>
         </Dropdown>
