@@ -16,7 +16,7 @@ const router = useRouter()
 useIntervalFn(
   () => {
     apiOrder.selectList({ status: { eq: 'READY' } }).then((list) => {
-      orders.value = list
+      orders.value = list.orders
     })
 
     console.log('selectList')
@@ -25,8 +25,8 @@ useIntervalFn(
   { immediateCallback: true }
 )
 
-apiOrder.selectList({ status: { eq: 'COMPLETE' } }).then((res) => {
-  completeOrders.value = res
+apiOrder.selectList({ status: { eq: 'COOKED' } }).then((res) => {
+  completeOrders.value = res.orders
 })
 
 const Swal = useSwal()
@@ -34,7 +34,7 @@ const Swal = useSwal()
 async function onComplete(order: Order) {
   dLoading.value[order.seq!] = true
 
-  order.status = 'COMPLETE'
+  order.status = 'COOKED'
   const data = {
     seq: order.seq,
     status: order.status,

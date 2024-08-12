@@ -3,6 +3,7 @@
   --color-u: #5697d4;
   --color-d: #fa4a4a;
   --color-bg-gray: #f5f5f9;
+  --color-disable: rgba(128, 128, 128, 0.8);
   --box-shadow: 0px 3px 1px -2px var(--v-shadow-key-umbra-opacity, rgba(0, 0, 0, 0.2)), 0px 2px 2px 0px var(--v-shadow-key-penumbra-opacity, rgba(0, 0, 0, 0.14)), 0px 1px 5px 0px var(--v-shadow-key-ambient-opacity, rgba(0, 0, 0, 0.12));
   --box-shadow-section: rgba(17, 17, 26, 0.05) 0px 1px 0px,
   rgba(17, 17, 26, 0.1) 0px 0px 8px;

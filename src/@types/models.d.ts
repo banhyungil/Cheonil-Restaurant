@@ -67,7 +67,7 @@ interface MyOrderEntity {
   amount: number
 
   /* READY: 준비, COMPLETE: 완료 */
-  status?: 'READY' | 'COMPLETE'
+  status?: 'READY' | 'COOKED' | 'PAID'
 
   /* 주문 시간 */
   orderAt?: Date
@@ -170,7 +170,7 @@ interface PaymentEntity {
   amount: number
 
   /* CASH: 현금, CARD: 카드 */
-  payType?: 'CASH' | 'CARD'
+  payType: 'CASH' | 'CARD'
 
   /* 지급날짜 */
   payAt: Date

@@ -33,6 +33,18 @@ const vuetify = createVuetify({
       fa,
     },
   },
+  theme: {
+    themes: {
+      light: {
+        dark: false,
+        colors: {
+          primary: '#2aac8e',
+          success: '#5697d4',
+          warning: '#fa4a4a',
+        },
+      },
+    },
+  },
 })
 const app = createApp(App)
 

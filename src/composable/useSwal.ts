@@ -87,7 +87,7 @@ export default function useSwal(options?: SweetAlertOptions) {
 }
 
 type MessageType = 'save' | 'update' | 'remove' | 'error' | 'info'
-type SweetAlertOptionsCustom = SweetAlertOptions & {
+export type SweetAlertOptionsCustom = SweetAlertOptions & {
   isConfirm?: boolean
   messageType?: MessageType
 }

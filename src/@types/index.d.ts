@@ -485,7 +485,7 @@ type OpTypesCustom = {
 
 type WhereInfo<T> = {
   [k in keyof T]?: {
-    [ot in keyof OpTypes]?: T[k]
+    [ot in keyof OpTypes]?: T[k] | T[k][]
   }
 } & {
   offset?: number
@@ -494,3 +494,7 @@ type WhereInfo<T> = {
 }
 
 type PartialK<T, K extends PropertyKey = PropertyKey> = Partial<Pick<T, Extract<keyof T, K>>> & Omit<T, K> extends infer O ? { [P in keyof O]: O[P] } : never
+
+type Mutable<T> = {
+  -readonly [key in keyof T]: T[key]
+}

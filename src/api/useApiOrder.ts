@@ -7,13 +7,13 @@ export default function useApiOrder() {
   const api = useApi()
   const prefix = '/order'
 
-  const selectList = async (whereInfo?: WhereInfo<MyOrderEntity>) => {
+  async function selectList(whereInfo: WhereInfo<MyOrderEntity>): Promise<{ orders: Order[]; totalCnt: number }>
+  async function selectList(): Promise<Order[]>
+  async function selectList(whereInfo?: WhereInfo<MyOrderEntity>) {
     const queryStr = qs.stringify(whereInfo)
-    const res = await api.get(`${prefix}?${queryStr}`)
+    const resData = (await api.get(`${prefix}?${queryStr}`)).data as { orders: Order[]; totalCnt: number }
 
-    return res.data.map((od: any) => {
-      return { ...od, orderAt: new Date(od.orderAt) }
-    }) as Order[]
+    return whereInfo ? resData : resData.orders
   }
 
   const select = async (seq: string) => {

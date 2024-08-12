@@ -2,6 +2,13 @@
 @import './g-form';
 @import './mixin';
 
+.v-pagination .v-btn {
+  &:disabled {
+    color: var(--color-disable);
+    opacity: 0.8;
+  }
+}
+
 button, a {
   &:hover {
     opacity: 0.8;
