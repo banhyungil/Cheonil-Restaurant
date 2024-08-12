@@ -7,6 +7,7 @@ import usePagination from '@/composable/usePagination'
 import useSwal, { type SweetAlertOptionsCustom } from '@/composable/useSwal'
 import useApiPayment from '@/api/useApiPayment'
 import { Dropdown } from 'floating-vue'
+import { getTotalOrderAmount, getTotalPayAmount } from '@/stores/orderStore'
 
 const Swal = useSwal()
 const apiOrder = useApiOrder()
@@ -41,6 +42,7 @@ const cHeaders = computed(() => {
 
 const orders = ref<Order[]>([])
 const cOrderDict = computed(() => _.keyBy(orders.value, 'seq'))
+
 const checkedSeqs = ref<Order['seq'][]>([])
 const cCancelAble = computed(() => checkedSeqs.value.some((seq) => cOrderDict.value[seq].payments.length > 0))
 const cCollectAble = computed(() => checkedSeqs.value.some((seq) => cOrderDict.value[seq].payments.length == 0))
@@ -269,6 +271,10 @@ function filterPayType(payType: PaymentEntity['payType'] | null) {
       </div>
     </template>
     <template #bottom>
+      <div class="summary">
+        <h3>주문 금액: {{ getTotalOrderAmount(orders).toLocaleString() }}</h3>
+        <h3>결제 금액: {{ getTotalPayAmount(orders).toLocaleString() }}</h3>
+      </div>
       <div class="c-page" style="display: flex">
         <v-pagination class="page" v-model="pageNo" :length="cTotalPage"></v-pagination>
         <v-select class="select" :items="PAGE_SIZE_LIST" v-model="pageSize" density="comfortable"></v-select>
@@ -311,6 +317,12 @@ function filterPayType(payType: PaymentEntity['payType'] | null) {
         height: 30px;
       }
     }
+  }
+
+  .summary {
+    display: flex;
+    flex-direction: column;
+    align-items: end;
   }
 
   .c-page {
