@@ -1,4 +1,3 @@
-import type { Order } from '@/api/useApiOrder'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 export const useOrderStore = defineStore('order', () => {
