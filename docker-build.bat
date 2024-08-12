@@ -1,1 +1,1 @@
-docker build -t cheonil-restaurant .
+docker build -t banhyungil/cheonil-restaurant .

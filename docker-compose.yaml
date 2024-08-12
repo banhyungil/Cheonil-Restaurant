@@ -1,0 +1,17 @@
+version: '1.0'
+networks:
+  cheonil:
+    name: cheonil
+    driver: bridge
+services:
+  cheonil_front:
+    container_name: cheonil_front
+    image: ban/cheonil-restaurant
+    ports:
+      - 80:80
+    environment:
+      - API_IP=localhost
+      - API_PORT=8000
+    restart: always
+    networks:
+      - cheonil
