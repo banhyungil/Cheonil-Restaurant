@@ -19,9 +19,13 @@ interface Props {
   exceptKeys?: (keyof MyOrderEntity)[]
   activeDelete?: boolean
   activeCollection?: boolean
+  activeSummary?: boolean
+  activePaging?: boolean
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  activePaging: true,
+})
 
 const headers = ref([
   { title: '순번', key: 'no', sortable: false, align: 'start', width: '60px' },
@@ -32,7 +36,7 @@ const headers = ref([
   { title: '결제방식', key: 'payInfo', align: 'center' },
   { title: '결제날짜', key: 'payAtF', align: 'center' },
   { title: '결제금액', key: 'payAmount', align: 'center' },
-  { title: 'Actions', key: 'actions', align: 'center' },
+  { title: 'Actions', key: 'actions', align: 'center', sortable: false },
 ]) as Ref<NonNullable<Mutable<VDataTable['$props']['headers']>>>
 
 const cHeaders = computed(() => {
@@ -83,12 +87,12 @@ const cDtOrders = computed(() =>
     }
 
     const completeAtF = dayjs(od.completeAt).format('YY.MM.DD HH:MM')
-    const payAtF = dayjs(payAt).format('YY.MM.DD HH:MM')
+    const payAtF = payAt ? dayjs(payAt).format('YY.MM.DD HH:MM') : null
     const payAmount = od.payments.reduce((result, p) => (result = result + p.amount), 0)
 
     return {
       ...od,
-      no: idx + 1,
+      no: cOffset.value + idx + 1,
       storeNm: od.store.name,
       menuNm,
       orderAtF,
@@ -116,8 +120,8 @@ watch(
       .selectList({
         status: { in: statusIn },
         orderAt: { gte: orderAt },
-        limit: pageSize.value,
-        offset: cOffset.value,
+        limit: props.activePaging ? pageSize.value : undefined,
+        offset: props.activePaging ? cOffset.value : undefined,
         payTypes,
       })
       .then((res) => {
@@ -215,10 +219,24 @@ function filterPayType(payType: PaymentEntity['payType'] | null) {
     srch.value.payType.isNotPaid = !srch.value.payType.isNotPaid
   }
 }
+
+const test = ref('')
 </script>
 
 <template>
-  <v-data-table class="order-list" :show-select="isEdit && activeCollection" v-model="checkedSeqs" :headers="cHeaders" :items="cDtOrders" item-value="seq">
+  {{ cDtOrders.length }}
+  {{ orders.length }}
+  {{ pageNo }}
+  {{ test }}
+  <v-data-table
+    class="order-list"
+    :show-select="isEdit && activeCollection"
+    v-model="checkedSeqs"
+    :headers="cHeaders"
+    :items="cDtOrders"
+    item-value="seq"
+    :items-per-page="undefined"
+  >
     <template #top>
       <v-toolbar flat>
         <v-toolbar-title>{{ title }}</v-toolbar-title>
@@ -270,16 +288,19 @@ function filterPayType(payType: PaymentEntity['payType'] | null) {
         </div>
       </div>
     </template>
-    <template #bottom>
-      <div class="summary">
-        <h3>주문 금액: {{ getTotalOrderAmount(orders).toLocaleString() }}</h3>
-        <h3>결제 금액: {{ getTotalPayAmount(orders).toLocaleString() }}</h3>
-      </div>
-      <div class="c-page" style="display: flex">
+    <!-- <template #bottom>
+      <section v-if="activeSummary" class="c-summary">
+        <div class="grp">
+          <h3>주문 금액: {{ getTotalOrderAmount(orders).toLocaleString() }}</h3>
+          <h3>결제 금액: {{ getTotalPayAmount(orders).toLocaleString() }}</h3>
+        </div>
+      </section>
+      <hr v-if="activeSummary && activePaging" style="margin: 6px 0" />
+      <div v-if="activePaging" class="c-page" style="display: flex">
         <v-pagination class="page" v-model="pageNo" :length="cTotalPage"></v-pagination>
         <v-select class="select" :items="PAGE_SIZE_LIST" v-model="pageSize" density="comfortable"></v-select>
       </div>
-    </template>
+    </template> -->
   </v-data-table>
 </template>
 
@@ -319,10 +340,18 @@ function filterPayType(payType: PaymentEntity['payType'] | null) {
     }
   }
 
-  .summary {
+  .c-summary {
     display: flex;
     flex-direction: column;
     align-items: end;
+
+    .grp {
+      padding: 10px;
+
+      h3 {
+        color: var(--color-u);
+      }
+    }
   }
 
   .c-page {
