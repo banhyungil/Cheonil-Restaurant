@@ -67,13 +67,13 @@ async function onRemove() {
     // 카테고리 중 해당 구역 설정되어 있는 경우 수정
     // 매장 중 해당 구역 설정되어 있는 경우 수정
     storeStore.categories.forEach((storeCtg) => {
-      if (storeCtg.placeCtgseq == ctg.value.seq) {
-        storeCtg.placeCtgseq = null
+      if (storeCtg.placeCtgSeq == ctg.value.seq) {
+        storeCtg.placeCtgSeq = null
       }
     })
     storeStore.items.forEach((store) => {
-      if (store.placeCtgseq == ctg.value.seq) {
-        store.placeCtgseq = null
+      if (store.placeCtgSeq == ctg.value.seq) {
+        store.placeCtgSeq = null
       }
     })
 
