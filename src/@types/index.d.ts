@@ -494,6 +494,7 @@ type WhereInfo<T> = {
 }
 
 type PartialK<T, K extends PropertyKey = PropertyKey> = Partial<Pick<T, Extract<keyof T, K>>> & Omit<T, K> extends infer O ? { [P in keyof O]: O[P] } : never
+type RequiredK<T extends object, K extends keyof T> = Required<Pick<T, K>> & Omit<T, K>
 
 type Mutable<T> = {
   -readonly [key in keyof T]: T[key]

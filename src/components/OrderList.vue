@@ -2,12 +2,13 @@
 import useApiOrder from '@/api/useApiOrder'
 import type { VDataTable } from 'vuetify/components'
 import _ from 'lodash'
-import dayjs from 'dayjs'
+import { format } from 'date-fns'
 import usePagination from '@/composable/usePagination'
 import useSwal, { type SweetAlertOptionsCustom } from '@/composable/useSwal'
 import useApiPayment from '@/api/useApiPayment'
 import { Dropdown } from 'floating-vue'
 import { getTotalOrderAmount, getTotalPayAmount } from '@/stores/orderStore'
+import { toDate } from 'date-fns'
 
 const Swal = useSwal()
 const apiOrder = useApiOrder()
@@ -20,12 +21,9 @@ interface Props {
   activeDelete?: boolean
   activeCollection?: boolean
   activeSummary?: boolean
-  activePaging?: boolean
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  activePaging: true,
-})
+const props = defineProps<Props>()
 
 const headers = ref([
   { title: '순번', key: 'no', sortable: false, align: 'start', width: '60px' },
@@ -51,7 +49,16 @@ const checkedSeqs = ref<Order['seq'][]>([])
 const cCancelAble = computed(() => checkedSeqs.value.some((seq) => cOrderDict.value[seq].payments.length > 0))
 const cCollectAble = computed(() => checkedSeqs.value.some((seq) => cOrderDict.value[seq].payments.length == 0))
 
-const srch = ref({
+export interface Filter {
+  payType: {
+    isCash: boolean
+    isCard: boolean
+    isNotPaid: boolean
+  }
+  isToday: boolean
+}
+
+const filter = ref<Filter>({
   payType: {
     isCash: false,
     isCard: false,
@@ -69,7 +76,7 @@ const isEdit = ref(false)
 const cDtOrders = computed(() =>
   orders.value.map((od, idx) => {
     const menuNm = od.orderMenues.map((om) => om.menu.name + om.cnt).join(', ')
-    const orderAtF = dayjs(od.orderAt).format('YY.MM.DD HH:MM')
+    const orderAtF = od.orderAt ? format(od.orderAt, 'yy.MM.dd hh:mm aa') : null
 
     const payAt = _.last(od.payments)?.payAt
     const payType = (() => {
@@ -86,8 +93,8 @@ const cDtOrders = computed(() =>
       seqs: od.payments.map((p) => p.seq),
     }
 
-    const completeAtF = dayjs(od.completeAt).format('YY.MM.DD HH:MM')
-    const payAtF = payAt ? dayjs(payAt).format('YY.MM.DD HH:MM') : null
+    const completeAtF = od.completeAt ? format(od.completeAt, 'yy.MM.dd hh:mm aa') : null
+    const payAtF = payAt ? format(payAt, 'yy.MM.dd hh:mm aa') : null
     const payAmount = od.payments.reduce((result, p) => (result = result + p.amount), 0)
 
     return {
@@ -106,13 +113,13 @@ const cDtOrders = computed(() =>
 )
 
 watch(
-  [pageNo, pageSize, () => srch.value, () => srch.value.isToday],
+  [pageNo, pageSize, () => filter.value, () => filter.value.isToday],
   () => {
-    const statusIn = (srch.value.payType.isNotPaid ? ['COOKED'] : ['COOKED', 'PAID']) as Order['status'][]
-    const orderAt = srch.value.isToday ? dayjs(new Date().setHours(0, 0, 0, 0)).toDate() : undefined
+    const statusIn = (filter.value.payType.isNotPaid ? ['COOKED'] : ['COOKED', 'PAID']) as Order['status'][]
+    const orderAt = filter.value.isToday ? toDate(new Date().setHours(0, 0, 0, 0)) : undefined
     const payTypes = (() => {
-      if (srch.value.payType.isCard) return ['CARD']
-      else if (srch.value.payType.isCash) return ['CASH']
+      if (filter.value.payType.isCard) return ['CARD']
+      else if (filter.value.payType.isCash) return ['CASH']
       else return null
     })() as PaymentEntity['payType'][] | undefined
 
@@ -120,8 +127,8 @@ watch(
       .selectList({
         status: { in: statusIn },
         orderAt: { gte: orderAt },
-        limit: props.activePaging ? pageSize.value : undefined,
-        offset: props.activePaging ? cOffset.value : undefined,
+        limit: pageSize.value,
+        offset: cOffset.value,
         payTypes,
       })
       .then((res) => {
@@ -206,28 +213,24 @@ async function onRemove(seq: number) {
 
 function filterPayType(payType: PaymentEntity['payType'] | null) {
   if (payType == 'CASH') {
-    srch.value.payType.isCash = !srch.value.payType.isCash
-    srch.value.payType.isCard = false
-    srch.value.payType.isNotPaid = false
+    filter.value.payType.isCash = !filter.value.payType.isCash
+    filter.value.payType.isCard = false
+    filter.value.payType.isNotPaid = false
   } else if (payType == 'CARD') {
-    srch.value.payType.isCash = false
-    srch.value.payType.isCard = !srch.value.payType.isCard
-    srch.value.payType.isNotPaid = false
+    filter.value.payType.isCash = false
+    filter.value.payType.isCard = !filter.value.payType.isCard
+    filter.value.payType.isNotPaid = false
   } else {
-    srch.value.payType.isCash = false
-    srch.value.payType.isCard = false
-    srch.value.payType.isNotPaid = !srch.value.payType.isNotPaid
+    filter.value.payType.isCash = false
+    filter.value.payType.isCard = false
+    filter.value.payType.isNotPaid = !filter.value.payType.isNotPaid
   }
 }
 
-const test = ref('')
+defineExpose({ filter })
 </script>
 
 <template>
-  {{ cDtOrders.length }}
-  {{ orders.length }}
-  {{ pageNo }}
-  {{ test }}
   <v-data-table
     class="order-list"
     :show-select="isEdit && activeCollection"
@@ -235,7 +238,7 @@ const test = ref('')
     :headers="cHeaders"
     :items="cDtOrders"
     item-value="seq"
-    :items-per-page="undefined"
+    :items-per-page="pageSize"
   >
     <template #top>
       <v-toolbar flat>
@@ -248,14 +251,14 @@ const test = ref('')
             <div>
               <div>
                 <h3>결제 방식</h3>
-                <v-btn :base-color="srch.payType.isNotPaid ? 'success' : ''" @click="filterPayType(null)">미수</v-btn>
-                <v-btn :base-color="srch.payType.isCash ? 'success' : ''" @click="filterPayType('CASH')">현금</v-btn>
-                <v-btn :base-color="srch.payType.isCard ? 'success' : ''" @click="filterPayType('CARD')">카드</v-btn>
+                <v-btn :base-color="filter.payType.isNotPaid ? 'success' : ''" @click="filterPayType(null)">미수</v-btn>
+                <v-btn :base-color="filter.payType.isCash ? 'success' : ''" @click="filterPayType('CASH')">현금</v-btn>
+                <v-btn :base-color="filter.payType.isCard ? 'success' : ''" @click="filterPayType('CARD')">카드</v-btn>
               </div>
 
               <div>
                 <h3>기타</h3>
-                <v-btn :base-color="srch.isToday ? 'success' : ''" @click="srch.isToday = !srch.isToday">당일</v-btn>
+                <v-btn :base-color="filter.isToday ? 'success' : ''" @click="filter.isToday = !filter.isToday">당일</v-btn>
               </div>
             </div>
           </template>
@@ -288,19 +291,19 @@ const test = ref('')
         </div>
       </div>
     </template>
-    <!-- <template #bottom>
+    <template #bottom>
       <section v-if="activeSummary" class="c-summary">
         <div class="grp">
           <h3>주문 금액: {{ getTotalOrderAmount(orders).toLocaleString() }}</h3>
           <h3>결제 금액: {{ getTotalPayAmount(orders).toLocaleString() }}</h3>
         </div>
       </section>
-      <hr v-if="activeSummary && activePaging" style="margin: 6px 0" />
-      <div v-if="activePaging" class="c-page" style="display: flex">
+      <hr v-if="activeSummary" style="margin: 6px 0" />
+      <div class="c-page" style="display: flex">
         <v-pagination class="page" v-model="pageNo" :length="cTotalPage"></v-pagination>
         <v-select class="select" :items="PAGE_SIZE_LIST" v-model="pageSize" density="comfortable"></v-select>
       </div>
-    </template> -->
+    </template>
   </v-data-table>
 </template>
 

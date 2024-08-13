@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import useApiOrder from '@/api/useApiOrder'
 import { ref } from 'vue'
-import dayjs from 'dayjs'
+import { format, differenceInSeconds } from 'date-fns'
 import { useIntervalFn, useNow } from '@vueuse/core'
 import useSwal from '@/composable/useSwal'
 import { useRouter } from 'vue-router'
@@ -41,10 +41,11 @@ async function onComplete(order: Order) {
     completeAt: new Date(),
   } as MyOrderEntity
 
-  await apiOrder.update(data)
+  const uOrderRes = await apiOrder.update(data)
   Swal.fireCustom({ toast: true, title: '주문이 처리되었습니다.', icon: 'success' })
   _.remove(orders.value, order)
-  order.completeAt = new Date()
+  Object.assign(order, uOrderRes)
+
   completeOrders.value.splice(0, 0, order)
 
   dLoading.value[order.seq!] = false
@@ -116,9 +117,9 @@ async function onRemove(orderId: number) {
           <div class="time">
             <span class="order-time" v-tooltip="'주문접수시간'">
               <font-awesome-icon :icon="['fas', 'timer']" />
-              {{ dayjs(order.orderAt).format('hh:MM A') }}
+              {{ order.orderAt ? format(order.orderAt, 'hh:MM aa') : null }}
             </span>
-            <span class="elapsed"> {{ `${formatTime(dayjs(now).diff(order.orderAt, 'second'))}` }}</span>
+            <span class="elapsed"> {{ `${formatTime(differenceInSeconds(now, order.orderAt!))}` }}</span>
           </div>
           <v-btn class="complete" @click="onComplete(order)" :loading="dLoading[order.seq!]">완료</v-btn>
         </div>
@@ -146,7 +147,7 @@ async function onRemove(orderId: number) {
             <div class="time" v-tooltip="'완료시간'">
               <span class="order-time" style="color: var(--color-point)">
                 <font-awesome-icon :icon="['fas', 'timer']" />
-                {{ dayjs(order.completeAt).format('hh:MM A') }}
+                {{ order.completeAt ? format(order.completeAt, 'hh:mm aa') : null }}
               </span>
             </div>
             <v-btn class="complete" style="background-color: var(--color-d)" @click="onUnComplete(order)" :loading="dLoading[order.seq!]">완료 취소</v-btn>
