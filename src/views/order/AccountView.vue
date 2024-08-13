@@ -82,6 +82,7 @@ function onClickPayType(payType: keyof Filter['payType']) {
         :active-delete="true"
         :active-paging="false"
         :active-summary="true"
+        :active-filter="false"
       ></OrderList>
     </section>
   </div>

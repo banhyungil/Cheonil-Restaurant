@@ -21,9 +21,12 @@ interface Props {
   activeDelete?: boolean
   activeCollection?: boolean
   activeSummary?: boolean
+  activeFilter?: boolean
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  activeFilter: true,
+})
 
 const headers = ref([
   { title: '순번', key: 'no', sortable: false, align: 'start', width: '60px' },
@@ -246,7 +249,7 @@ defineExpose({ filter })
       </v-toolbar>
       <section class="top">
         <Dropdown placement="right">
-          <v-btn v-tooltip="'필터'"><font-awesome-icon :icon="['fas', 'filter']" /></v-btn>
+          <v-btn v-if="activeFilter" v-tooltip="'필터'"><font-awesome-icon :icon="['fas', 'filter']" /></v-btn>
           <template #popper>
             <div>
               <div>
