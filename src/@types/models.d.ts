@@ -3,6 +3,30 @@
  * Rerun sql-ts to regenerate this file.
  */
 
+/* 지출 */
+interface ExpenseEntity {
+  /* 지출 Seq */
+  seq: number
+
+  /* 식자재 Seq */
+  supplySeq: number
+
+  /* 금액 */
+  amount: number
+
+  /* 수량 */
+  cnt: number
+
+  /* 지출 날짜 */
+  expenseAt: Date
+
+  /* 비고 */
+  cmt?: string | null
+
+  /* 수정시간 */
+  updatedAt?: Date | null
+}
+
 /* 메뉴 */
 interface MenuEntity {
   /* 메뉴 Seq */
@@ -66,7 +90,7 @@ interface MyOrderEntity {
   /* 총 금액 */
   amount: number
 
-  /* READY: 준비, COMPLETE: 완료 */
+  /* READY: 준비, COOKED: 조리 완료, PAID: 결제 완료 */
   status?: 'READY' | 'COOKED' | 'PAID'
 
   /* 주문 시간 */
@@ -197,6 +221,9 @@ type PlaceCategoryEntityCreation = PartialK<PlaceCategoryEntity, 'seq'>
 
 /* 설정 */
 interface SettingEntity {
+  /* 설정 Seq */
+  seq: number
+
   /* 설정 정보 */
   config: string
 }
@@ -242,12 +269,45 @@ interface StoreCategoryEntity {
   seq: number
 
   /* 장소 카테고리 Seq */
-  placeCtgseq?: number | null
+  placeCtgSeq?: number | null
 
   /* 매장 카테고리 명 */
   name: string
 
   /* 추가정보 */
+  options?: string | null
+
+  /* 생성시간 */
+  createdAt?: Date | null
+
+  /* 수정시간 */
+  updatedAt?: Date | null
+}
+
+/* 식자재 */
+interface SupplyEntity {
+  /* 식자재 Seq */
+  seq: number
+
+  /* 매장 Seq */
+  storeSeq: number
+
+  /* 식자재 명 */
+  name: string
+
+  /* 단위 */
+  unit: string
+
+  /* 수량 */
+  cnt: number
+
+  /* 단위수량 목록 */
+  unitCntOptions?: string | null
+
+  /* 비고 */
+  cmt?: string | null
+
+  /* 추가 정보 */
   options?: string | null
 
   /* 생성시간 */
