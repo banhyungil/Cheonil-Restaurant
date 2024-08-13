@@ -14,7 +14,8 @@ function isISODateString(value: any) {
   return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d*)?Z?$/.test(value)
 }
 
-function convertDates(data: AxiosResponse['data']) {
+// TODO 타입 설정 임의로 일단 대충 함... 나중에 고치자
+function convertDates<T>(data: T): T | Date {
   if (data === null || data === undefined) return data
 
   if (typeof data === 'string' && isISODateString(data)) {
@@ -22,14 +23,14 @@ function convertDates(data: AxiosResponse['data']) {
   }
 
   if (Array.isArray(data)) {
-    return data.map(convertDates)
+    return data.map(convertDates) as any
   }
 
   if (typeof data === 'object') {
     return Object.keys(data).reduce((acc, key) => {
-      acc[key] = convertDates(data[key])
+      acc[key as keyof T] = convertDates(data[key as keyof T]) as any
       return acc
-    }, {} as any)
+    }, {} as T)
   }
 
   return data
