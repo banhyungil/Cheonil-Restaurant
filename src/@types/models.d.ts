@@ -237,7 +237,7 @@ interface StoreEntity {
   ctgSeq: number
 
   /* 장소 카테고리 Seq */
-  placeCtgseq?: number | null
+  placeCtgSeq?: number | null
 
   /* 매장 명 */
   name: string

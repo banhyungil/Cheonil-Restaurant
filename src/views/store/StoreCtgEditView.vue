@@ -82,7 +82,7 @@ function onCancel() {
         <div class="row">
           <span class="label">구역 </span>
           <div class="val" style="display: flex; justify-content: center; align-items: center; height: 56px">
-            <v-select :items="placeCtgStore.items" item-value="seq" item-title="name" v-model="ctg.placeCtgseq">
+            <v-select :items="placeCtgStore.items" item-value="seq" item-title="name" v-model="ctg.placeCtgSeq">
               <template v-slot:item="{ props, item }">
                 <v-list-item v-bind="props">
                   <template v-slot:append>
