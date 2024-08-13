@@ -20,6 +20,7 @@ declare module 'vue' {
     TabEditor: typeof import('./src/components/TabEditor.vue')['default']
     VBtn: typeof import('vuetify/components')['VBtn']
     VDataTable: typeof import('vuetify/components')['VDataTable']
+    VDropdown: typeof import('vuetify/components')['VDropdown']
     VListItem: typeof import('vuetify/components')['VListItem']
     VPagination: typeof import('vuetify/components')['VPagination']
     VSelect: typeof import('vuetify/components')['VSelect']

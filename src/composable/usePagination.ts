@@ -18,6 +18,9 @@ export default function usePagination(totalCnt: Ref<number>) {
     }
   )
 
-  const cOffset = computed(() => (pageNo.value - 1) * pageSize.value)
+  const cOffset = computed(() => {
+    const result = (pageNo.value - 1) * pageSize.value
+    return result < 0 ? 0 : result
+  })
   return { pageSize, pageNo, cOffset, cTotalPage, PAGE_GRP_SIZE, PAGE_SIZE_LIST }
 }
