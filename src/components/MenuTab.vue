@@ -59,7 +59,8 @@ const cFilteredItems = computed(() => {
   }
 })
 
-function onClickCategory(ctg: MenuCategoryEntity | 'all') {
+type SelCtg = MenuCategoryEntity | 'all'
+function onClickCategory(ctg: SelCtg) {
   selCtg.value = ctg
 
   if (isEdit.value && typeof ctg == 'object') {
@@ -80,9 +81,13 @@ function onClickItem(item: MenuEntity) {
   }
 }
 
+function isCategory(selCtg: SelCtg): selCtg is MenuCategoryEntity {
+  return (selCtg as MenuCategoryEntity).seq != null
+}
+
 function onAddItem() {
-  const ctgName = selCtg.value != null && typeof selCtg.value == 'object' ? selCtg.value.name : null
-  router.push({ path: '/menuEdit', query: { ctgName: ctgName } })
+  if (isCategory(selCtg.value)) router.push({ path: '/menuEdit', query: { ctgSeq: selCtg.value.seq } })
+  else router.push({ path: '/menuEdit' })
 }
 useEventListener(document, 'keyup', (e) => {
   if (e.key == 'Escape') {

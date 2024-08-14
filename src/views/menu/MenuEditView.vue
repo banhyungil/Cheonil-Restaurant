@@ -15,7 +15,7 @@ const menuStore = useMenuStore()
 const apiMenu = useApiMenu()
 const Swal = useSwal()
 const router = useRouter()
-const route = useRoute()
+const routeQuery = useRoute().query
 
 interface Props {
   seq?: number
@@ -24,10 +24,16 @@ interface Props {
 const props = defineProps<Props>()
 const cIsUpdate = computed(() => (props.seq ? true : false))
 const cText = computed(() => (cIsUpdate.value ? '수정' : '등록'))
-const menu = ref({ ctgSeq: props.seq, name: '', price: 0 } as MenuEntityCreation)
+const menu = ref({ name: '', price: 0 } as MenuEntityCreation)
 if (props.seq) {
   menu.value = _.cloneDeep(menuStore.items.find((item) => item.seq == props.seq)) as MenuEntityCreation
 }
+if (routeQuery) {
+  if ('ctgSeq' in routeQuery && typeof routeQuery.ctgSeq == 'string') {
+    menu.value.ctgSeq = +routeQuery.ctgSeq
+  }
+}
+
 const oMenuProp: { [k in keyof MenuEntityCreation]: { label: string } } = {
   ctgSeq: { label: '카테고리' },
   name: { label: '메뉴명' },

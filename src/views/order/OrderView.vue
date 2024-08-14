@@ -11,7 +11,7 @@ import { useRouter } from 'vue-router'
 
 interface Props {
   // orderId
-  seq?: string
+  seq?: number
 }
 const props = defineProps<Props>()
 

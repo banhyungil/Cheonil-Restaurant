@@ -60,7 +60,8 @@ const cFilteredItems = computed(() => {
   }
 })
 
-function onClickCategory(ctg: StoreCategoryEntity | 'all') {
+type SelCtg = StoreCategoryEntity | 'all'
+function onClickCategory(ctg: SelCtg) {
   selCtg.value = ctg
 
   if (isEdit.value && typeof ctg == 'object') {
@@ -73,8 +74,12 @@ function onAddCategory() {
   router.push('/storeCtgEdit')
 }
 
+function isCtg(selCtg: SelCtg): selCtg is StoreCategoryEntity {
+  return (selCtg as StoreCategoryEntity).seq != null
+}
 function onAddItem() {
-  router.push('/storeEdit')
+  if (isCtg(selCtg.value)) router.push({ path: `/storeEdit`, query: { ctgSeq: selCtg.value.seq } })
+  else router.push(`/storeEdit`)
 }
 
 function onClickItem(item: StoreEntity) {

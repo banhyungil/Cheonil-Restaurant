@@ -74,8 +74,8 @@ function formatTime(second: number) {
   return `${Math.floor(second / 60)}분${second % 60}초`
 }
 
-function onUpdate(orderId: number) {
-  router.push(`/order/${orderId}`)
+function onUpdate(orderSeq: number) {
+  router.push(`/order/${orderSeq}`)
 }
 
 async function onRemove(orderId: number) {

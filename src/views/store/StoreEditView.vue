@@ -2,7 +2,7 @@
 import useApiStore from '@/api/useApiStore'
 import { useStoreStore } from '@/stores/storeStore'
 import { computed, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, type LocationQuery } from 'vue-router'
 import _ from 'lodash'
 import useSwal from '@/composable/useSwal'
 import { usePlaceCtgStore } from '@/stores/placeCtgStore'
@@ -16,6 +16,7 @@ const storeStore = useStoreStore()
 const apiStore = useApiStore()
 const Swal = useSwal()
 const router = useRouter()
+const routeQuery = useRoute().query
 const apiPlaceCtg = useApiPlaceCtg()
 const placeCtgStore = usePlaceCtgStore()
 apiPlaceCtg.selectList().then((res) => {
@@ -33,6 +34,12 @@ const cText = computed(() => (cIsUpdate.value ? '수정' : '등록'))
 const store = ref({} as StoreEntity)
 if (props.seq) {
   store.value = _.cloneDeep(storeStore.items.find((item) => item.seq == props.seq)) as StoreEntity
+}
+
+if (routeQuery) {
+  if ('ctgSeq' in routeQuery && typeof routeQuery.ctgSeq == 'string') {
+    store.value.ctgSeq = +routeQuery.ctgSeq
+  }
 }
 
 const rules = {

@@ -17,7 +17,7 @@ export default function useApiOrder() {
     return whereInfo ? resData : resData.orders
   }
 
-  const select = async (seq: string) => {
+  const select = async (seq: number) => {
     const res = await api.get(`${prefix}/${seq}`)
 
     return res.data as Order
