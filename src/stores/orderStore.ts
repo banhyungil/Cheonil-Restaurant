@@ -13,14 +13,14 @@ export function getPayAmount(payments: PaymentEntity[]) {
   }, 0)
 }
 
-export function getTotalOrderAmount(orders: Order[]) {
+export function getTotalPayAmount(orders: Order[]) {
   return orders.reduce((result, od) => {
     result = result + getPayAmount(od.payments)
     return result
   }, 0)
 }
 
-export function getTotalPayAmount(orders: Order[]) {
+export function getTotalOrderAmount(orders: Order[]) {
   return orders.reduce((result, od) => {
     result = result + od.amount
     return result
