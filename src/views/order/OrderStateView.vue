@@ -21,11 +21,11 @@ useIntervalFn(
 
     console.log('selectList')
   },
-  10000,
+  15000,
   { immediateCallback: true }
 )
 
-apiOrder.selectList({ status: { eq: 'COOKED' } }).then((res) => {
+apiOrder.selectList({ status: { eq: 'COOKED' }, limit: 10 }).then((res) => {
   completeOrders.value = res.orders
 })
 
@@ -90,9 +90,9 @@ async function onRemove(orderId: number) {
 
 <template>
   <div class="order-state-view">
-    <div class="react-grid-col">
+    <div class="react-grid-col ready">
       <TransitionGroup name="slide">
-        <div v-for="order in orders" :key="order.seq" class="c-order">
+        <div v-for="order in orders" :key="order.seq" class="item c-order">
           <div class="store">
             <span>{{ order.store.name }}</span>
             <Dropdown class="c-choice">
@@ -131,9 +131,9 @@ async function onRemove(orderId: number) {
 
     <div class="c-completed">
       <div class="title">주문완료 목록</div>
-      <div class="react-grid-col">
+      <div class="react-grid-col cooked">
         <TransitionGroup name="slide">
-          <div v-for="order in completeOrders" :key="order.seq" class="c-order">
+          <div v-for="order in completeOrders" :key="order.seq" class="item c-order">
             <div class="store">
               <span>{{ order.store.name }}</span>
             </div>
@@ -159,17 +159,45 @@ async function onRemove(orderId: number) {
 </template>
 
 <style lang="scss" scoped>
-$height-item: 194px;
+$height-item: 230px;
 
 .order-state-view {
   display: grid;
   grid-template-rows: 1fr minmax(max-content, $height-item);
+  row-gap: 10px;
   height: 100%;
+  overflow: hidden;
 
   .react-grid-col {
+    $item-min-width: 300px;
+
     display: grid;
     grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(auto-fill, minmax($height-item, 1fr));
     column-gap: 12px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+
+    &::-webkit-scrollbar {
+      width: 0;
+    }
+
+    &.ready {
+    }
+
+    &.cooked {
+      max-width: 100%;
+      grid-auto-flow: column;
+
+      overflow-x: scroll;
+      &::-webkit-scrollbar {
+        width: 0;
+      }
+
+      & > .item {
+        margin-bottom: 10px;
+      }
+    }
 
     @media screen and (max-width: 1024px) {
       grid-template-columns: repeat(5, 1fr);
@@ -186,10 +214,12 @@ $height-item: 194px;
       flex-direction: column;
       row-gap: 6px;
       box-shadow: var(--box-shadow);
-      height: $height-item;
+      min-width: $item-min-width;
 
       & > * {
-        padding: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
 
       .store {
@@ -200,6 +230,8 @@ $height-item: 194px;
         width: 100%;
         text-align: center;
         color: #595959;
+        padding: 10px;
+
         // background-color: rgb(95, 171, 237);
         background-color: rgb(39 44 49 / 14%);
         font-weight: bold;
@@ -221,6 +253,7 @@ $height-item: 194px;
         display: flex;
         flex-wrap: wrap;
         height: 100%;
+        margin: 10px 0;
       }
 
       .time {
@@ -228,6 +261,7 @@ $height-item: 194px;
         flex-direction: column;
         justify-content: center;
         align-items: center;
+        margin: 10px 0;
 
         .order-time {
         }
@@ -247,6 +281,8 @@ $height-item: 194px;
   }
 
   .c-completed {
+    overflow: hidden;
+
     .title {
       padding: 8px;
       font-size: 18px;
