@@ -44,7 +44,7 @@ const filter = ref({} as Filter)
 const OrderListComp = ref({} as InstanceType<typeof OrderList>)
 
 onMounted(() => {
-  OrderListComp.value.filter.isToday = true
+  OrderListComp.value.filter.isTodayOrder = true
 })
 
 function onClickPayType(payType: keyof Filter['payType']) {

@@ -58,7 +58,8 @@ export interface Filter {
     isCard: boolean
     isNotPaid: boolean
   }
-  isToday: boolean
+  isTodayOrder: boolean
+  isTodayPay: boolean
 }
 
 const filter = ref<Filter>({
@@ -67,7 +68,8 @@ const filter = ref<Filter>({
     isCard: false,
     isNotPaid: false,
   },
-  isToday: false,
+  isTodayOrder: false,
+  isTodayPay: false,
 })
 
 const totalOrderCnt = ref(0)
@@ -116,10 +118,10 @@ const cDtOrders = computed(() =>
 )
 
 watch(
-  [pageNo, pageSize, () => filter.value, () => filter.value.isToday],
+  [pageNo, pageSize, () => filter.value, () => filter.value.isTodayOrder],
   () => {
     const statusIn = (filter.value.payType.isNotPaid ? ['COOKED'] : ['COOKED', 'PAID']) as Order['status'][]
-    const orderAt = filter.value.isToday ? toDate(new Date().setHours(0, 0, 0, 0)) : undefined
+    const orderAt = filter.value.isTodayOrder ? toDate(new Date().setHours(0, 0, 0, 0)) : undefined
     const payTypes = (() => {
       if (filter.value.payType.isCard) return ['CARD']
       else if (filter.value.payType.isCash) return ['CASH']
@@ -261,7 +263,8 @@ defineExpose({ filter })
 
               <div>
                 <h3>기타</h3>
-                <v-btn :base-color="filter.isToday ? 'success' : ''" @click="filter.isToday = !filter.isToday">당일</v-btn>
+                <v-btn :base-color="filter.isTodayOrder ? 'success' : ''" @click="filter.isTodayOrder = !filter.isTodayOrder">당일주문</v-btn>
+                <v-btn :base-color="filter.isTodayPay ? 'success' : ''" @click="filter.isTodayPay = !filter.isTodayPay">당일결제</v-btn>
               </div>
             </div>
           </template>
@@ -302,16 +305,28 @@ defineExpose({ filter })
         </div>
       </section>
       <hr v-if="activeSummary" style="margin: 6px 0" />
-      <div class="c-page" style="display: flex">
+      <div class="c-page" style="display: flex; align-items: center">
         <v-pagination class="page" v-model="pageNo" :length="cTotalPage"></v-pagination>
-        <v-select class="select" :items="PAGE_SIZE_LIST" v-model="pageSize" density="comfortable"></v-select>
+        <div class="right">
+          <h3 style="width: max-content">총: {{ totalOrderCnt }} 건</h3>
+          <v-select class="select" :items="PAGE_SIZE_LIST" v-model="pageSize" density="comfortable"></v-select>
+        </div>
       </div>
     </template>
   </v-data-table>
 </template>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .order-list {
+  overflow: hidden;
+  .v-table__wrapper {
+    height: 75vh;
+    overflow-y: scroll;
+    &::-webkit-scrollbar {
+      width: 0;
+    }
+    margin: 8px 0;
+  }
   section.top {
     display: flex;
     justify-content: space-between;
@@ -362,12 +377,28 @@ defineExpose({ filter })
 
   .c-page {
     display: flex;
+    justify-content: center;
+    align-items: center;
 
     .page {
       width: 100%;
     }
+
+    .right {
+      display: flex;
+      justify-content: cetner;
+      align-items: center;
+      column-gap: 10px;
+      width: 240px;
+
+      & > * {
+        display: flex;
+        align-items: center;
+      }
+    }
     .select {
-      width: 100px;
+      display: flex;
+      align-items: center;
     }
   }
 }
