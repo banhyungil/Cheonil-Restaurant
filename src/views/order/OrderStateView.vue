@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import useApiOrder from '@/api/useApiOrder'
 import { ref } from 'vue'
-import { format, differenceInSeconds } from 'date-fns'
+import { format, differenceInSeconds, toDate } from 'date-fns'
 import { useIntervalFn, useNow } from '@vueuse/core'
 import useSwal from '@/composable/useSwal'
 import { useRouter } from 'vue-router'
@@ -25,7 +25,7 @@ useIntervalFn(
   { immediateCallback: true }
 )
 
-apiOrder.selectList({ status: { eq: 'COOKED' }, limit: 10 }).then((res) => {
+apiOrder.selectList({ status: { eq: 'COOKED' }, orderAt: { gte: toDate(new Date().setHours(0, 0, 0, 0)) }, limit: 10 }).then((res) => {
   completeOrders.value = res.orders
 })
 
