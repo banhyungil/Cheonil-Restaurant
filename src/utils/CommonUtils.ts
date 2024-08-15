@@ -1,4 +1,7 @@
 /* eslint-disable */
+
+import { toDate } from "date-fns";
+
 // 초성(19개)
 const CHO_HANGUL = [
   'ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ',
@@ -36,4 +39,11 @@ export function getInitials(str: string) {
   }
 
   return initials
+}
+
+/**
+ * 시간 정보를 제외한 현재 날짜만 반환
+ */
+export function today() {
+  return toDate(new Date().setHours(0, 0, 0, 0))
 }

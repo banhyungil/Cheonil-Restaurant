@@ -2,12 +2,16 @@ import useApi from './useApi'
 import qs from 'qs'
 
 type OrderCURes = Omit<Order, 'payments' | 'store'>
+interface Additional {
+  payTypes?: PaymentEntity['payType'][]
+  payAt?: PaymentEntity['payAt']
+}
 
 export default function useApiOrder() {
   const api = useApi()
   const prefix = '/order'
 
-  type OrderWhereInfo = WhereInfo<MyOrderEntity> & { payTypes?: PaymentEntity['payType'][] }
+  type OrderWhereInfo = WhereInfo<MyOrderEntity & Additional>
   async function selectList(whereInfo: OrderWhereInfo): Promise<{ orders: Order[]; totalCnt: number }>
   async function selectList(): Promise<Order[]>
   async function selectList(whereInfo?: OrderWhereInfo) {
@@ -15,6 +19,16 @@ export default function useApiOrder() {
     const resData = (await api.get(`${prefix}?${queryStr}`)).data as { orders: Order[]; totalCnt: number }
 
     return whereInfo ? resData : resData.orders
+  }
+
+  /**
+   * 정산 목록 조회
+   * 당일 결제 + 당일 미수
+   */
+  async function selectListAccount() {
+    const resData = (await api.get(`${prefix}/account`)).data as Order[]
+
+    return resData
   }
 
   const select = async (seq: number) => {
@@ -43,5 +57,5 @@ export default function useApiOrder() {
     return api.delete(`${prefix}/${seq}`)
   }
 
-  return { selectList, select, create, update, remove }
+  return { selectList, selectListAccount, select, create, update, remove }
 }

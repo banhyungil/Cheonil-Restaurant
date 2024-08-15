@@ -8,7 +8,7 @@ import useSwal, { type SweetAlertOptionsCustom } from '@/composable/useSwal'
 import useApiPayment from '@/api/useApiPayment'
 import { Dropdown } from 'floating-vue'
 import { getTotalOrderAmount, getTotalPayAmount } from '@/stores/orderStore'
-import { toDate } from 'date-fns'
+import { today } from '@/utils/CommonUtils'
 
 const Swal = useSwal()
 const apiOrder = useApiOrder()
@@ -119,27 +119,28 @@ const cDtOrders = computed(() =>
 
 watch(
   [pageNo, pageSize, () => filter.value, () => filter.value.isTodayOrder],
-  () => {
+  async () => {
     const statusIn = (filter.value.payType.isNotPaid ? ['COOKED'] : ['COOKED', 'PAID']) as Order['status'][]
-    const orderAt = filter.value.isTodayOrder ? toDate(new Date().setHours(0, 0, 0, 0)) : undefined
+    const orderAt = filter.value.isTodayOrder ? today() : undefined
+    const payAt = filter.value.isTodayPay ? today() : undefined
     const payTypes = (() => {
       if (filter.value.payType.isCard) return ['CARD']
       else if (filter.value.payType.isCash) return ['CASH']
       else return null
     })() as PaymentEntity['payType'][] | undefined
 
-    apiOrder
-      .selectList({
+    const res = await apiOrder.selectList({
+      whereOptions: {
         status: { in: statusIn },
         orderAt: { gte: orderAt },
-        limit: pageSize.value,
-        offset: cOffset.value,
-        payTypes,
-      })
-      .then((res) => {
-        orders.value = res.orders
-        totalOrderCnt.value = res.totalCnt
-      })
+        payAt: { gte: payAt },
+        payTypes: payTypes ? { in: payTypes } : undefined,
+      },
+      limit: pageSize.value,
+      offset: cOffset.value,
+    })
+    orders.value = res.orders
+    totalOrderCnt.value = res.totalCnt
   },
   { immediate: true, deep: true }
 )
@@ -232,10 +233,13 @@ function filterPayType(payType: PaymentEntity['payType'] | null) {
   }
 }
 
-defineExpose({ filter })
+defineExpose({ filter, orders })
 </script>
 
 <template>
+  <!--
+    disable paging: items-per-page="0"
+      -->
   <v-data-table
     class="order-list"
     :show-select="isEdit && activeCollection"
@@ -243,7 +247,8 @@ defineExpose({ filter })
     :headers="cHeaders"
     :items="cDtOrders"
     item-value="seq"
-    :items-per-page="pageSize"
+    :items-per-page="0"
+    :hide-default-footer="true"
   >
     <template #top>
       <v-toolbar flat>
@@ -386,10 +391,10 @@ defineExpose({ filter })
 
     .right {
       display: flex;
-      justify-content: cetner;
+      justify-content: center;
       align-items: center;
       column-gap: 10px;
-      width: 240px;
+      width: 230px;
 
       & > * {
         display: flex;
@@ -399,6 +404,7 @@ defineExpose({ filter })
     .select {
       display: flex;
       align-items: center;
+      width: max-content;
     }
   }
 }

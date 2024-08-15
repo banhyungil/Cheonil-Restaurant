@@ -484,8 +484,10 @@ type OpTypesCustom = {
 }
 
 type WhereInfo<T> = {
-  [k in keyof T]?: {
-    [ot in keyof OpTypes]?: T[k] | T[k][]
+  whereOptions: {
+    [k in keyof T]?: {
+      [ot in keyof OpTypes]?: T[k] | T[k][]
+    }
   }
 } & {
   offset?: number

@@ -15,7 +15,7 @@ const dLoading = ref<Record<string, boolean>>({})
 const router = useRouter()
 useIntervalFn(
   () => {
-    apiOrder.selectList({ status: { eq: 'READY' } }).then((list) => {
+    apiOrder.selectList({ whereOptions: { status: { eq: 'READY' } } }).then((list) => {
       orders.value = list.orders
     })
 
@@ -25,7 +25,7 @@ useIntervalFn(
   { immediateCallback: true }
 )
 
-apiOrder.selectList({ status: { eq: 'COOKED' }, orderAt: { gte: toDate(new Date().setHours(0, 0, 0, 0)) }, limit: 10 }).then((res) => {
+apiOrder.selectList({ whereOptions: { status: { eq: 'COOKED' }, orderAt: { gte: toDate(new Date().setHours(0, 0, 0, 0)) } }, limit: 10 }).then((res) => {
   completeOrders.value = res.orders
 })
 
@@ -117,7 +117,7 @@ async function onRemove(orderId: number) {
           <div class="time">
             <span class="order-time" v-tooltip="'주문접수시간'">
               <font-awesome-icon :icon="['fas', 'timer']" />
-              {{ order.orderAt ? format(order.orderAt, 'hh:MM aa') : null }}
+              {{ order.orderAt ? format(order.orderAt, 'hh:mm aa') : null }}
             </span>
             <span class="elapsed"> {{ `${formatTime(differenceInSeconds(now, order.orderAt!))}` }}</span>
           </div>

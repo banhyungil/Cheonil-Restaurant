@@ -1,7 +1,7 @@
 import type { Ref } from 'vue'
 
 export default function usePagination(totalCnt: Ref<number>) {
-  const PAGE_SIZE_LIST = [10, 25, 35, 50]
+  const PAGE_SIZE_LIST = [10, 25, 35, 50, 1000]
   const PAGE_GRP_SIZE = 5
   const pageSize = ref(PAGE_SIZE_LIST[0])
   const pageNo = ref(1)
