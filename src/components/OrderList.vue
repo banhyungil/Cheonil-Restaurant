@@ -22,10 +22,66 @@ interface Props {
   activeCollection?: boolean
   activeSummary?: boolean
   activeFilter?: boolean
+  activePaging?: boolean
+  /**
+   * 페이지 사이즈 목록
+   * null = 'All'
+   */
+  pageSizeList?: (number | null)[]
+
+  /** 전채 항목 갯수 */
+  totalItemCnt?: number
 }
+
+// orders
+// pageSize
+// pageSizeList
+// totalCnt
+
+// 컴포넌트 디자인만 모듈화하는거면...
+// 위에만 하면 페이징은 해결. pagedisable은 totalCnt값여부에따라?...
 
 const props = withDefaults(defineProps<Props>(), {
   activeFilter: true,
+  activePaging: true,
+  totalItemCnt: 0,
+})
+
+const orders = defineModel<Order[]>({
+  default: [],
+})
+
+export interface Filter {
+  payType: {
+    isCash: boolean
+    isCard: boolean
+    isNotPaid: boolean
+  }
+  isTodayOrder: boolean
+  isTodayPay: boolean
+}
+const filter = defineModel<Filter>('filter', {
+  default: {
+    payType: {
+      isCash: false,
+      isCard: false,
+      isNotPaid: false,
+    },
+    isTodayOrder: false,
+    isTodayPay: false,
+  },
+})
+
+const pageSize = defineModel<number | null>('pageSize', {
+  default: null,
+})
+const cPageList = computed(() => {
+  return props.pageSizeList?.map((pgSize) => {
+    return {
+      key: pgSize,
+      title: pgSize == null ? 'All' : pgSize,
+    }
+  })
 })
 
 const headers = ref([
@@ -45,36 +101,14 @@ const cHeaders = computed(() => {
   else return headers.value.filter((h) => h.key != 'actions')
 })
 
-const orders = ref<Order[]>([])
 const cOrderDict = computed(() => _.keyBy(orders.value, 'seq'))
 
 const checkedSeqs = ref<Order['seq'][]>([])
 const cCancelAble = computed(() => checkedSeqs.value.some((seq) => cOrderDict.value[seq].payments.length > 0))
 const cCollectAble = computed(() => checkedSeqs.value.some((seq) => cOrderDict.value[seq].payments.length == 0))
 
-export interface Filter {
-  payType: {
-    isCash: boolean
-    isCard: boolean
-    isNotPaid: boolean
-  }
-  isTodayOrder: boolean
-  isTodayPay: boolean
-}
-
-const filter = ref<Filter>({
-  payType: {
-    isCash: false,
-    isCard: false,
-    isNotPaid: false,
-  },
-  isTodayOrder: false,
-  isTodayPay: false,
-})
-
-const totalOrderCnt = ref(0)
-
-const { pageNo, pageSize, cOffset, cTotalPage, PAGE_SIZE_LIST } = usePagination(totalOrderCnt)
+const cTotalOrderCnt = computed(() => props.totalItemCnt ?? 0)
+const { pageNo, cOffset, cTotalPage } = usePagination(cTotalOrderCnt, pageSize)
 
 const isEdit = ref(false)
 
@@ -117,34 +151,6 @@ const cDtOrders = computed(() =>
   })
 )
 
-watch(
-  [pageNo, pageSize, () => filter.value, () => filter.value.isTodayOrder],
-  async () => {
-    const statusIn = (filter.value.payType.isNotPaid ? ['COOKED'] : ['COOKED', 'PAID']) as Order['status'][]
-    const orderAt = filter.value.isTodayOrder ? today() : undefined
-    const payAt = filter.value.isTodayPay ? today() : undefined
-    const payTypes = (() => {
-      if (filter.value.payType.isCard) return ['CARD']
-      else if (filter.value.payType.isCash) return ['CASH']
-      else return null
-    })() as PaymentEntity['payType'][] | undefined
-
-    const res = await apiOrder.selectList({
-      whereOptions: {
-        status: { in: statusIn },
-        orderAt: { gte: orderAt },
-        payAt: { gte: payAt },
-        payTypes: payTypes ? { in: payTypes } : undefined,
-      },
-      limit: pageSize.value,
-      offset: cOffset.value,
-    })
-    orders.value = res.orders
-    totalOrderCnt.value = res.totalCnt
-  },
-  { immediate: true, deep: true }
-)
-
 const COLLECT_MESSAGE_OPTION = { toast: true, messageType: 'save' } as SweetAlertOptionsCustom
 async function collect(order: Order, type: PaymentEntity['payType'], showMessage = true) {
   const amount = type == 'CASH' ? order.amount : order.amount + Math.ceil(order.amount / 10)
@@ -180,14 +186,14 @@ async function collectGroup(type: PaymentEntity['payType']) {
 }
 
 const CANCEL_MESSAGE_OPTION = { toast: true, title: '', text: '수금이 취소되었습니다.' }
-async function cancelCollection(order: Order, seqs: number[]) {
+async function cancelCollection(order: Order, seqs: number[], showMessage = true) {
   await apiPayment.remove(seqs)
   order.payments.splice(0)
 
   order.status = 'COOKED'
   await apiOrder.update(order)
 
-  Swal.fireCustom(CANCEL_MESSAGE_OPTION)
+  if (showMessage) Swal.fireCustom(CANCEL_MESSAGE_OPTION)
 }
 
 async function cancelCollectionGroup() {
@@ -199,7 +205,8 @@ async function cancelCollectionGroup() {
 
     return cancelCollection(
       od,
-      od.payments.map((p) => p.seq)
+      od.payments.map((p) => p.seq),
+      false
     )
   })
 
@@ -234,6 +241,8 @@ function filterPayType(payType: PaymentEntity['payType'] | null) {
 }
 
 defineExpose({ filter, orders })
+
+// paging 하고 안하고를 선택하는법... 총토탈카운트?
 </script>
 
 <template>
@@ -280,7 +289,8 @@ defineExpose({ filter, orders })
           <v-btn @click="collectGroup('CARD')" base-color="primary" :disabled="!cCollectAble">카드</v-btn>
           <v-btn @click="cancelCollectionGroup" base-color="warning" :disabled="!cCancelAble">수금취소</v-btn>
         </template>
-        <v-btn @click="() => (isEdit = !isEdit)" class="toggle" :class="{ on: isEdit }" v-tooltip="'편집'">
+        <!-- 삭제 또는 수금때만 보인다 -->
+        <v-btn v-if="activeDelete || activeCollection" @click="() => (isEdit = !isEdit)" class="toggle" :class="{ on: isEdit }" v-tooltip="'편집'">
           <font-awesome-icon :icon="['fas', 'pen']" />
         </v-btn>
       </section>
@@ -310,11 +320,11 @@ defineExpose({ filter, orders })
         </div>
       </section>
       <hr v-if="activeSummary" style="margin: 6px 0" />
-      <div class="c-page" style="display: flex; align-items: center">
-        <v-pagination class="page" v-model="pageNo" :length="cTotalPage"></v-pagination>
+      <div v-if="activePaging" class="c-page">
+        <v-pagination v-show="cTotalPage > 0" lass="page" v-model="pageNo" :length="cTotalPage" :total-visible="5"></v-pagination>
         <div class="right">
-          <h3 style="width: max-content">총: {{ totalOrderCnt }} 건</h3>
-          <v-select class="select" :items="PAGE_SIZE_LIST" v-model="pageSize" density="comfortable"></v-select>
+          <h3 style="width: max-content">총: {{ cTotalOrderCnt }} 건</h3>
+          <v-select class="select" :items="cPageList" v-model="pageSize" item-value="key" item-title="title" density="comfortable"></v-select>
         </div>
       </div>
     </template>
@@ -381,15 +391,19 @@ defineExpose({ filter, orders })
   }
 
   .c-page {
+    position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
+    min-height: 50px;
 
     .page {
       width: 100%;
     }
 
     .right {
+      position: absolute;
+      right: 10px;
       display: flex;
       justify-content: center;
       align-items: center;

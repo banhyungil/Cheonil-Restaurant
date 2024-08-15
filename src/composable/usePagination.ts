@@ -1,26 +1,26 @@
-import type { Ref } from 'vue'
+import type { ModelRef, Ref } from 'vue'
 
-export default function usePagination(totalCnt: Ref<number>) {
-  const PAGE_SIZE_LIST = [10, 25, 35, 50, 1000]
+export const PAGE_SIZE_LIST = [10, 25, 35, 50, null]
+export default function usePagination(totalCnt: Ref<number>, pageSize: Ref<number | null> | ModelRef<number | null>) {
   const PAGE_GRP_SIZE = 5
-  const pageSize = ref(PAGE_SIZE_LIST[0])
   const pageNo = ref(1)
   const cTotalPage = computed(() => {
-    return Math.ceil(totalCnt.value / pageSize.value)
+    if (pageSize.value == null || pageSize.value < 1) return 0
+    else return Math.ceil(totalCnt.value / pageSize.value)
   })
 
   watch(
     () => cTotalPage.value,
     () => {
       if (pageNo.value > cTotalPage.value) {
-        pageNo.value = cTotalPage.value
+        pageNo.value = cTotalPage.value == 0 ? 1 : cTotalPage.value
       }
     }
   )
 
   const cOffset = computed(() => {
-    const result = (pageNo.value - 1) * pageSize.value
-    return result < 0 ? 0 : result
+    if (pageSize.value == null || pageSize.value < 1) return 0
+    else return (pageNo.value - 1) * pageSize.value
   })
-  return { pageSize, pageNo, cOffset, cTotalPage, PAGE_GRP_SIZE, PAGE_SIZE_LIST }
+  return { pageNo, cOffset, cTotalPage, PAGE_GRP_SIZE, PAGE_SIZE_LIST }
 }
