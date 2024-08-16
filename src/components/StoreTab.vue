@@ -7,9 +7,12 @@ import { useStoreStore } from '@/stores/storeStore'
 import { getInitials } from '@/utils/CommonUtils'
 import BInputCho from './base/BInputCho.vue'
 import { useEventListener } from '@vueuse/core'
-import useSwal from '@/composable/useSwal'
 
 const storeStore = useStoreStore()
+
+type SelStoreCtg = StoreCategoryEntity | null
+const selCtg = ref<SelStoreCtg>(null)
+
 const apiStore = useApiStore()
 const apiStoreCtg = useApiStoreCtg()
 const router = useRouter()
@@ -28,8 +31,6 @@ apiStoreCtg.selectList().then((list) => {
   storeStore.categories = list
 })
 
-const selCtg = ref<StoreCategoryEntity | 'all'>('all')
-
 const srchText = ref('')
 
 const isEdit = ref(false)
@@ -39,7 +40,7 @@ function onToggleEdit() {
 const cFilteredItems = computed(() => {
   // 카테고리 필터링
   const items = (() => {
-    if (selCtg.value == 'all') {
+    if (selCtg.value == null) {
       return storeStore.items
     } else {
       return storeStore.items?.filter((item) => item.ctgSeq == (selCtg.value as StoreCategoryEntity).seq)
@@ -60,12 +61,11 @@ const cFilteredItems = computed(() => {
   }
 })
 
-type SelCtg = StoreCategoryEntity | 'all'
-function onClickCategory(ctg: SelCtg) {
+function onClickCategory(ctg: SelStoreCtg) {
   selCtg.value = ctg
 
-  if (isEdit.value && typeof ctg == 'object') {
-    selCtg.value = 'all'
+  if (isEdit.value && ctg && typeof ctg == 'object') {
+    selCtg.value = null
     router.push({ path: `/storeCtgEdit/${ctg.seq}` })
   }
 }
@@ -74,7 +74,7 @@ function onAddCategory() {
   router.push('/storeCtgEdit')
 }
 
-function isCtg(selCtg: SelCtg): selCtg is StoreCategoryEntity {
+function isCtg(selCtg: SelStoreCtg): selCtg is StoreCategoryEntity {
   return (selCtg as StoreCategoryEntity).seq != null
 }
 function onAddItem() {
@@ -118,7 +118,7 @@ useEventListener(document, 'keyup', (e) => {
     <section class="tab" :class="{ edit: isEdit }">
       <ul class="ctgs">
         <!-- 카테고리 목록 표시 -->
-        <button @click="onClickCategory('all')" :class="{ on: selCtg == 'all' }">
+        <button @click="onClickCategory(null)" :class="{ on: selCtg == null }">
           <span>{{ '전체' }}</span>
         </button>
         <button class="item" v-for="ctg in storeStore.categories" :key="ctg.name" :category="ctg" @click="onClickCategory(ctg)" :class="{ on: selCtg == ctg }">

@@ -115,7 +115,8 @@ const layoutRoutePathDict = {
 }
 router.getRoutes().forEach((route) => {
   Object.entries(layoutRoutePathDict).forEach(([key, paths]) => {
-    if (paths.includes(route.path)) {
+    // layout에 등록된 path 또는 동적 라우팅에 포함되는 경우 추가해준다.
+    if (paths.includes(route.path) || paths.map((path) => `${path}/:seq`).includes(route.path)) {
       route.meta.layout = key
     }
   })

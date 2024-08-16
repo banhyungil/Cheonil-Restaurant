@@ -224,6 +224,11 @@ async function onRemove(seq: number) {
   Swal.fireCustom({ toast: true, messageType: 'remove' })
 }
 
+const router = useRouter()
+function onUpdate(seq: number) {
+  router.push(`/order/${seq}`)
+}
+
 function filterPayType(payType: PaymentEntity['payType'] | null) {
   if (payType == 'CASH') {
     filter.value.payType.isCash = !filter.value.payType.isCash
@@ -298,9 +303,14 @@ defineExpose({ filter, orders })
       </section>
     </template>
     <template #item.actions="{ value }">
-      <button @click="onRemove(value)" style="color: var(--color-d)" v-tooltip="'삭제'">
-        <font-awesome-icon :icon="['fas', 'trash']" />
-      </button>
+      <div style="display: flex; justify-content: center; gap: 10px">
+        <button @click="onRemove(value)" style="color: var(--color-d)" v-tooltip="'삭제'">
+          <font-awesome-icon :icon="['fas', 'trash']" />
+        </button>
+        <button @click="onUpdate(value)" style="color: var(--color-u)" v-tooltip="'수정'">
+          <font-awesome-icon :icon="['fas', 'pen-to-square']" />
+        </button>
+      </div>
     </template>
     <template #item.payInfo="{ value }">
       <div class="pay-info">
@@ -321,7 +331,7 @@ defineExpose({ filter, orders })
           <h3>결제 금액: {{ getTotalPayAmount(orders).toLocaleString() }}</h3>
         </div>
       </section>
-      <hr v-if="activeSummary" style="margin: 6px 0" />
+      <hr v-if="activeSummary && activePaging" style="margin: 6px 0" />
       <div v-if="activePaging" class="c-page">
         <v-pagination v-show="cTotalPage > 0" lass="page" v-model="pageNo" :length="cTotalPage" :total-visible="5"></v-pagination>
         <div class="right">
@@ -337,7 +347,7 @@ defineExpose({ filter, orders })
 .order-list {
   overflow: hidden;
   .v-table__wrapper {
-    height: calc(100vh - 230px - 60px);
+    height: calc(100vh - 160px - 60px);
     overflow-y: scroll;
     &::-webkit-scrollbar {
       width: 0;

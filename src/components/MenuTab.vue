@@ -9,6 +9,10 @@ import BInputCho from './base/BInputCho.vue'
 import { useEventListener } from '@vueuse/core'
 
 const menuStore = useMenuStore()
+
+type SelMenuCtg = MenuCategoryEntity | null
+const selCtg = ref<SelMenuCtg>(null)
+
 const apiMenu = useApiMenu()
 const apiMenuCtg = useApiMenuCtg()
 const router = useRouter()
@@ -27,8 +31,6 @@ apiMenuCtg.selectList().then((list) => {
   menuStore.categories = list
 })
 
-const selCtg = ref<MenuCategoryEntity | 'all'>('all')
-
 const srchText = ref('')
 
 const isEdit = ref(false)
@@ -38,7 +40,7 @@ function onToggleEdit() {
 const cFilteredItems = computed(() => {
   // 카테고리 필터링
   const items = (() => {
-    if (selCtg.value == 'all') {
+    if (selCtg.value == null) {
       return menuStore.items
     } else {
       return menuStore.items?.filter((item) => item.ctgSeq == (selCtg.value as MenuCategoryEntity).seq)
@@ -59,12 +61,11 @@ const cFilteredItems = computed(() => {
   }
 })
 
-type SelCtg = MenuCategoryEntity | 'all'
-function onClickCategory(ctg: SelCtg) {
+function onClickCategory(ctg: SelMenuCtg) {
   selCtg.value = ctg
 
-  if (isEdit.value && typeof ctg == 'object') {
-    selCtg.value = 'all'
+  if (isEdit.value && ctg && typeof ctg == 'object') {
+    selCtg.value = null
     router.push({ path: `/menuCtgEdit/${ctg.seq}` })
   }
 }
@@ -81,8 +82,8 @@ function onClickItem(item: MenuEntity) {
   }
 }
 
-function isCategory(selCtg: SelCtg): selCtg is MenuCategoryEntity {
-  return (selCtg as MenuCategoryEntity).seq != null
+function isCategory(selCtg: SelMenuCtg): selCtg is MenuCategoryEntity {
+  return (selCtg as MenuCategoryEntity) != null
 }
 
 function onAddItem() {
@@ -111,7 +112,7 @@ useEventListener(document, 'keyup', (e) => {
     <section class="tab" :class="{ edit: isEdit }">
       <ul class="ctgs">
         <!-- 카테고리 목록 표시 -->
-        <button @click="onClickCategory('all')" :class="{ on: selCtg == 'all' }">
+        <button @click="onClickCategory(null)" :class="{ on: selCtg == null }">
           <span>{{ '전체' }}</span>
         </button>
         <button v-for="ctg in menuStore.categories" :key="ctg.name" :category="ctg" @click="onClickCategory(ctg)" :class="{ on: selCtg == ctg }">

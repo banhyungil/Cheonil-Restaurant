@@ -8,25 +8,29 @@ import useApiOrder from '@/api/useApiOrder'
 import { useEventListener, useWindowSize } from '@vueuse/core'
 import useSwal from '@/composable/useSwal'
 import { useRouter } from 'vue-router'
+import { useStoreStore } from '@/stores/storeStore'
+import { storeToRefs } from 'pinia'
 
 interface Props {
   // orderId
   seq?: number
 }
+
 const props = defineProps<Props>()
 
 const router = useRouter()
 const menuStore = useMenuStore()
+const selStore = ref<StoreEntity | null>(null)
 const apiOrder = useApiOrder()
 
 const Swal = useSwal()
 const { width } = useWindowSize()
 
-// 주문완료시 Order 저장 후 리셋
-const tab = ref<'store' | 'menu'>('store')
+// tabl localStorage로 저장
+type Tab = 'STORE' | 'MENU'
+const tab = ref<Tab>('STORE')
 
 // 주문 목록 entity는 주문을 할떄 만들어진다
-const selStore = ref({} as StoreEntity)
 const orderMenues = ref<OrderMenuEntityCreation[]>([])
 const order = ref({ amount: 0, status: 'READY' } as MyOrderEntity)
 
@@ -60,7 +64,7 @@ function onChoiceStore(store: StoreEntity) {
   selStore.value = store
   order.value.storeSeq = selStore.value.seq
 
-  tab.value = 'menu'
+  tab.value = 'MENU'
 }
 
 function onChoiceMenu(menu: MenuEntity) {
@@ -80,7 +84,8 @@ function onChoiceMenu(menu: MenuEntity) {
 }
 
 function onClickStoreName() {
-  tab.value = 'store'
+  tab.value = 'STORE'
+  selStore.value = null
 }
 
 async function onComplete() {
@@ -102,14 +107,14 @@ async function onComplete() {
 function init() {
   order.value = { amount: 0 } as MyOrderEntity
   orderMenues.value = []
-  tab.value = 'store'
-  selStore.value = {} as StoreEntity
+  tab.value = 'STORE'
+  selStore.value = null
 }
 
 useEventListener(document, 'keyup', (e) => {
   if (e.key == 'Escape') {
-    if (tab.value == 'menu') {
-      tab.value = 'store'
+    if (tab.value == 'MENU') {
+      tab.value = 'STORE'
     }
   }
 })
@@ -118,8 +123,8 @@ useEventListener(document, 'keyup', (e) => {
 <template>
   <div class="order-view">
     <section class="left">
-      <StoreTab v-show="tab == 'store'" @selectItem="onChoiceStore" />
-      <MenuTab v-show="tab == 'menu'" @selectItem="onChoiceMenu" />
+      <StoreTab v-show="tab == 'STORE'" @selectItem="onChoiceStore" />
+      <MenuTab v-show="tab == 'MENU'" @selectItem="onChoiceMenu" />
     </section>
     <section class="right">
       <section class="top">

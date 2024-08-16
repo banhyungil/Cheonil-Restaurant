@@ -58,11 +58,18 @@ watch(
     :pageSizeList="PAGE_SIZE_LIST"
     :totalItemCnt="totalOrderCnt"
     title="주문내역"
-    class="order-list-view"
+    class="collection-list-view"
     :active-collection="true"
     :active-summary="true"
   >
   </OrderList>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss">
+.collection-list-view {
+  overflow: hidden;
+  .v-table__wrapper {
+    height: calc(100vh - 160px - 60px - 70px);
+  }
+}
+</style>
