@@ -175,7 +175,7 @@ async function collectGroup(type: PaymentEntity['payType']) {
 
   const prms = checkedSeqs.value.map((orderSeq) => {
     const od = orders.value.find((od) => od.seq == orderSeq)
-    if (od == null) return
+    if (od == null || od.status == 'PAID') return
 
     return collect(od, type, false)
   })
@@ -201,7 +201,7 @@ async function cancelCollectionGroup() {
 
   const prms = checkedSeqs.value.map((orderSeq) => {
     const od = orders.value.find((od) => od.seq == orderSeq)
-    if (od == null) return
+    if (od == null || od.status == 'COOKED') return
 
     return cancelCollection(
       od,
@@ -284,15 +284,17 @@ defineExpose({ filter, orders })
           </template>
         </Dropdown>
 
-        <template v-if="isEdit && activeCollection">
-          <v-btn @click="collectGroup('CASH')" base-color="primary" :disabled="!cCollectAble">현금</v-btn>
-          <v-btn @click="collectGroup('CARD')" base-color="primary" :disabled="!cCollectAble">카드</v-btn>
-          <v-btn @click="cancelCollectionGroup" base-color="warning" :disabled="!cCancelAble">수금취소</v-btn>
-        </template>
-        <!-- 삭제 또는 수금때만 보인다 -->
-        <v-btn v-if="activeDelete || activeCollection" @click="() => (isEdit = !isEdit)" class="toggle" :class="{ on: isEdit }" v-tooltip="'편집'">
-          <font-awesome-icon :icon="['fas', 'pen']" />
-        </v-btn>
+        <div>
+          <template v-if="isEdit && activeCollection">
+            <v-btn @click="collectGroup('CASH')" base-color="primary" :disabled="!cCollectAble">현금</v-btn>
+            <v-btn @click="collectGroup('CARD')" base-color="primary" :disabled="!cCollectAble">카드</v-btn>
+            <v-btn @click="cancelCollectionGroup" base-color="warning" :disabled="!cCancelAble">수금취소</v-btn>
+          </template>
+          <!-- 삭제 또는 수금때만 보인다 -->
+          <v-btn v-if="activeDelete || activeCollection" @click="() => (isEdit = !isEdit)" class="toggle" :class="{ on: isEdit }" v-tooltip="'편집'">
+            <font-awesome-icon :icon="['fas', 'pen']" />
+          </v-btn>
+        </div>
       </section>
     </template>
     <template #item.actions="{ value }">
@@ -335,7 +337,7 @@ defineExpose({ filter, orders })
 .order-list {
   overflow: hidden;
   .v-table__wrapper {
-    height: 75vh;
+    height: calc(100vh - 230px - 60px);
     overflow-y: scroll;
     &::-webkit-scrollbar {
       width: 0;
