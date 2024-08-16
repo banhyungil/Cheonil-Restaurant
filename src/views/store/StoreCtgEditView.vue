@@ -58,7 +58,7 @@ function onEditPlaceCtg(seq: number) {
 }
 
 async function onRemove() {
-  if (await Swal.fireCustom({ isConfirm: true, messageType: 'remove' })) {
+  if (await Swal.fireCustom({ isConfirm: true, messageType: 'remove', text: '해당 카테고리 매장도 모두 삭제 됩니다' })) {
     await apiStoreCtg.remove(ctg.value.seq!)
     storeStore.categories = await apiStoreCtg.selectList()
 

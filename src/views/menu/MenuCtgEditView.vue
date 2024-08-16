@@ -50,7 +50,7 @@ async function onSave() {
 }
 
 async function onRemove() {
-  if (ctg.value.seq && (await Swal.fireCustom({ isConfirm: true, messageType: 'remove' }))) {
+  if (ctg.value.seq && (await Swal.fireCustom({ isConfirm: true, messageType: 'remove', text: '해당 카테고리 메뉴도 모두 삭제 됩니다' }))) {
     await apiMenuCtg.remove(ctg.value.seq)
     menuStore.categories = await apiMenuCtg.selectList()
 
