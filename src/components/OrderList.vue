@@ -247,7 +247,7 @@ function filterPayType(payType: PaymentEntity['payType'] | null) {
 
 defineExpose({ filter, orders })
 
-// paging 하고 안하고를 선택하는법... 총토탈카운트?
+const srchText = ref('')
 </script>
 
 <template>
@@ -269,25 +269,28 @@ defineExpose({ filter, orders })
         <v-toolbar-title>{{ title }}</v-toolbar-title>
       </v-toolbar>
       <section class="top">
-        <Dropdown placement="right">
-          <v-btn v-if="activeFilter" v-tooltip="'필터'"><font-awesome-icon :icon="['fas', 'filter']" /></v-btn>
-          <template #popper>
-            <div>
+        <div style="display: flex">
+          <!-- <BInputCho v-model="srchText" /> -->
+          <Dropdown placement="right">
+            <v-btn v-if="activeFilter" v-tooltip="'필터'"><font-awesome-icon :icon="['fas', 'filter']" /></v-btn>
+            <template #popper>
               <div>
-                <h3>결제 방식</h3>
-                <v-btn :base-color="filter.payType.isNotPaid ? 'success' : ''" @click="filterPayType(null)">미수</v-btn>
-                <v-btn :base-color="filter.payType.isCash ? 'success' : ''" @click="filterPayType('CASH')">현금</v-btn>
-                <v-btn :base-color="filter.payType.isCard ? 'success' : ''" @click="filterPayType('CARD')">카드</v-btn>
-              </div>
+                <div>
+                  <h3>결제 방식</h3>
+                  <v-btn :base-color="filter.payType.isNotPaid ? 'success' : ''" @click="filterPayType(null)">미수</v-btn>
+                  <v-btn :base-color="filter.payType.isCash ? 'success' : ''" @click="filterPayType('CASH')">현금</v-btn>
+                  <v-btn :base-color="filter.payType.isCard ? 'success' : ''" @click="filterPayType('CARD')">카드</v-btn>
+                </div>
 
-              <div>
-                <h3>기타</h3>
-                <v-btn :base-color="filter.isTodayOrder ? 'success' : ''" @click="filter.isTodayOrder = !filter.isTodayOrder">당일주문</v-btn>
-                <v-btn :base-color="filter.isTodayPay ? 'success' : ''" @click="filter.isTodayPay = !filter.isTodayPay">당일결제</v-btn>
+                <div>
+                  <h3>기타</h3>
+                  <v-btn :base-color="filter.isTodayOrder ? 'success' : ''" @click="filter.isTodayOrder = !filter.isTodayOrder">당일주문</v-btn>
+                  <v-btn :base-color="filter.isTodayPay ? 'success' : ''" @click="filter.isTodayPay = !filter.isTodayPay">당일결제</v-btn>
+                </div>
               </div>
-            </div>
-          </template>
-        </Dropdown>
+            </template>
+          </Dropdown>
+        </div>
 
         <div>
           <template v-if="isEdit && activeCollection">

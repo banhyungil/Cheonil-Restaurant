@@ -1,5 +1,8 @@
 @import './base.css';
 @import './var.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 .slide-enter-active,
 .slide-leave-active {

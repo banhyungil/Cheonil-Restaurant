@@ -86,10 +86,14 @@ async function onRemove(orderId: number) {
     Swal.fireCustom({ toast: true, messageType: 'remove' })
   }
 }
+const isDisplaykitchen = ref(false)
 </script>
 
 <template>
   <div class="order-state-view">
+    <div class="tw-flex tw-justify-end">
+      <v-btn @click="() => (isDisplaykitchen = !isDisplaykitchen)" :color="isDisplaykitchen ? 'primary' : ''" style="height: 24px"> 주방용 </v-btn>
+    </div>
     <div class="react-grid-col ready">
       <TransitionGroup name="slide">
         <div v-for="order in orders" :key="order.seq" class="item c-order">
@@ -108,20 +112,22 @@ async function onRemove(orderId: number) {
             </Dropdown>
           </div>
           <div class="menues">
-            <div v-for="(om, idx) in order.orderMenues" :key="om.menuSeq" class="text">
+            <div v-for="(om, idx) in order.orderMenues" :key="om.menuSeq" class="text" style="font-weight: bold">
               <span>{{ `${om.menu.abv ?? om.menu.name} ${om.cnt}` }}</span>
               <span v-if="idx != order.orderMenues.length">,</span>
             </div>
           </div>
           <div v-if="order.cmt">{{ `요청사항: ${order.cmt}` }}</div>
-          <div class="time">
-            <span class="order-time" v-tooltip="'주문접수시간'">
-              <font-awesome-icon :icon="['fas', 'timer']" />
-              {{ order.orderAt ? format(order.orderAt, 'hh:mm aa') : null }}
-            </span>
-            <span class="elapsed"> {{ `${formatTime(differenceInSeconds(now, order.orderAt!))}` }}</span>
-          </div>
-          <v-btn class="complete" @click="onComplete(order)" :loading="dLoading[order.seq!]">완료</v-btn>
+          <template v-if="isDisplaykitchen == false">
+            <div class="time">
+              <span class="order-time" v-tooltip="'주문접수시간'">
+                <font-awesome-icon :icon="['fas', 'timer']" />
+                {{ order.orderAt ? format(order.orderAt, 'hh:mm aa') : null }}
+              </span>
+              <span class="elapsed"> {{ `${formatTime(differenceInSeconds(now, order.orderAt!))}` }}</span>
+            </div>
+            <v-btn class="complete" @click="onComplete(order)" :loading="dLoading[order.seq!]">완료</v-btn>
+          </template>
         </div>
       </TransitionGroup>
     </div>
@@ -129,7 +135,7 @@ async function onRemove(orderId: number) {
       주문처리완료 목록
     -->
 
-    <div class="c-completed">
+    <!-- <div class="c-completed">
       <div class="title">주문완료 목록</div>
       <div class="react-grid-col cooked">
         <TransitionGroup name="slide">
@@ -154,27 +160,22 @@ async function onRemove(orderId: number) {
           </div>
         </TransitionGroup>
       </div>
-    </div>
+    </div> -->
   </div>
 </template>
 
 <style lang="scss" scoped>
-$height-item: 230px;
-
 .order-state-view {
-  display: grid;
-  grid-template-rows: 1fr minmax(max-content, $height-item);
-  row-gap: 10px;
-  height: 100%;
-  overflow: hidden;
+  height: calc(100vh - 60px - 40px - 20px);
 
   .react-grid-col {
     $item-min-width: 300px;
 
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    grid-template-rows: repeat(auto-fill, minmax($height-item, 1fr));
-    column-gap: 12px;
+    gap: 12px;
+    height: 100%;
+
     overflow-y: scroll;
     overflow-x: hidden;
 
@@ -183,6 +184,12 @@ $height-item: 230px;
     }
 
     &.ready {
+    }
+
+    button.complete {
+      height: max-content;
+      font-size: inherit;
+      padding: 8px;
     }
 
     &.cooked {
@@ -200,7 +207,7 @@ $height-item: 230px;
     }
 
     @media screen and (max-width: 1024px) {
-      grid-template-columns: repeat(5, 1fr);
+      grid-template-columns: repeat(3, 1fr);
     }
 
     @media screen and (max-width: 768px) {
@@ -231,6 +238,7 @@ $height-item: 230px;
         text-align: center;
         color: #595959;
         padding: 10px;
+        @apply tw-text-4xl;
 
         // background-color: rgb(95, 171, 237);
         background-color: rgb(39 44 49 / 14%);
@@ -254,6 +262,7 @@ $height-item: 230px;
         flex-wrap: wrap;
         height: 100%;
         margin: 10px 0;
+        @apply tw-text-3xl;
       }
 
       .time {
@@ -276,6 +285,15 @@ $height-item: 230px;
         text-align: center;
         background-color: var(--color-point);
         color: #fff;
+      }
+
+      @media screen and (max-width: 1924px) {
+        .store {
+          @apply tw-text-lg;
+        }
+        .menues {
+          @apply tw-text-lg;
+        }
       }
     }
   }
