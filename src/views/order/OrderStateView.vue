@@ -21,7 +21,7 @@ useIntervalFn(
 
     console.log('selectList')
   },
-  1500000,
+  15000,
   { immediateCallback: true }
 )
 
