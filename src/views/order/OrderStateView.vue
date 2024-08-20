@@ -165,9 +165,10 @@ const isDisplaykitchen = ref(false)
 
 <style lang="scss" scoped>
 .order-state-view {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: max-content 1fr 280px;
   height: calc(100vh - 60px - 40px - 20px);
+
   @apply tw-text-4xl;
 
   @media screen and (max-width: 1924px) {
@@ -230,6 +231,7 @@ const isDisplaykitchen = ref(false)
       box-shadow: var(--box-shadow);
       min-width: $item-min-width;
       height: 100%;
+      max-height: 240px;
 
       & > * {
         display: flex;
@@ -313,7 +315,6 @@ const isDisplaykitchen = ref(false)
     display: grid;
     grid-template-rows: max-content 1fr;
     overflow: hidden;
-    height: 460px;
 
     .title {
       padding: 8px;
