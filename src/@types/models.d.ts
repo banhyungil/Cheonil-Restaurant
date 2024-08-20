@@ -97,7 +97,7 @@ interface MyOrderEntity {
   orderAt?: Date
 
   /* 조리완료 시간 */
-  completeAt?: Date | null
+  cookedAt?: Date | null
 
   /* 비고 */
   cmt?: string | null

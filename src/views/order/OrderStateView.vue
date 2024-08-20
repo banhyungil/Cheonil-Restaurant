@@ -21,7 +21,7 @@ useIntervalFn(
 
     console.log('selectList')
   },
-  15000,
+  1500000,
   { immediateCallback: true }
 )
 
@@ -38,7 +38,7 @@ async function onComplete(order: Order) {
   const data = {
     seq: order.seq,
     status: order.status,
-    completeAt: new Date(),
+    cookedAt: new Date(),
   } as MyOrderEntity
 
   const uOrderRes = await apiOrder.update(data)
@@ -58,7 +58,7 @@ async function onUnComplete(order: Order) {
   const data = {
     seq: order.seq,
     status: order.status,
-    completeAt: new Date(),
+    cookedAt: new Date(),
   } as MyOrderEntity
 
   await apiOrder.update(data)
@@ -135,7 +135,15 @@ const isDisplaykitchen = ref(false)
       주문처리완료 목록
     -->
 
-    <!-- <div class="c-completed">
+    <!-- <div style="height: 100%">
+      <h3>제목</h3>
+      <div style="display: flex; flex-direction: column; height: 100%">
+        <span style="padding: 10px; background-color: grey">서브제목</span>
+        <div style="height: 100%; background-color: var(--color-point)">계란 참지</div>
+        <button style="font-size: 1.8rem; background-color: grey">계란 참지</button>
+      </div>
+    </div> -->
+    <div class="c-completed">
       <div class="title">주문완료 목록</div>
       <div class="react-grid-col cooked">
         <TransitionGroup name="slide">
@@ -153,21 +161,22 @@ const isDisplaykitchen = ref(false)
             <div class="time" v-tooltip="'완료시간'">
               <span class="order-time" style="color: var(--color-point)">
                 <font-awesome-icon :icon="['fas', 'timer']" />
-                {{ order.completeAt ? format(order.completeAt, 'hh:mm aa') : null }}
+                {{ order.cookedAt ? format(order.cookedAt, 'hh:mm aa') : null }}
               </span>
             </div>
             <v-btn class="complete" style="background-color: var(--color-d)" @click="onUnComplete(order)" :loading="dLoading[order.seq!]">완료 취소</v-btn>
           </div>
         </TransitionGroup>
       </div>
-    </div> -->
+    </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
 .order-state-view {
+  display: flex;
+  flex-direction: column;
   height: calc(100vh - 60px - 40px - 20px);
-
   .react-grid-col {
     $item-min-width: 300px;
 
@@ -195,8 +204,9 @@ const isDisplaykitchen = ref(false)
     &.cooked {
       max-width: 100%;
       grid-auto-flow: column;
+      height: 100%;
 
-      overflow-x: scroll;
+      overflow-x: auto;
       &::-webkit-scrollbar {
         width: 0;
       }
@@ -217,11 +227,11 @@ const isDisplaykitchen = ref(false)
     .c-order {
       display: flex;
       align-items: center;
-      justify-content: center;
       flex-direction: column;
       row-gap: 6px;
       box-shadow: var(--box-shadow);
       min-width: $item-min-width;
+      height: 100%;
 
       & > * {
         display: flex;
@@ -238,6 +248,7 @@ const isDisplaykitchen = ref(false)
         text-align: center;
         color: #595959;
         padding: 10px;
+
         @apply tw-text-4xl;
 
         // background-color: rgb(95, 171, 237);
@@ -258,10 +269,11 @@ const isDisplaykitchen = ref(false)
         }
       }
       .menues {
+        flex-grow: 1;
         display: flex;
         flex-wrap: wrap;
-        height: 100%;
         margin: 10px 0;
+
         @apply tw-text-3xl;
       }
 
@@ -299,7 +311,10 @@ const isDisplaykitchen = ref(false)
   }
 
   .c-completed {
+    display: grid;
+    grid-template-rows: max-content 1fr;
     overflow: hidden;
+    height: 460px;
 
     .title {
       padding: 8px;

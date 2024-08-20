@@ -89,7 +89,7 @@ const headers = ref([
   { title: '매장명', key: 'storeNm', align: 'center' },
   { title: '메뉴', key: 'menuNm', align: 'center' },
   { title: '주문시간', key: 'orderAtF', align: 'center' },
-  { title: '완료시간', key: 'completeAtF', align: 'center' },
+  { title: '완료시간', key: 'cookedAtF', align: 'center' },
   { title: '결제방식', key: 'payInfo', align: 'center' },
   { title: '결제날짜', key: 'payAtF', align: 'center' },
   { title: '결제금액', key: 'payAmount', align: 'center' },
@@ -132,7 +132,7 @@ const cDtOrders = computed(() =>
       seqs: od.payments.map((p) => p.seq),
     }
 
-    const completeAtF = od.completeAt ? format(od.completeAt, 'yy.MM.dd hh:mm aa') : null
+    const cookedAtF = od.cookedAt ? format(od.cookedAt, 'yy.MM.dd hh:mm aa') : null
     const payAtF = payAt ? format(payAt, 'yy.MM.dd hh:mm aa') : null
     const payAmount = od.payments.reduce((result, p) => (result = result + p.amount), 0)
 
@@ -144,7 +144,7 @@ const cDtOrders = computed(() =>
       orderAtF,
       payInfo,
       payAtF,
-      completeAtF,
+      cookedAtF,
       actions: od.seq,
       payAmount: payAmount.toLocaleString(),
     }
