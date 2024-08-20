@@ -134,16 +134,7 @@ const isDisplaykitchen = ref(false)
     <!-- 
       주문처리완료 목록
     -->
-
-    <!-- <div style="height: 100%">
-      <h3>제목</h3>
-      <div style="display: flex; flex-direction: column; height: 100%">
-        <span style="padding: 10px; background-color: grey">서브제목</span>
-        <div style="height: 100%; background-color: var(--color-point)">계란 참지</div>
-        <button style="font-size: 1.8rem; background-color: grey">계란 참지</button>
-      </div>
-    </div> -->
-    <div class="c-completed">
+    <div v-if="isDisplaykitchen == false" class="c-completed">
       <div class="title">주문완료 목록</div>
       <div class="react-grid-col cooked">
         <TransitionGroup name="slide">
@@ -184,8 +175,9 @@ const isDisplaykitchen = ref(false)
     grid-template-columns: repeat(5, 1fr);
     gap: 12px;
     height: 100%;
+    padding: 4px;
 
-    overflow-y: scroll;
+    overflow-y: auto;
     overflow-x: hidden;
 
     &::-webkit-scrollbar {
