@@ -176,7 +176,7 @@ const isDisplaykitchen = ref(false)
   }
 
   .react-grid-col {
-    $item-min-width: 300px;
+    $item-min-width: 240px;
 
     display: grid;
     grid-template-columns: repeat(5, 1fr);
