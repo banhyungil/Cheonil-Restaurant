@@ -231,7 +231,6 @@ const isDisplaykitchen = ref(false)
       box-shadow: var(--box-shadow);
       min-width: $item-min-width;
       height: 100%;
-      max-height: 240px;
 
       & > * {
         display: flex;
