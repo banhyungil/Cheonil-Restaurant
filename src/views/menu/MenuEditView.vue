@@ -8,14 +8,20 @@ import useApiMenu from '@/api/useApiMenu'
 import BInputNumFormat from '@/components/base/BInputNumFormat.vue'
 import { useVuelidate, type ValidationArgs } from '@vuelidate/core'
 import { required, helpers } from '@vuelidate/validators'
+import useApiMenuCtg from '@/api/useApiMenuCtg'
 
 // 주문 화면 다음으로 이동될 화면
 // 가게, 카테고리 목록은 store에 저장된 데이터 사용
-const menuStore = useMenuStore()
+const apiMenuCtg = useApiMenuCtg()
 const apiMenu = useApiMenu()
 const Swal = useSwal()
 const router = useRouter()
 const routeQuery = useRoute().query
+
+const ctgs = ref<MenuCategoryEntity[]>([])
+apiMenuCtg.selectList().then((res) => {
+  ctgs.value = res
+})
 
 interface Props {
   seq?: number
@@ -23,11 +29,18 @@ interface Props {
 
 const props = defineProps<Props>()
 const cIsUpdate = computed(() => (props.seq ? true : false))
+const origin = ref<MenuEntity>()
 const cText = computed(() => (cIsUpdate.value ? '수정' : '등록'))
+
 const menu = ref({ name: '', price: 0 } as MenuEntityCreation)
 if (props.seq) {
-  menu.value = _.cloneDeep(menuStore.items.find((item) => item.seq == props.seq)) as MenuEntityCreation
+  apiMenu.select(props.seq).then((res) => {
+    origin.value = res
+    menu.value = _.cloneDeep(res)
+  })
 }
+const cDisabled = computed(() => _.isEqual(origin.value, menu.value))
+
 if (routeQuery) {
   if ('ctgSeq' in routeQuery && typeof routeQuery.ctgSeq == 'string') {
     menu.value.ctgSeq = +routeQuery.ctgSeq
@@ -70,7 +83,6 @@ async function onSave() {
 
     Swal.fireCustom({ toast: true, messageType: 'save' })
   }
-  menuStore.items = await apiMenu.selectList()
 
   router.back()
 }
@@ -78,7 +90,6 @@ async function onSave() {
 async function onRemove() {
   if (await Swal.fireCustom({ isConfirm: true, messageType: 'remove' })) {
     await apiMenu.remove(props.seq!)
-    menuStore.items = await apiMenu.selectList()
 
     Swal.fireCustom({ toast: true, messageType: 'remove' })
     router.back()
@@ -97,7 +108,7 @@ function onCancel() {
       <section class="content">
         <div class="row">
           <span class="label required">{{ oMenuProp.ctgSeq.label }}</span>
-          <v-select :items="menuStore.categories" item-value="seq" item-title="name" v-model="menu.ctgSeq" density="comfortable"></v-select>
+          <v-select :items="ctgs" item-value="seq" item-title="name" v-model="menu.ctgSeq" density="comfortable"></v-select>
         </div>
         <div class="row">
           <span class="label required">{{ oMenuProp.name.label }}</span>
@@ -117,9 +128,9 @@ function onCancel() {
         </div>
       </section>
       <section class="btt">
-        <button @click="onSave">{{ cText }}</button>
-        <button v-if="cIsUpdate" @click="onRemove">삭제</button>
-        <button @click="onCancel">취소</button>
+        <v-btn @click="onSave" :disabled="cDisabled">{{ cText }}</v-btn>
+        <v-btn v-if="cIsUpdate" @click="onRemove">삭제</v-btn>
+        <v-btn @click="onCancel">취소</v-btn>
       </section>
     </section>
   </section>
