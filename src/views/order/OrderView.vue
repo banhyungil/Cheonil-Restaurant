@@ -43,6 +43,8 @@ if (props.seq) {
       selStore.value = orderResult.store
       orderMenues.value = orderResult.orderMenues
     }
+
+    tab.value = 'MENU'
   })
 }
 
@@ -94,6 +96,9 @@ async function onComplete() {
   })
 
   if (props.seq) {
+    // 신규 추가 메뉴는 기존 주문 seq를 삽입
+    orderMenues.value.forEach((om) => (om.orderSeq = order.value.seq))
+
     await apiOrder.update(order.value, orderMenues.value)
     Swal.fireCustom({ toast: true, messageType: 'update' })
     router.back()

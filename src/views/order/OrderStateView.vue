@@ -112,9 +112,9 @@ const isDisplaykitchen = ref(false)
             </Dropdown>
           </div>
           <div class="menues">
-            <div v-for="(om, idx) in order.orderMenues" :key="om.menuSeq" class="text" style="font-weight: bold">
+            <div v-for="(om, idx) in order.orderMenues" :key="om.menuSeq" class="text" style="font-weight: bold; margin: 2px">
               <span>{{ `${om.menu.abv ?? om.menu.name} ${om.cnt}` }}</span>
-              <span v-if="idx != order.orderMenues.length">,</span>
+              <span v-if="idx < order.orderMenues.length - 1">,</span>
             </div>
           </div>
           <div v-if="order.cmt">{{ `요청사항: ${order.cmt}` }}</div>
@@ -145,7 +145,7 @@ const isDisplaykitchen = ref(false)
             <div class="menues">
               <div v-for="(om, idx) in order.orderMenues" :key="om.menuSeq" class="text">
                 <span>{{ `${om.menu.abv ?? om.menu.name} ${om.cnt}` }}</span>
-                <span v-if="idx != order.orderMenues.length">,</span>
+                <span v-if="idx < order.orderMenues.length - 1">, </span>
               </div>
             </div>
             <div v-if="order.cmt">{{ `요청사항: ${order.cmt}` }}</div>
@@ -168,6 +168,12 @@ const isDisplaykitchen = ref(false)
   display: flex;
   flex-direction: column;
   height: calc(100vh - 60px - 40px - 20px);
+  @apply tw-text-4xl;
+
+  @media screen and (max-width: 1924px) {
+    @apply tw-text-lg;
+  }
+
   .react-grid-col {
     $item-min-width: 300px;
 
@@ -240,8 +246,9 @@ const isDisplaykitchen = ref(false)
         text-align: center;
         color: #595959;
         padding: 10px;
+        font-weight: bold;
 
-        @apply tw-text-4xl;
+        @apply tw-text-6xl;
 
         // background-color: rgb(95, 171, 237);
         background-color: rgb(39 44 49 / 14%);
@@ -266,7 +273,7 @@ const isDisplaykitchen = ref(false)
         flex-wrap: wrap;
         margin: 10px 0;
 
-        @apply tw-text-3xl;
+        @apply tw-text-6xl;
       }
 
       .time {
