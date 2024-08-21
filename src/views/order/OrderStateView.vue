@@ -90,7 +90,7 @@ const isDisplaykitchen = ref(false)
 </script>
 
 <template>
-  <div class="order-state-view">
+  <div class="order-state-view" :class="{ kitchen: isDisplaykitchen }">
     <div class="tw-flex tw-justify-end">
       <v-btn @click="() => (isDisplaykitchen = !isDisplaykitchen)" :color="isDisplaykitchen ? 'primary' : ''" style="height: 24px"> 주방용 </v-btn>
     </div>
@@ -168,6 +168,10 @@ const isDisplaykitchen = ref(false)
   display: grid;
   grid-template-rows: max-content 1fr 280px;
   height: calc(100vh - 60px - 40px - 20px);
+
+  &.kitchen {
+    grid-template-rows: max-content 1fr;
+  }
 
   @apply tw-text-4xl;
 
@@ -299,7 +303,7 @@ const isDisplaykitchen = ref(false)
         color: #fff;
       }
 
-      @media screen and (max-width: 1924px) {
+      @media screen and (max-width: 1824px) {
         .store {
           @apply tw-text-lg;
         }
