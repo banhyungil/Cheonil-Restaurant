@@ -175,7 +175,7 @@ const isDisplaykitchen = ref(false)
 
   @apply tw-text-3xl;
 
-  @media screen and (max-width: 1824px) {
+  @media screen and (max-width: 1924px) {
     @apply tw-text-lg;
   }
 
@@ -303,7 +303,7 @@ const isDisplaykitchen = ref(false)
         color: #fff;
       }
 
-      @media screen and (max-width: 1824px) {
+      @media screen and (max-width: 1924px) {
         @apply tw-text-lg;
         .store {
           @apply tw-text-lg;

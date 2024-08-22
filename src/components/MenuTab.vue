@@ -7,7 +7,9 @@ import { useMenuStore } from '@/stores/menuStore'
 import { useRouter } from 'vue-router'
 import BInputCho from './base/BInputCho.vue'
 import { useEventListener } from '@vueuse/core'
+import useWebSocket from '@/api/useWebSocket'
 
+const WS = useWebSocket()
 const menuStore = useMenuStore()
 
 type SelMenuCtg = MenuCategoryEntity | null
@@ -96,6 +98,16 @@ useEventListener(document, 'keyup', (e) => {
       isEdit.value = false
     }
   }
+})
+
+WS.listen('/menu', 'POST', (resMenu) => {
+  debugger
+})
+WS.listen('/menu/:seq', 'PATCH', (resMenu) => {
+  debugger
+})
+WS.listen('/menu/:seq', 'DELETE', () => {
+  debugger
 })
 </script>
 
