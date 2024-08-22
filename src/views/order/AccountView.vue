@@ -77,8 +77,8 @@ function onClickPayType(val: SrchFilter) {
         <h3>{{ cTotalAmountNotPaid.toLocaleString() }}</h3>
       </div>
       <div class="row">
-        <h3 style="color: var(--color-point)">총 매출</h3>
-        <h3>{{ cTotalAmount.toLocaleString() }}</h3>
+        <h2 style="color: var(--color-point)">총 매출</h2>
+        <h2>{{ cTotalAmount.toLocaleString() }}</h2>
       </div>
     </section>
     <section class="c-list">
@@ -102,6 +102,10 @@ function onClickPayType(val: SrchFilter) {
   justify-content: center;
   align-items: center;
 
+  h2 {
+    font-size: 1.3rem;
+  }
+
   .summary {
     display: flex;
     flex-direction: column;
@@ -113,9 +117,10 @@ function onClickPayType(val: SrchFilter) {
     .row {
       display: flex;
       flex-direction: column;
+      row-gap: 6px;
 
       button {
-        width: 44px;
+        width: 100%;
       }
     }
   }
@@ -123,6 +128,7 @@ function onClickPayType(val: SrchFilter) {
   .c-list {
     width: 100%;
     height: 90vh;
+    box-shadow: var(--box-shadow-section);
 
     // .v-table__wrapper {
     //   height: 70vh;

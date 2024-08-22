@@ -15,7 +15,6 @@ import SideBar from '@/components/layout/SideBar.vue'
 .admin-layout {
   display: grid;
   grid-template-columns: max-content 1fr;
-  background-color: #e7e7ff;
   height: 100vh;
   padding-top: 20px;
 
@@ -27,6 +26,7 @@ import SideBar from '@/components/layout/SideBar.vue'
   .right {
     margin: 20px;
     margin-top: 0;
+    box-shadow: var(--box-shadow-section);
   }
 }
 </style>

@@ -45,6 +45,8 @@ button {
         color: #fff;
       }
   }
+  
+  @include hover;
 }
 
 input {

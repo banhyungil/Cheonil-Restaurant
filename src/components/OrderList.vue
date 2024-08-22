@@ -274,16 +274,16 @@ const srchText = ref('')
           <Dropdown placement="right">
             <v-btn v-if="activeFilter" v-tooltip="'필터'"><font-awesome-icon :icon="['fas', 'filter']" /></v-btn>
             <template #popper>
-              <div>
+              <div class="popper tw-flex tw-flex-col tw-gap-2 pa-3">
                 <div>
-                  <h3>결제 방식</h3>
+                  <h3 class="tw-mb-2">결제 방식</h3>
                   <v-btn :base-color="filter.payType.isNotPaid ? 'success' : ''" @click="filterPayType(null)">미수</v-btn>
                   <v-btn :base-color="filter.payType.isCash ? 'success' : ''" @click="filterPayType('CASH')">현금</v-btn>
                   <v-btn :base-color="filter.payType.isCard ? 'success' : ''" @click="filterPayType('CARD')">카드</v-btn>
                 </div>
 
                 <div>
-                  <h3>기타</h3>
+                  <h3 class="tw-mb-2">기타</h3>
                   <v-btn :base-color="filter.isTodayOrder ? 'success' : ''" @click="filter.isTodayOrder = !filter.isTodayOrder">당일주문</v-btn>
                   <v-btn :base-color="filter.isTodayPay ? 'success' : ''" @click="filter.isTodayPay = !filter.isTodayPay">당일결제</v-btn>
                 </div>
