@@ -48,3 +48,11 @@
   }
 }
 
+@mixin hover() {
+    &:hover {
+        background-color: var(--color-point);
+        color: #fff;
+        transition: all 0.1s  ease-in-out;
+    }
+}
+

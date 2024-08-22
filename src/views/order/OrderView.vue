@@ -148,12 +148,12 @@ useEventListener(document, 'keyup', (e) => {
                 <span v-if="width < 1024" style="float: right">{{ ` ${om.price.toLocaleString('ko-KR')}` }}</span>
               </div>
               <div class="c-cnt-btn">
-                <v-btn @click="() => om.cnt++">
+                <v-btn @click="() => om.cnt++" class="hover">
                   <font-awesome-icon :icon="['fas', 'plus']" />
                 </v-btn>
                 <!-- <button @click="onUp(om)">+</button> -->
                 <input class="box-shadow" type="number" v-model="om.cnt" />
-                <v-btn @click="() => om.cnt--">
+                <v-btn @click="() => om.cnt--" class="hover">
                   <font-awesome-icon :icon="['fas', 'minus']" />
                 </v-btn>
               </div>
@@ -185,7 +185,6 @@ useEventListener(document, 'keyup', (e) => {
   .left {
     width: 60vw;
     height: 100%;
-    background-color: rgb(199, 197, 197);
 
     .top {
     }
@@ -199,7 +198,8 @@ useEventListener(document, 'keyup', (e) => {
     grid-template-rows: minmax(60px, 10vh) 1fr minmax(60px, 10vh);
     width: calc(100% - 60vw);
     height: 100%;
-    background-color: rgb(199, 197, 197);
+    border: 1px solid #000;
+    @apply tw-shadow-xl;
 
     .top {
       display: flex;
@@ -221,7 +221,8 @@ useEventListener(document, 'keyup', (e) => {
       overflow: hidden;
       padding: 10px;
       margin: 0 10px;
-      border: 1px solid grey;
+      border-top: 1.7px solid grey;
+      border-bottom: 1.7px solid grey;
 
       .orders {
         display: flex;

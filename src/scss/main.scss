@@ -27,6 +27,18 @@ button {
     opacity: 0.8;
   }
 
+  &.hover {
+    &:hover{
+        background-color: #2aac8e;
+        color: #fff;
+    }
+  }
+  &.hover-bd {
+    &:hover{
+        border: 1px solid #2aac8e;
+        color: #2aac8e;
+    }
+  }
   &.toggle {
       &.on {
         background-color: #2aac8e;

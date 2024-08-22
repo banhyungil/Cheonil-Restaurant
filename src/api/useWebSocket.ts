@@ -19,6 +19,9 @@ export default function useWebSocket() {
   function listen(url: ApiMenuCtg.URLSeq, method: 'PATCH', callback: (resBody: ApiMenuCtg.Post['resBody']) => void): void
   function listen(url: ApiMenuCtg.URLSeq, method: 'DELETE', callback: () => void): void
   function listen(url: URLs, method: Methods, callback: Function) {
+    if (callbackDict.value[url] == null) callbackDict.value[url] = {} as any
+    if (callbackDict.value[url][method] == null) callbackDict.value[url][method] = []
+
     callbackDict.value[url][method].push(callback)
   }
   /* eslint-enable no-unused-vars */

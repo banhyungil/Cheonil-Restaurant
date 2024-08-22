@@ -92,7 +92,9 @@ const isDisplaykitchen = ref(false)
 <template>
   <div class="order-state-view" :class="{ kitchen: isDisplaykitchen }">
     <div class="tw-flex tw-justify-end">
-      <v-btn @click="() => (isDisplaykitchen = !isDisplaykitchen)" :color="isDisplaykitchen ? 'primary' : ''" style="height: 24px"> 주방용 </v-btn>
+      <v-btn @click="() => (isDisplaykitchen = !isDisplaykitchen)" :color="isDisplaykitchen ? 'primary' : ''" class="kitchen" style="height: 24px">
+        주방용
+      </v-btn>
     </div>
     <div class="react-grid-col ready">
       <TransitionGroup name="slide">
@@ -168,9 +170,14 @@ const isDisplaykitchen = ref(false)
   display: grid;
   grid-template-rows: max-content 1fr 280px;
   height: calc(100vh - 60px - 40px - 20px);
+  font-weight: bold;
 
-  &.kitchen {
-    grid-template-rows: max-content 1fr;
+  button.kitchen {
+    &:hover {
+      border: 1px solid var(--color-point);
+      color: var(--color-point);
+      transition: all 0.1s ease-in-out;
+    }
   }
 
   @apply tw-text-3xl;
@@ -196,6 +203,7 @@ const isDisplaykitchen = ref(false)
     }
 
     &.ready {
+      grid-template-rows: repeat(3, 1fr);
     }
 
     button.complete {
@@ -234,7 +242,6 @@ const isDisplaykitchen = ref(false)
       row-gap: 6px;
       box-shadow: var(--box-shadow);
       min-width: $item-min-width;
-      height: 100%;
 
       & > * {
         display: flex;
@@ -249,15 +256,12 @@ const isDisplaykitchen = ref(false)
         justify-content: center;
         width: 100%;
         text-align: center;
-        color: #595959;
         padding: 10px;
         font-weight: bold;
+        color: #fff;
+        background-color: #646464;
 
         @apply tw-text-6xl;
-
-        // background-color: rgb(95, 171, 237);
-        background-color: rgb(39 44 49 / 14%);
-        font-weight: bold;
 
         .c-choice {
           position: absolute;
@@ -267,7 +271,7 @@ const isDisplaykitchen = ref(false)
             padding: 0 14px;
 
             &:hover {
-              color: var(--color-point);
+              color: rgb(81 81 81);
             }
           }
         }
@@ -327,12 +331,18 @@ const isDisplaykitchen = ref(false)
       padding: 8px;
       font-size: 18px;
       color: #fff;
-      background-color: var(--color-point);
+      background-color: #525252;
       opacity: 0.9;
       width: 100%;
       min-width: 140px;
       margin-bottom: 10px;
+      font-size: 1.2rem;
+      font-weight: bold;
     }
+  }
+
+  &.kitchen {
+    grid-template-rows: max-content 1fr;
   }
 }
 
