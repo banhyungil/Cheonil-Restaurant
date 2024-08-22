@@ -100,15 +100,15 @@ useEventListener(document, 'keyup', (e) => {
   }
 })
 
-WS.listen('/menu', 'POST', (resMenu) => {
-  debugger
-})
-WS.listen('/menu/:seq', 'PATCH', (resMenu) => {
-  debugger
-})
-WS.listen('/menu/:seq', 'DELETE', () => {
-  debugger
-})
+// WS.listen('/menu', 'POST', (resMenu) => {
+//   debugger
+// })
+// WS.listen('/menu/:seq', 'PATCH', (resMenu) => {
+//   debugger
+// })
+// WS.listen('/menu/:seq', 'DELETE', () => {
+//   debugger
+// })
 </script>
 
 <template>
