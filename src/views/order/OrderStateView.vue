@@ -173,9 +173,9 @@ const isDisplaykitchen = ref(false)
     grid-template-rows: max-content 1fr;
   }
 
-  @apply tw-text-4xl;
+  @apply tw-text-3xl;
 
-  @media screen and (max-width: 1924px) {
+  @media screen and (max-width: 1824px) {
     @apply tw-text-lg;
   }
 
@@ -303,11 +303,15 @@ const isDisplaykitchen = ref(false)
         color: #fff;
       }
 
-      @media screen and (max-width: 1924px) {
+      @media screen and (max-width: 1824px) {
+        @apply tw-text-lg;
         .store {
           @apply tw-text-lg;
         }
         .menues {
+          @apply tw-text-lg;
+        }
+        .time {
           @apply tw-text-lg;
         }
       }
