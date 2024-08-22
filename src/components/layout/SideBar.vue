@@ -4,7 +4,7 @@ const Route = useRoute()
 <template>
   <div class="sidebar">
     <div class="c-home">
-      <RouterLink to="/"> <font-awesome-icon :icon="['fas', 'house']" /> 천일 </RouterLink>
+      <RouterLink to="/"> <font-awesome-icon :icon="['fas', 'house']" /> 천일식당 </RouterLink>
     </div>
     <div class="c-menues">
       <RouterLink to="/account" activeClass="active">정산</RouterLink>
@@ -30,10 +30,8 @@ const Route = useRoute()
     display: flex;
     font-size: 22px;
     padding: 14px;
-
-    &:hover {
-      color: var(--color-point);
-    }
+    box-shadow: var(--box-shadow-section);
+    color: var(--color-u);
   }
 
   .c-menues {
