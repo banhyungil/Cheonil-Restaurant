@@ -62,7 +62,6 @@ const cTotalAmount = computed(() => {
 })
 
 function onChoiceStore(store: StoreEntity) {
-  console.log('onChoiceStore')
   selStore.value = store
   order.value.storeSeq = selStore.value.seq
 
@@ -70,7 +69,6 @@ function onChoiceStore(store: StoreEntity) {
 }
 
 function onChoiceMenu(menu: MenuEntity) {
-  console.log('onChoiceMenu', menu)
   // menu 가 존재하면 수량만 증가
   // 없으면 메뉴 추가
   const orderMenu = orderMenues.value?.find((om) => om.menuSeq == menu.seq)

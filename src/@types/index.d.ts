@@ -501,3 +501,5 @@ type RequiredK<T extends object, K extends keyof T> = Required<Pick<T, K>> & Omi
 type Mutable<T> = {
   -readonly [key in keyof T]: T[key]
 }
+
+type Override<T, K> = Omit<T, keyof K> & K

@@ -1,4 +1,5 @@
 import { useWebSocket as _useWebSocket } from '@vueuse/core'
+import type { OrderCURes } from './useApiOrder'
 
 interface Sync {
   url: URLs
@@ -7,17 +8,21 @@ interface Sync {
   resBody: any
   routeParams: any
 }
-const { data } = _useWebSocket(`ws://localhost:${import.meta.env.VITE_WS_PORT}`)
+const { data, open } = _useWebSocket(`ws://localhost:${import.meta.env.VITE_WS_PORT}`)
+open()
 export default function useWebSocket() {
   const callbackDict = ref({} as CallbackDict)
 
   /* eslint-disable no-unused-vars */
   function listen(url: ApiMenu.URL, method: 'POST', callback: (resBody: ApiMenu.Post['resBody']) => void): void
   function listen(url: ApiMenu.URLSeq, method: 'PATCH', callback: (resBody: ApiMenu.Post['resBody']) => void): void
-  function listen(url: ApiMenu.URLSeq, method: 'DELETE', callback: () => void): void
+  function listen(url: ApiMenu.URLSeq, method: 'DELETE', callback: (seq: number) => void): void
   function listen(url: ApiMenuCtg.URL, method: 'POST', callback: (resBody: ApiMenuCtg.Post['resBody']) => void): void
   function listen(url: ApiMenuCtg.URLSeq, method: 'PATCH', callback: (resBody: ApiMenuCtg.Post['resBody']) => void): void
-  function listen(url: ApiMenuCtg.URLSeq, method: 'DELETE', callback: () => void): void
+  function listen(url: ApiMenuCtg.URLSeq, method: 'DELETE', callback: (seq: number) => void): void
+  function listen(url: ApiOrder.URL, method: 'POST', callback: (sync: ApiOrder.Post['orderSync']) => void): void
+  function listen(url: ApiOrder.URLSeq, method: 'PATCH', callback: (sync: ApiOrder.Patch['orderSync']) => void): void
+  function listen(url: ApiOrder.URLSeq, method: 'DELETE', callback: (sync: ApiOrder.Delete['orderSync']) => void): void
   function listen(url: URLs, method: Methods, callback: Function) {
     if (callbackDict.value[url] == null) callbackDict.value[url] = {} as any
     if (callbackDict.value[url][method] == null) callbackDict.value[url][method] = []
@@ -42,7 +47,8 @@ export default function useWebSocket() {
     if (isSync(data.value) == false) return
 
     const { url, method } = data.value
-    callbackDict.value[url][method]
+    console.log('websocket data: ', data.value)
+    callbackDict.value[url][method].forEach((fn) => fn(data.value))
   })
 
   return { listen }
@@ -54,8 +60,40 @@ type CallbackDict = {
 
 type Methods = 'POST' | 'PATCH' | 'DELETE'
 type BaseURLs = '/menu' | '/menuCategory' | '/store' | '/storeCategory' | '/placeCategory' | '/order' | '/payment'
-type URLSeqs = `${BaseURLs}/:seq`
+type URLSeqs = `${BaseURLs}/${string}`
 type URLs = BaseURLs | URLSeqs
+
+export namespace ApiOrder {
+  export type URL = Extract<BaseURLs, '/order'>
+  export type URLSeq = `${URL}/:seq`
+  export interface OrderSync extends Sync {
+    url: URL | `${URL}/${string}`
+    baseUrl: URL
+    method: Methods
+  }
+  export interface Post {
+    reqBody: {
+      order: MyOrderEntityCreation
+      orderMenues: OrderMenuEntityCreation[]
+    }
+    resBody: OrderCURes
+
+    orderSync: Override<OrderSync, { resBody: OrderCURes; routeParams: null }>
+  }
+  export interface Patch {
+    reqBody: {
+      order: MyOrderEntity
+      orderMenues: OrderMenuEntityCreation[]
+    }
+    resBody: OrderCURes
+
+    orderSync: Override<OrderSync, { resBody: OrderCURes; routeParams: null }>
+  }
+  export interface Delete {
+    reqBody: MenuEntity['seq']
+    orderSync: Override<OrderSync, { resBody: null; routeParams: { seq: string } }>
+  }
+}
 
 export namespace ApiMenu {
   export type URL = Extract<BaseURLs, '/menu'>

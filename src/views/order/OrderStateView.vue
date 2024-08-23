@@ -7,26 +7,34 @@ import useSwal from '@/composable/useSwal'
 import { useRouter } from 'vue-router'
 import _ from 'lodash'
 import { Dropdown } from 'floating-vue'
+import useWebSocket from '@/api/useWebSocket'
 
+const WS = useWebSocket()
 const apiOrder = useApiOrder()
 const orders = ref<Order[]>([])
 const completeOrders = ref<Order[]>([])
 const dLoading = ref<Record<string, boolean>>({})
 const router = useRouter()
-useIntervalFn(
-  () => {
-    apiOrder.selectList({ whereOptions: { status: { eq: 'READY' } } }).then((list) => {
-      orders.value = list.orders
-    })
-
-    console.log('selectList')
-  },
-  15000,
-  { immediateCallback: true }
-)
+apiOrder.selectList({ whereOptions: { status: { eq: 'READY' } } }).then((list) => {
+  orders.value = list.orders
+})
 
 apiOrder.selectList({ whereOptions: { status: { eq: 'COOKED' }, orderAt: { gte: toDate(new Date().setHours(0, 0, 0, 0)) } }, limit: 10 }).then((res) => {
   completeOrders.value = res.orders
+})
+
+WS.listen('/order', 'POST', async (sync) => {
+  const nOrder = await apiOrder.select(sync.resBody.seq)
+  orders.value.push(nOrder)
+})
+
+WS.listen('/order/:seq', 'PATCH', (sync) => {
+  const tgtOrder = orders.value.find((od) => od.seq == sync.resBody.seq)
+  if (tgtOrder) Object.assign(tgtOrder, sync.resBody)
+})
+
+WS.listen('/order/:seq', 'DELETE', (sync) => {
+  _.remove(orders.value, (od) => od.seq == +sync.routeParams.seq)
 })
 
 const Swal = useSwal()

@@ -1,7 +1,7 @@
 import useApi from './useApi'
 import qs from 'qs'
 
-type OrderCURes = Omit<Order, 'payments' | 'store'>
+export type OrderCURes = Omit<Order, 'payments' | 'store'>
 interface Additional {
   payTypes?: PaymentEntity['payType'][]
   payAt?: PaymentEntity['payAt']

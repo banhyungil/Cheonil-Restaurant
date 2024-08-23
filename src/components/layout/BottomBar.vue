@@ -18,7 +18,7 @@
   justify-items: center;
   width: 100%;
   border: 1px solid var(--color-point);
-  color: #2aac8e;
+  color: var(--color-point);
   //   background-color: #2aac8e;
 
   .item {
