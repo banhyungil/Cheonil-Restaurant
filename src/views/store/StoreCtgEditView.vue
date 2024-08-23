@@ -38,10 +38,15 @@ async function onSave() {
     inp.value.focus()
   } else {
     if (cIsUpdate.value) {
-      await apiStoreCtg.update(ctg.value as StoreCategoryEntity)
+      const uCtg = await apiStoreCtg.update(ctg.value as StoreCategoryEntity)
+      const tgt = storeStore.categories.find((item) => item.seq == uCtg.seq)
+      if (tgt) Object.assign(tgt, uCtg)
+
       Swal.fireCustom({ toast: true, messageType: 'update' })
     } else {
-      await apiStoreCtg.create(ctg.value)
+      const nCtg = await apiStoreCtg.create(ctg.value)
+      storeStore.categories.push(nCtg)
+
       Swal.fireCustom({ toast: true, messageType: 'save' })
     }
     storeStore.categories = await apiStoreCtg.selectList()

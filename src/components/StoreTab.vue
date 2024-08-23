@@ -75,7 +75,7 @@ function onAddCategory() {
 }
 
 function isCtg(selCtg: SelStoreCtg): selCtg is StoreCategoryEntity {
-  return (selCtg as StoreCategoryEntity).seq != null
+  return selCtg != null && selCtg.seq != null
 }
 function onAddItem() {
   if (isCtg(selCtg.value)) router.push({ path: `/storeEdit`, query: { ctgSeq: selCtg.value.seq } })
@@ -99,10 +99,6 @@ useEventListener(document, 'keyup', (e) => {
 })
 </script>
 
-<!-- 
-  카테고리 등록은 탭에서 이름만 등록하는 것으로(지금은 다른 속성이 없음..) 
-  메뉴 등록만 팝업으로 진행하자 (메뉴는...가격 이름 카테고리)
--->
 <!-- 클릭하면 등록 화면으로 이동 -->
 <!-- 편집이아닌경우는 메뉴 화면으로 이동  -->
 <template>
@@ -110,7 +106,7 @@ useEventListener(document, 'keyup', (e) => {
     <section class="top">
       <!-- 초성 검색 구현 -->
       <BInputCho v-model="srchText" />
-      <v-btn @click="onToggleEdit" class="edit" :class="{ on: isEdit }">
+      <v-btn @click="onToggleEdit" class="edit" :class="{ on: isEdit }" v-tooltip="'편집'">
         <font-awesome-icon :icon="['fas', 'pen']" />
       </v-btn>
     </section>

@@ -116,7 +116,7 @@ useEventListener(document, 'keyup', (e) => {
     <section class="top">
       <!-- 초성 검색 구현 -->
       <BInputCho v-model="srchText" />
-      <v-btn @click="onToggleEdit" class="edit" :class="{ on: isEdit }">
+      <v-btn @click="onToggleEdit" class="edit" :class="{ on: isEdit }" v-tooltip="'편집'">
         <font-awesome-icon :icon="['fas', 'pen']" />
       </v-btn>
     </section>

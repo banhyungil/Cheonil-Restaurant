@@ -38,10 +38,15 @@ async function onSave() {
     inp.value.focus()
   } else {
     if (cIsUpdate.value) {
-      await apiMenuCtg.update(ctg.value as MenuCategoryEntity)
+      const uCtg = await apiMenuCtg.update(ctg.value as MenuCategoryEntity)
+      const tgt = menuStore.categories.find((ctg) => ctg.seq == uCtg.seq)
+      if (tgt) Object.assign(uCtg)
+
       Swal.fireCustom({ toast: true, messageType: 'update' })
     } else {
-      await apiMenuCtg.create(ctg.value)
+      const nCtg = await apiMenuCtg.create(ctg.value)
+      menuStore.categories.push(nCtg)
+
       Swal.fireCustom({ toast: true, messageType: 'save' })
     }
     menuStore.categories = await apiMenuCtg.selectList()

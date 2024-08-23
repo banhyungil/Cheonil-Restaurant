@@ -208,7 +208,6 @@ const isDisplaykitchen = ref(false)
 
     button.complete {
       height: max-content;
-      font-size: inherit;
       padding: 8px;
     }
 
@@ -328,15 +327,14 @@ const isDisplaykitchen = ref(false)
     overflow: hidden;
 
     .title {
+      width: 100%;
+      min-width: 140px;
       padding: 8px;
-      font-size: 18px;
       color: #fff;
       background-color: #525252;
       opacity: 0.9;
-      width: 100%;
-      min-width: 140px;
       margin-bottom: 10px;
-      font-size: 1.2rem;
+      font-size: 1.2em;
       font-weight: bold;
     }
   }

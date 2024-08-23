@@ -56,9 +56,12 @@
   .ctgs {
     display: flex;
     align-items: center;
+    font-weight: bold;
     // default class
     button {
-      width: 100px;
+      min-width: 100px;
+      width: fit-content;
+      padding: 0 6px;
       height: 44px;
       border: 1px solid darkgrey;
 

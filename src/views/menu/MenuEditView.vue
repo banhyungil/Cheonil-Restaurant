@@ -12,11 +12,35 @@ import useApiMenuCtg from '@/api/useApiMenuCtg'
 
 // 주문 화면 다음으로 이동될 화면
 // 가게, 카테고리 목록은 store에 저장된 데이터 사용
+const menuStore = useMenuStore()
 const apiMenuCtg = useApiMenuCtg()
 const apiMenu = useApiMenu()
 const Swal = useSwal()
 const router = useRouter()
 const routeQuery = useRoute().query
+
+onMounted(async () => {
+  if (menuStore.items.length == 0) {
+    menuStore.items = await apiMenu.selectList()
+    menuStore.categories = await apiMenuCtg.selectList()
+  }
+
+  if (props.seq) {
+    origin.value = menuStore.items.find((item) => item.seq == props.seq)
+
+    if (origin.value == null) {
+      router.back()
+    } else {
+      menu.value = _.cloneDeep(origin.value)
+    }
+  }
+
+  if (routeQuery) {
+    if ('ctgSeq' in routeQuery && typeof routeQuery.ctgSeq == 'string') {
+      menu.value.ctgSeq = +routeQuery.ctgSeq
+    }
+  }
+})
 
 const ctgs = ref<MenuCategoryEntity[]>([])
 apiMenuCtg.selectList().then((res) => {
@@ -24,28 +48,16 @@ apiMenuCtg.selectList().then((res) => {
 })
 
 interface Props {
-  seq?: number
+  seq?: string | number
 }
 
 const props = defineProps<Props>()
 const cIsUpdate = computed(() => (props.seq ? true : false))
 const origin = ref<MenuEntity>()
 const cText = computed(() => (cIsUpdate.value ? '수정' : '등록'))
+const cDisabled = computed(() => cIsUpdate.value && _.isEqual(origin.value, menu.value))
 
 const menu = ref({ name: '', price: 0 } as MenuEntityCreation)
-if (props.seq) {
-  apiMenu.select(props.seq).then((res) => {
-    origin.value = res
-    menu.value = _.cloneDeep(res)
-  })
-}
-const cDisabled = computed(() => _.isEqual(origin.value, menu.value))
-
-if (routeQuery) {
-  if ('ctgSeq' in routeQuery && typeof routeQuery.ctgSeq == 'string') {
-    menu.value.ctgSeq = +routeQuery.ctgSeq
-  }
-}
 
 const oMenuProp: { [k in keyof MenuEntityCreation]: { label: string } } = {
   ctgSeq: { label: '카테고리' },
@@ -68,18 +80,33 @@ const rules = {
 } as ValidationArgs<MenuEntityCreation>
 const v$ = useVuelidate(rules, menu)
 
+// TODO validate와 input focus를 같이 할 수 있는 방법 찾기
+async function validate() {
+  if ((await v$.value.$validate()) == false) return false
+  if (cIsUpdate.value == false) return menuStore.items.every((item) => item.name != menu.value.name)
+  return true
+}
+
 async function onSave() {
-  if ((await v$.value.$validate()) == false) {
-    Swal.fireCustom({ toast: true, title: v$.value.$silentErrors[0].$message, icon: 'warning' })
+  if ((await validate()) == false) {
+    const message = v$.value.$silentErrors[0]?.$message ?? '동일한 메뉴명이 존재합니다.'
+    Swal.fireCustom({ toast: true, title: message, icon: 'warning' })
     return
   }
+
+  // 수정
   if (cIsUpdate.value) {
     const uMenu = await apiMenu.update(menu.value as MenuEntity)
+    const tgt = menuStore.items.find((item) => item.seq == uMenu.seq)
+    if (tgt) Object.assign(tgt, uMenu)
 
     Swal.fireCustom({ toast: true, messageType: 'update' })
+
+    // 등록
   } else {
     if (menu.value.abv == null) menu.value.abv = menu.value.name.slice(0, 2)
     const nMenu = await apiMenu.create(menu.value)
+    menuStore.items.push(nMenu)
 
     Swal.fireCustom({ toast: true, messageType: 'save' })
   }
@@ -88,8 +115,9 @@ async function onSave() {
 }
 
 async function onRemove() {
-  if (await Swal.fireCustom({ isConfirm: true, messageType: 'remove' })) {
-    await apiMenu.remove(props.seq!)
+  if (props.seq && (await Swal.fireCustom({ isConfirm: true, messageType: 'remove' }))) {
+    await apiMenu.remove(+props.seq)
+    _.remove(menuStore.items, (item) => item.seq == props.seq)
 
     Swal.fireCustom({ toast: true, messageType: 'remove' })
     router.back()
