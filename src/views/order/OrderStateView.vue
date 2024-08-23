@@ -23,17 +23,18 @@ apiOrder.selectList({ whereOptions: { status: { eq: 'COOKED' }, orderAt: { gte: 
   completeOrders.value = res.orders
 })
 
-WS.listen('/order', 'POST', async (sync) => {
+WS.listen('/api/order', 'POST', async (sync) => {
   const nOrder = await apiOrder.select(sync.resBody.seq)
   orders.value.push(nOrder)
+  orders.value = _.orderBy(orders.value, ['orderAt'], ['desc'])
 })
 
-WS.listen('/order/:seq', 'PATCH', (sync) => {
+WS.listen('/api/order/:seq', 'PATCH', (sync) => {
   const tgtOrder = orders.value.find((od) => od.seq == sync.resBody.seq)
   if (tgtOrder) Object.assign(tgtOrder, sync.resBody)
 })
 
-WS.listen('/order/:seq', 'DELETE', (sync) => {
+WS.listen('/api/order/:seq', 'DELETE', (sync) => {
   _.remove(orders.value, (od) => od.seq == +sync.routeParams.seq)
 })
 

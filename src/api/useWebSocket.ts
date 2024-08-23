@@ -8,8 +8,19 @@ interface Sync {
   resBody: any
   routeParams: any
 }
-const { data, open } = _useWebSocket(`ws://localhost:${import.meta.env.VITE_WS_PORT}`)
-open()
+const { data, open } = _useWebSocket(`ws://localhost:8100`, {
+  onConnected() {
+    console.log('websocket connected')
+  },
+  autoReconnect: {
+    retries: 3,
+    delay: 1000,
+    onFailed() {
+      console.log('websocket connect failed')
+    },
+  },
+})
+
 export default function useWebSocket() {
   const callbackDict = ref({} as CallbackDict)
 
@@ -31,25 +42,31 @@ export default function useWebSocket() {
   }
   /* eslint-enable no-unused-vars */
 
-  function isSync(data: any): data is Sync {
-    const baseUrls = ['/menu', '/menuCategory', '/store', '/storeCategory', '/placeCategory', '/order', '/payment']
+  function isSync(oData: any): oData is Sync {
+    const baseUrls = ['/menu', '/menuCategory', '/store', '/storeCategory', '/placeCategory', '/order', '/payment'].map((url) => `/api${url}`)
+
     return (
-      typeof data == 'object' &&
-      'url' in data &&
-      'baseUrl' in data &&
-      baseUrls.includes(data.baseUrl) &&
-      'method' in data &&
-      'resBody' in data &&
-      'routeParams' in data
+      typeof oData == 'object' &&
+      'url' in oData &&
+      'baseUrl' in oData &&
+      baseUrls.includes(oData.baseUrl) &&
+      'method' in oData &&
+      'resBody' in oData &&
+      'routeParams' in oData
     )
   }
-  watch(data, () => {
-    if (isSync(data.value) == false) return
+  watch(
+    data,
+    () => {
+      const oData = JSON.parse(data.value)
+      if (isSync(oData) == false) return
 
-    const { url, method } = data.value
-    console.log('websocket data: ', data.value)
-    callbackDict.value[url][method].forEach((fn) => fn(data.value))
-  })
+      const { url, method } = oData
+      console.log('websocket data: ', oData)
+      callbackDict.value[url][method].forEach((fn) => fn(oData))
+    },
+    { deep: true }
+  )
 
   return { listen }
 }
@@ -59,12 +76,12 @@ type CallbackDict = {
 }
 
 type Methods = 'POST' | 'PATCH' | 'DELETE'
-type BaseURLs = '/menu' | '/menuCategory' | '/store' | '/storeCategory' | '/placeCategory' | '/order' | '/payment'
+type BaseURLs = `/api${'/menu' | '/menuCategory' | '/store' | '/storeCategory' | '/placeCategory' | '/order' | '/payment'}`
 type URLSeqs = `${BaseURLs}/${string}`
 type URLs = BaseURLs | URLSeqs
 
 export namespace ApiOrder {
-  export type URL = Extract<BaseURLs, '/order'>
+  export type URL = Extract<BaseURLs, '/api/order'>
   export type URLSeq = `${URL}/:seq`
   export interface OrderSync extends Sync {
     url: URL | `${URL}/${string}`

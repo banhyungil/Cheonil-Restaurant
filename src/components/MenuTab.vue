@@ -9,7 +9,6 @@ import BInputCho from './base/BInputCho.vue'
 import { useEventListener } from '@vueuse/core'
 import useWebSocket from '@/api/useWebSocket'
 
-const WS = useWebSocket()
 const menuStore = useMenuStore()
 
 type SelMenuCtg = MenuCategoryEntity | null
