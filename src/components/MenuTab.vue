@@ -18,6 +18,24 @@ const apiMenu = useApiMenu()
 const apiMenuCtg = useApiMenuCtg()
 const router = useRouter()
 
+interface Props {
+  focusSrch?: boolean
+}
+const props = defineProps<Props>()
+const inpSrch = ref({} as InstanceType<typeof BInputCho>)
+
+watch(
+  () => props.focusSrch,
+  () => {
+    console.log('watch props.focusSrch', props.focusSrch)
+    if (props.focusSrch) nextTick().then(() => inpSrch.value.$el.focus())
+  }
+)
+
+const srchText = defineModel('srchText', {
+  default: '',
+})
+
 const emit = defineEmits<{
   (e: 'selectItem', item: MenuEntity): void
 }>()
@@ -31,8 +49,6 @@ apiMenu.selectList().then((list) => {
 apiMenuCtg.selectList().then((list) => {
   menuStore.categories = list
 })
-
-const srchText = ref('')
 
 const isEdit = ref(false)
 function onToggleEdit() {
@@ -80,6 +96,7 @@ function onClickItem(item: MenuEntity) {
     router.push({ path: `/menuEdit/${item.seq}` })
   } else {
     emit('selectItem', item)
+    nextTick().then(() => inpSrch.value.$el.focus())
   }
 }
 
@@ -104,7 +121,7 @@ useEventListener(document, 'keyup', (e) => {
   <section class="comp-menu-tab c-tab">
     <section class="top">
       <!-- 초성 검색 구현 -->
-      <BInputCho v-model="srchText" />
+      <BInputCho ref="inpSrch" v-model="srchText" />
       <v-btn @click="onToggleEdit" class="edit" :class="{ on: isEdit }" v-tooltip="'편집'">
         <font-awesome-icon :icon="['fas', 'pen']" />
       </v-btn>

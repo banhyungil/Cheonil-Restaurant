@@ -29,6 +29,10 @@ const { width } = useWindowSize()
 // tabl localStorage로 저장
 type Tab = 'STORE' | 'MENU'
 const tab = ref<Tab>('STORE')
+// 매장 검색
+const storeSrchText = ref('')
+// 메뉴 검색
+const menuSrchText = ref('')
 
 // 주문 목록 entity는 주문을 할떄 만들어진다
 const orderMenues = ref<OrderMenuEntityCreation[]>([])
@@ -112,6 +116,7 @@ function init() {
   orderMenues.value = []
   tab.value = 'STORE'
   selStore.value = null
+  menuSrchText.value = ''
 }
 
 useEventListener(document, 'keyup', (e) => {
@@ -126,8 +131,8 @@ useEventListener(document, 'keyup', (e) => {
 <template>
   <div class="order-view">
     <section class="left">
-      <StoreTab v-show="tab == 'STORE'" @selectItem="onChoiceStore" />
-      <MenuTab v-show="tab == 'MENU'" @selectItem="onChoiceMenu" />
+      <StoreTab v-show="tab == 'STORE'" @selectItem="onChoiceStore" :focusSrch="tab == 'STORE'" v-model:srch-text="storeSrchText" />
+      <MenuTab v-show="tab == 'MENU'" @selectItem="onChoiceMenu" :focusSrch="tab == 'MENU'" v-model:srch-text="menuSrchText" />
     </section>
     <section class="right">
       <section class="top">

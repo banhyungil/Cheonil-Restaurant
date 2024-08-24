@@ -418,7 +418,7 @@ const srchText = ref('')
 
     .right {
       position: absolute;
-      right: 10px;
+      right: 0px;
       display: flex;
       justify-content: center;
       align-items: center;

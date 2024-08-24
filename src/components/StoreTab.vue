@@ -18,6 +18,23 @@ const apiStore = useApiStore()
 const apiStoreCtg = useApiStoreCtg()
 const router = useRouter()
 
+const compSrch = ref({} as InstanceType<typeof BInputCho>)
+interface Props {
+  focusSrch?: boolean
+}
+const props = defineProps<Props>()
+
+watch(
+  () => props.focusSrch,
+  () => {
+    console.log('watch props.focusSrch', props.focusSrch)
+    if (props.focusSrch) nextTick().then(() => compSrch.value.$el.focus())
+  }
+)
+const srchText = defineModel('srchText', {
+  default: '',
+})
+
 const emit = defineEmits<{
   (e: 'selectItem', item: StoreEntity): void
 }>()
@@ -31,8 +48,6 @@ apiStore.selectList().then((list) => {
 apiStoreCtg.selectList().then((list) => {
   storeStore.categories = list
 })
-
-const srchText = ref('')
 
 const isEdit = ref(false)
 function onToggleEdit() {
@@ -88,6 +103,7 @@ function onClickItem(item: StoreEntity) {
     router.push({ path: `/storeEdit/${item.seq}` })
   } else {
     emit('selectItem', item)
+    srchText.value = ''
   }
 }
 
@@ -106,7 +122,7 @@ useEventListener(document, 'keyup', (e) => {
   <section class="comp-store-tap c-tab">
     <section class="top">
       <!-- 초성 검색 구현 -->
-      <BInputCho v-model="srchText" />
+      <BInputCho ref="compSrch" v-model="srchText" />
       <v-btn @click="onToggleEdit" class="edit" :class="{ on: isEdit }" v-tooltip="'편집'">
         <font-awesome-icon :icon="['fas', 'pen']" />
       </v-btn>
