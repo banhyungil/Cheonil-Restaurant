@@ -38,7 +38,7 @@ watch(
         status: { in: statusIn },
         orderAt: { gte: orderAt },
         payAt: { gte: payAt },
-        payTypes: payTypes ? { in: payTypes } : undefined,
+        payType: payTypes ? { in: payTypes } : undefined,
       },
       limit: pageSize.value ?? undefined,
       offset: cOffset.value,

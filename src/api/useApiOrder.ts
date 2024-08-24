@@ -3,7 +3,7 @@ import qs from 'qs'
 
 export type OrderCURes = Omit<Order, 'payments' | 'store'>
 interface Additional {
-  payTypes?: PaymentEntity['payType'][]
+  payType?: PaymentEntity['payType'][]
   payAt?: PaymentEntity['payAt']
 }
 
