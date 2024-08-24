@@ -7,7 +7,7 @@ import { useMenuStore } from '@/stores/menuStore'
 import { useRouter } from 'vue-router'
 import BInputCho from './base/BInputCho.vue'
 import { useEventListener } from '@vueuse/core'
-import useWebSocket from '@/api/useWebSocket'
+import _ from 'lodash'
 
 const menuStore = useMenuStore()
 
@@ -24,7 +24,7 @@ const emit = defineEmits<{
 
 // 메뉴 조회
 apiMenu.selectList().then((list) => {
-  menuStore.items = list
+  menuStore.items = _.orderBy(list, ['name'])
 })
 
 // 메뉴 카테고리 조회
@@ -98,16 +98,6 @@ useEventListener(document, 'keyup', (e) => {
     }
   }
 })
-
-// WS.listen('/menu', 'POST', (resMenu) => {
-//   debugger
-// })
-// WS.listen('/menu/:seq', 'PATCH', (resMenu) => {
-//   debugger
-// })
-// WS.listen('/menu/:seq', 'DELETE', () => {
-//   debugger
-// })
 </script>
 
 <template>

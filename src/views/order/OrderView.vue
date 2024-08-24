@@ -183,6 +183,7 @@ useEventListener(document, 'keyup', (e) => {
   .left {
     width: 60vw;
     height: 100%;
+    border: 1px solid #000;
 
     .top {
     }

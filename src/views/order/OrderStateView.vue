@@ -2,7 +2,7 @@
 import useApiOrder from '@/api/useApiOrder'
 import { ref } from 'vue'
 import { format, differenceInSeconds, toDate } from 'date-fns'
-import { useIntervalFn, useNow } from '@vueuse/core'
+import { useNow } from '@vueuse/core'
 import useSwal from '@/composable/useSwal'
 import { useRouter } from 'vue-router'
 import _ from 'lodash'

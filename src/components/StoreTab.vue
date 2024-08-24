@@ -7,6 +7,7 @@ import { useStoreStore } from '@/stores/storeStore'
 import { getInitials } from '@/utils/CommonUtils'
 import BInputCho from './base/BInputCho.vue'
 import { useEventListener } from '@vueuse/core'
+import _ from 'lodash'
 
 const storeStore = useStoreStore()
 
@@ -23,7 +24,7 @@ const emit = defineEmits<{
 
 // 매장 조회
 apiStore.selectList().then((list) => {
-  storeStore.items = list
+  storeStore.items = _.orderBy(list, ['name'])
 })
 
 // 매장 카테고리 조회
