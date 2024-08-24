@@ -248,12 +248,14 @@ function filterPayType(payType: PaymentEntity['payType'] | null) {
 defineExpose({ filter, orders })
 
 const srchText = ref('')
+const orderDates = ref<Date[]>([])
+const payDates = ref<Date[]>([])
 </script>
 
 <template>
   <!--
     disable paging: items-per-page="0"
-      -->
+    -->
   <v-data-table
     class="order-list"
     :show-select="isEdit && activeCollection"
@@ -290,6 +292,7 @@ const srchText = ref('')
               </div>
             </template>
           </Dropdown>
+          <BVueDatePicker v-model="orderDates" range :format="'yy.MM.dd:hh:mm'" style="width: fit-content" />
         </div>
 
         <div>

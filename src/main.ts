@@ -24,6 +24,9 @@ import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import { aliases, fa } from 'vuetify/iconsets/fa-svg'
 
+import VueDatePicker from '@vuepic/vue-datepicker'
+import '@vuepic/vue-datepicker/dist/main.css'
+
 const vuetify = createVuetify({
   components,
   directives,
@@ -53,6 +56,9 @@ const app = createApp(App)
 library.add(fas)
 library.add(faSquare)
 app.component('font-awesome-icon', FontAwesomeIcon)
+// VueDatePicker.locale = 'ko-KR'
+VueDatePicker.locale = 'ko-KR'
+app.component('VueDatePicker', VueDatePicker)
 
 const pinia = createPinia()
 pinia.use(piniaPluginPersistedstate)
