@@ -23,7 +23,7 @@ import SideBar from '@/components/layout/SideBar.vue'
     background-color: #fff;
   }
 
-  .right {
+  & > .right {
     margin: 20px;
     margin-top: 0;
     box-shadow: var(--box-shadow-section);
