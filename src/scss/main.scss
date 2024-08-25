@@ -49,6 +49,26 @@ button {
   @include hover;
 }
 
+.v-select {
+    &.height-40 {
+        height: 40px ;
+        .v-input__control {
+            .v-field__field {
+                height: 40px;
+    
+                .v-field__input {
+                    padding: 0;
+                    padding-bottom: 11px;
+
+                    .v-select__selection {
+                        padding: 0 8px;
+                    }
+                }
+            }
+        }
+    }
+}
+
 input {
   // border: none;
   // outline: none;

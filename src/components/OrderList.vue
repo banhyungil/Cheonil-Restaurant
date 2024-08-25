@@ -8,7 +8,6 @@ import useSwal, { type SweetAlertOptionsCustom } from '@/composable/useSwal'
 import useApiPayment from '@/api/useApiPayment'
 import { Dropdown } from 'floating-vue'
 import { getTotalOrderAmount, getTotalPayAmount } from '@/stores/orderStore'
-import { today } from '@/utils/CommonUtils'
 
 const Swal = useSwal()
 const apiOrder = useApiOrder()
@@ -32,14 +31,6 @@ interface Props {
   /** 전채 항목 갯수 */
   totalItemCnt?: number
 }
-
-// orders
-// pageSize
-// pageSizeList
-// totalCnt
-
-// 컴포넌트 디자인만 모듈화하는거면...
-// 위에만 하면 페이징은 해결. pagedisable은 totalCnt값여부에따라?...
 
 const props = withDefaults(defineProps<Props>(), {
   activeFilter: true,
@@ -109,6 +100,9 @@ const cCollectAble = computed(() => checkedSeqs.value.some((seq) => cOrderDict.v
 
 const cTotalOrderCnt = computed(() => props.totalItemCnt ?? 0)
 const { pageNo, cOffset, cTotalPage } = usePagination(cTotalOrderCnt, pageSize)
+watch(pageNo, () => {
+  window.scrollTo(0, 0)
+})
 
 const isEdit = ref(false)
 
@@ -250,6 +244,21 @@ defineExpose({ filter, orders })
 const srchText = ref('')
 const orderDates = ref<Date[]>([])
 const payDates = ref<Date[]>([])
+const payType = ref<PaymentEntity['payType'] | null>()
+const PAY_TYPES = [
+  {
+    label: '현금',
+    val: 'CASH',
+  },
+  {
+    label: '카드',
+    val: 'CARD',
+  },
+  {
+    label: '현금',
+    val: null,
+  },
+]
 </script>
 
 <template>
@@ -267,12 +276,26 @@ const payDates = ref<Date[]>([])
     :hide-default-footer="true"
   >
     <template #top>
-      <v-toolbar flat>
+      <!-- <v-toolbar flat>
         <v-toolbar-title>{{ title }}</v-toolbar-title>
-      </v-toolbar>
+      </v-toolbar> -->
       <section class="top">
-        <div style="display: flex">
-          <!-- <BInputCho v-model="srchText" /> -->
+        <div class="tw-flex">
+          <div class="tw-flex justify-center align-center">
+            <label>결제방식</label>
+            <v-select
+              class="height-40"
+              v-model="payType"
+              :items="PAY_TYPES"
+              item-title="label"
+              item-value="val"
+              label="Select"
+              persistent-hint
+              single-line
+            ></v-select>
+          </div>
+          <label>매장명</label>
+          <BInputCho v-model="srchText" />
           <Dropdown placement="right">
             <v-btn v-if="activeFilter" v-tooltip="'필터'"><font-awesome-icon :icon="['fas', 'filter']" /></v-btn>
             <template #popper>
@@ -299,7 +322,7 @@ const payDates = ref<Date[]>([])
           <template v-if="isEdit && activeCollection">
             <v-btn @click="collectGroup('CASH')" base-color="primary" :disabled="!cCollectAble">현금</v-btn>
             <v-btn @click="collectGroup('CARD')" base-color="primary" :disabled="!cCollectAble">카드</v-btn>
-            <v-btn @click="cancelCollectionGroup" base-color="warning" :disabled="!cCancelAble">수금취소</v-btn>
+            <v-btn @click="cancelCollectionGroup" base-color="error" :disabled="!cCancelAble">수금취소</v-btn>
           </template>
           <!-- 삭제 또는 수금때만 보인다 -->
           <v-btn v-if="activeDelete || activeCollection" @click="() => (isEdit = !isEdit)" class="toggle" :class="{ on: isEdit }" v-tooltip="'편집'">
@@ -307,6 +330,27 @@ const payDates = ref<Date[]>([])
           </v-btn>
         </div>
       </section>
+      <slot
+        name="summary"
+        :orderAmount="getTotalOrderAmount(orders)"
+        :payAmount="getTotalPayAmount(orders)"
+        :cashAmount="getTotalPayAmount(orders.filter((od) => od.payments.every((pm) => pm.payType == 'CASH')))"
+        :cardAmount="getTotalPayAmount(orders.filter((od) => od.payments.every((pm) => pm.payType == 'CARD')))"
+      >
+        <section v-if="activeSummary" class="c-summary">
+          <div class="grp tw-flex tw-gap-3">
+            <h3 class="title">주문 금액: {{ getTotalOrderAmount(orders).toLocaleString() }}</h3>
+            <div class="tw-flex tw-flex-col tw-gap-2">
+              <h3 class="title">결제 금액: {{ getTotalPayAmount(orders).toLocaleString() }}</h3>
+              <div class="tw-flex tw-gap-2 tw-text-black ml-4">
+                -
+                <h3>현금: {{ getTotalPayAmount(orders.filter((od) => od.payments.every((pm) => pm.payType == 'CASH'))).toLocaleString() }}</h3>
+                <h3>카드: {{ getTotalPayAmount(orders.filter((od) => od.payments.every((pm) => pm.payType == 'CARD'))).toLocaleString() }}</h3>
+              </div>
+            </div>
+          </div>
+        </section>
+      </slot>
     </template>
     <template #item.actions="{ value }">
       <div style="display: flex; justify-content: center; gap: 10px">
@@ -331,13 +375,6 @@ const payDates = ref<Date[]>([])
       </div>
     </template>
     <template #bottom>
-      <section v-if="activeSummary" class="c-summary">
-        <div class="grp">
-          <h3>주문 금액: {{ getTotalOrderAmount(orders).toLocaleString() }}</h3>
-          <h3>결제 금액: {{ getTotalPayAmount(orders).toLocaleString() }}</h3>
-        </div>
-      </section>
-      <hr v-if="activeSummary && activePaging" style="margin: 6px 0" />
       <div v-if="activePaging" class="c-page">
         <v-pagination v-show="cTotalPage > 0" lass="page" v-model="pageNo" :length="cTotalPage" :total-visible="5"></v-pagination>
         <div class="right">
@@ -353,11 +390,6 @@ const payDates = ref<Date[]>([])
 .order-list {
   overflow: hidden;
   .v-table__wrapper {
-    height: calc(100vh - 160px - 60px);
-    overflow-y: scroll;
-    &::-webkit-scrollbar {
-      width: 0;
-    }
     margin: 8px 0;
   }
   section.top {
@@ -398,18 +430,19 @@ const payDates = ref<Date[]>([])
     display: flex;
     flex-direction: column;
     align-items: end;
+    color: var(--color-u);
+    font-weight: bold;
 
     .grp {
       padding: 10px;
 
-      h3 {
-        color: var(--color-u);
+      .title {
+        @apply tw-text-lg;
       }
     }
   }
 
   .c-page {
-    position: relative;
     display: flex;
     justify-content: center;
     align-items: center;

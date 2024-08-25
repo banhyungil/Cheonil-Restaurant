@@ -68,8 +68,5 @@ watch(
 <style lang="scss">
 .collection-list-view {
   overflow: hidden;
-  .v-table__wrapper {
-    height: calc(100vh - 160px - 60px - 70px);
-  }
 }
 </style>

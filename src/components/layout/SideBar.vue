@@ -23,8 +23,12 @@ const Route = useRoute()
   flex-direction: column;
   min-width: 140px;
   width: 10vw;
-  height: 100%;
   box-shadow: var(--box-shadow-section);
+
+  & > * {
+    position: sticky;
+    top: 0;
+  }
 
   .c-home {
     display: flex;
@@ -39,8 +43,8 @@ const Route = useRoute()
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 100%;
     row-gap: 30px;
+    height: calc(100vh - 80px);
 
     & > a {
       width: 120px;
