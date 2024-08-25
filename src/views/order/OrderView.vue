@@ -8,8 +8,6 @@ import useApiOrder from '@/api/useApiOrder'
 import { useEventListener, useWindowSize } from '@vueuse/core'
 import useSwal from '@/composable/useSwal'
 import { useRouter } from 'vue-router'
-import { useStoreStore } from '@/stores/storeStore'
-import { storeToRefs } from 'pinia'
 
 interface Props {
   // orderId

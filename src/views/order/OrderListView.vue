@@ -3,41 +3,34 @@ import useApiOrder from '@/api/useApiOrder'
 import type { Filter } from '@/components/OrderList.vue'
 import usePagination, { PAGE_SIZE_LIST } from '@/composable/usePagination'
 import { today } from '@/utils/CommonUtils'
+import { addDays } from 'date-fns'
 
 const apiOrder = useApiOrder()
 const orders = ref<Order[]>([])
 const totalOrderCnt = ref(0)
 const pageSize = ref<number | null>(PAGE_SIZE_LIST[0])
 
-const filter = ref<Filter>({
-  payType: {
-    isCash: false,
-    isCard: false,
-    isNotPaid: false,
-  },
-  isTodayOrder: false,
-  isTodayPay: false,
-})
+const filter = ref({
+  orderAtRange: [today(), addDays(today(), 7)],
+}) as Ref<Filter>
 
 const { pageNo, cOffset } = usePagination(totalOrderCnt, pageSize)
 
 watch(
   [pageNo, pageSize, () => filter.value],
   async () => {
-    const statusIn = (filter.value.payType.isNotPaid ? ['COOKED'] : ['COOKED', 'PAID']) as Order['status'][]
-    const orderAt = filter.value.isTodayOrder ? today() : undefined
-    const payAt = filter.value.isTodayPay ? today() : undefined
+    const statusIn = (filter.value.payType == 'UNPAID' ? ['COOKED'] : ['COOKED', 'PAID']) as Order['status'][]
+    const { orderAtRange, payAtRange } = filter.value
     const payTypes = (() => {
-      if (filter.value.payType.isCard) return ['CARD']
-      else if (filter.value.payType.isCash) return ['CASH']
+      if (filter.value.payType == 'CARD' || filter.value.payType == 'CASH') return [filter.value.payType]
       else return null
     })() as PaymentEntity['payType'][] | undefined
 
     const res = await apiOrder.selectList({
       whereOptions: {
         status: { in: statusIn },
-        orderAt: { gte: orderAt },
-        payAt: { gte: payAt },
+        orderAt: { gte: orderAtRange[0], lte: orderAtRange[1] },
+        payAt: payAtRange ? { gte: payAtRange[0], lte: payAtRange[1] } : undefined,
         payType: payTypes ? { in: payTypes } : undefined,
       },
       limit: pageSize.value ?? undefined,

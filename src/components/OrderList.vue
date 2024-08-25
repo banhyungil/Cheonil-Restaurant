@@ -2,12 +2,13 @@
 import useApiOrder from '@/api/useApiOrder'
 import type { VDataTable } from 'vuetify/components'
 import _ from 'lodash'
-import { format } from 'date-fns'
+import { addDays, format } from 'date-fns'
 import usePagination from '@/composable/usePagination'
 import useSwal, { type SweetAlertOptionsCustom } from '@/composable/useSwal'
 import useApiPayment from '@/api/useApiPayment'
 import { Dropdown } from 'floating-vue'
 import { getTotalOrderAmount, getTotalPayAmount } from '@/stores/orderStore'
+import { today } from '@/utils/CommonUtils'
 
 const Swal = useSwal()
 const apiOrder = useApiOrder()
@@ -43,23 +44,15 @@ const orders = defineModel<Order[]>({
 })
 
 export interface Filter {
-  payType: {
-    isCash: boolean
-    isCard: boolean
-    isNotPaid: boolean
-  }
-  isTodayOrder: boolean
-  isTodayPay: boolean
+  payType: PaymentEntity['payType'] | 'UNPAID' | null
+  srchStore: string
+  orderAtRange: Date[]
+  payAtRange: Date[] | null
 }
 const filter = defineModel<Filter>('filter', {
   default: {
-    payType: {
-      isCash: false,
-      isCard: false,
-      isNotPaid: false,
-    },
-    isTodayOrder: false,
-    isTodayPay: false,
+    srchStore: '',
+    orderAtRange: [today(), addDays(today(), -7)],
   },
 })
 
@@ -223,29 +216,13 @@ function onUpdate(seq: number) {
   router.push(`/order/${seq}`)
 }
 
-function filterPayType(payType: PaymentEntity['payType'] | null) {
-  if (payType == 'CASH') {
-    filter.value.payType.isCash = !filter.value.payType.isCash
-    filter.value.payType.isCard = false
-    filter.value.payType.isNotPaid = false
-  } else if (payType == 'CARD') {
-    filter.value.payType.isCash = false
-    filter.value.payType.isCard = !filter.value.payType.isCard
-    filter.value.payType.isNotPaid = false
-  } else {
-    filter.value.payType.isCash = false
-    filter.value.payType.isCard = false
-    filter.value.payType.isNotPaid = !filter.value.payType.isNotPaid
-  }
-}
-
 defineExpose({ filter, orders })
 
-const srchText = ref('')
-const orderDates = ref<Date[]>([])
-const payDates = ref<Date[]>([])
-const payType = ref<PaymentEntity['payType'] | null>()
 const PAY_TYPES = [
+  {
+    label: '선택',
+    val: null,
+  },
   {
     label: '현금',
     val: 'CASH',
@@ -255,10 +232,16 @@ const PAY_TYPES = [
     val: 'CARD',
   },
   {
-    label: '현금',
-    val: null,
+    label: '미수',
+    val: 'UNPAID',
   },
 ]
+
+const togglePayAt = ref(false)
+function onTogglePayAt() {
+  if (filter.value.payAtRange) filter.value.payAtRange = null
+  else filter.value.payAtRange
+}
 </script>
 
 <template>
@@ -279,56 +262,41 @@ const PAY_TYPES = [
       <!-- <v-toolbar flat>
         <v-toolbar-title>{{ title }}</v-toolbar-title>
       </v-toolbar> -->
-      <section class="top">
-        <div class="tw-flex">
-          <div class="tw-flex justify-center align-center">
-            <label>결제방식</label>
-            <v-select
-              class="height-40"
-              v-model="payType"
-              :items="PAY_TYPES"
-              item-title="label"
-              item-value="val"
-              label="Select"
-              persistent-hint
-              single-line
-            ></v-select>
+      <section class="tw-flex tw-flex-col tw-gap-3 tw-pb-2 tw-border-b">
+        <section class="tw-flex tw-gap-4">
+          <div class="form-item">
+            <label class="tw-w-10">결제일</label>
+            <BVueDatePicker v-model="filter.orderAtRange" range :format="'yy.MM.dd'" />
           </div>
-          <label>매장명</label>
-          <BInputCho v-model="srchText" />
-          <Dropdown placement="right">
-            <v-btn v-if="activeFilter" v-tooltip="'필터'"><font-awesome-icon :icon="['fas', 'filter']" /></v-btn>
-            <template #popper>
-              <div class="popper tw-flex tw-flex-col tw-gap-2 pa-3">
-                <div>
-                  <h3 class="tw-mb-2">결제 방식</h3>
-                  <v-btn :base-color="filter.payType.isNotPaid ? 'success' : ''" @click="filterPayType(null)">미수</v-btn>
-                  <v-btn :base-color="filter.payType.isCash ? 'success' : ''" @click="filterPayType('CASH')">현금</v-btn>
-                  <v-btn :base-color="filter.payType.isCard ? 'success' : ''" @click="filterPayType('CARD')">카드</v-btn>
-                </div>
+          <div class="form-item">
+            <v-switch label="주문일" v-model="togglePayAt" color="var(--color-point)"></v-switch>
+            <BVueDatePicker v-model="filter.payAtRange" :disabled="!togglePayAt" range :format="'yy.MM.dd'" />
+          </div>
+        </section>
+        <section class="tw-flex tw-justify-between tw-gap-4">
+          <div class="tw-flex tw-gap-3">
+            <div class="form-item">
+              <label>결제방식</label>
+              <v-select class="height-40" v-model="filter.payType" :items="PAY_TYPES" item-title="label" item-value="val"></v-select>
+            </div>
+            <div class="form-item">
+              <label>매장명</label>
+              <BInputCho v-model="filter.srchStore" />
+            </div>
+          </div>
 
-                <div>
-                  <h3 class="tw-mb-2">기타</h3>
-                  <v-btn :base-color="filter.isTodayOrder ? 'success' : ''" @click="filter.isTodayOrder = !filter.isTodayOrder">당일주문</v-btn>
-                  <v-btn :base-color="filter.isTodayPay ? 'success' : ''" @click="filter.isTodayPay = !filter.isTodayPay">당일결제</v-btn>
-                </div>
-              </div>
+          <div>
+            <template v-if="isEdit && activeCollection">
+              <v-btn @click="collectGroup('CASH')" base-color="primary" :disabled="!cCollectAble">현금</v-btn>
+              <v-btn @click="collectGroup('CARD')" base-color="primary" :disabled="!cCollectAble">카드</v-btn>
+              <v-btn @click="cancelCollectionGroup" base-color="error" :disabled="!cCancelAble">수금취소</v-btn>
             </template>
-          </Dropdown>
-          <BVueDatePicker v-model="orderDates" range :format="'yy.MM.dd:hh:mm'" style="width: fit-content" />
-        </div>
-
-        <div>
-          <template v-if="isEdit && activeCollection">
-            <v-btn @click="collectGroup('CASH')" base-color="primary" :disabled="!cCollectAble">현금</v-btn>
-            <v-btn @click="collectGroup('CARD')" base-color="primary" :disabled="!cCollectAble">카드</v-btn>
-            <v-btn @click="cancelCollectionGroup" base-color="error" :disabled="!cCancelAble">수금취소</v-btn>
-          </template>
-          <!-- 삭제 또는 수금때만 보인다 -->
-          <v-btn v-if="activeDelete || activeCollection" @click="() => (isEdit = !isEdit)" class="toggle" :class="{ on: isEdit }" v-tooltip="'편집'">
-            <font-awesome-icon :icon="['fas', 'pen']" />
-          </v-btn>
-        </div>
+            <!-- 삭제 또는 수금때만 보인다 -->
+            <v-btn v-if="activeDelete || activeCollection" @click="() => (isEdit = !isEdit)" class="toggle" :class="{ on: isEdit }" v-tooltip="'편집'">
+              <font-awesome-icon :icon="['fas', 'pen']" />
+            </v-btn>
+          </div>
+        </section>
       </section>
       <slot
         name="summary"
@@ -342,7 +310,7 @@ const PAY_TYPES = [
             <h3 class="title">주문 금액: {{ getTotalOrderAmount(orders).toLocaleString() }}</h3>
             <div class="tw-flex tw-flex-col tw-gap-2">
               <h3 class="title">결제 금액: {{ getTotalPayAmount(orders).toLocaleString() }}</h3>
-              <div class="tw-flex tw-gap-2 tw-text-black ml-4">
+              <div class="ml-4 tw-flex tw-gap-2 tw-text-black">
                 -
                 <h3>현금: {{ getTotalPayAmount(orders.filter((od) => od.payments.every((pm) => pm.payType == 'CASH'))).toLocaleString() }}</h3>
                 <h3>카드: {{ getTotalPayAmount(orders.filter((od) => od.payments.every((pm) => pm.payType == 'CARD'))).toLocaleString() }}</h3>
@@ -391,11 +359,6 @@ const PAY_TYPES = [
   overflow: hidden;
   .v-table__wrapper {
     margin: 8px 0;
-  }
-  section.top {
-    display: flex;
-    justify-content: space-between;
-    gap: 4px;
   }
 
   .pay-info {

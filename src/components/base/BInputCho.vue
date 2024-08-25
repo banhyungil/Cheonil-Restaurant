@@ -19,7 +19,13 @@ function onInput(e: any) {
 </script>
 
 <template>
-  <input ref="eltInp" type="text" v-model="srchText" @input="onInput" placeholder="검색" />
+  <input class="b-input-cho" ref="eltInp" type="text" v-model="srchText" @input="onInput" placeholder="검색" />
 </template>
 
-<style scoped></style>
+<style scoped>
+.b-input-cho {
+  padding-inline-start: 6px;
+  border: 1px solid #000;
+  border-radius: 8px;
+}
+</style>

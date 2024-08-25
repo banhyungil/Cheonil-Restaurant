@@ -23,8 +23,7 @@ declare module 'vue' {
     VDataTable: typeof import('vuetify/components')['VDataTable']
     VPagination: typeof import('vuetify/components')['VPagination']
     VSelect: typeof import('vuetify/components')['VSelect']
-    VToolbar: typeof import('vuetify/components')['VToolbar']
-    VToolbarTitle: typeof import('vuetify/components')['VToolbarTitle']
+    VSwitch: typeof import('vuetify/components')['VSwitch']
     VueDatePicker: typeof import('@vuepic/vue-datepicker')['default']
   }
 }
