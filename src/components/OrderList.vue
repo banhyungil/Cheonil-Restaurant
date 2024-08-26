@@ -2,7 +2,7 @@
 import useApiOrder from '@/api/useApiOrder'
 import type { VDataTable } from 'vuetify/components'
 import _ from 'lodash'
-import { addDays, format } from 'date-fns'
+import { addDays, addMonths, format } from 'date-fns'
 import usePagination from '@/composable/usePagination'
 import useSwal, { type SweetAlertOptionsCustom } from '@/composable/useSwal'
 import useApiPayment from '@/api/useApiPayment'
@@ -39,20 +39,24 @@ const props = withDefaults(defineProps<Props>(), {
   totalItemCnt: 0,
 })
 
+defineEmits<{
+  (e: 'search'): void
+}>()
+
 const orders = defineModel<Order[]>({
   default: [],
 })
 
 export interface Filter {
   payType: PaymentEntity['payType'] | 'UNPAID' | null
-  srchStore: string
-  orderAtRange: Date[]
+  storeName: string
+  orderAtRange: Date[] | null
   payAtRange: Date[] | null
 }
 const filter = defineModel<Filter>('filter', {
   default: {
-    srchStore: '',
-    orderAtRange: [today(), addDays(today(), -7)],
+    storeName: '',
+    orderAtRange: [addDays(today(), -7), today()],
   },
 })
 
@@ -236,12 +240,78 @@ const PAY_TYPES = [
     val: 'UNPAID',
   },
 ]
+const payTypes = ref(PAY_TYPES)
+
+const toggleOrderAt = ref(true)
+const orderAtRange = ref<Date[]>(filter.value.orderAtRange ?? [])
+
+watch(
+  [orderAtRange, toggleOrderAt],
+  () => {
+    if (toggleOrderAt.value) filter.value.orderAtRange = orderAtRange.value
+    else filter.value.orderAtRange = null
+  },
+  { deep: true }
+)
 
 const togglePayAt = ref(false)
-function onTogglePayAt() {
-  if (filter.value.payAtRange) filter.value.payAtRange = null
-  else filter.value.payAtRange
+const payAtRange = ref<Date[]>(filter.value.orderAtRange ?? [])
+watch(
+  () => filter.value.orderAtRange,
+  () => {
+    if (togglePayAt.value == false && toggleOrderAt.value && orderAtRange.value.length > 0) {
+      // 결제일자는 주문일자보다 항상 크다.
+      const [orderAtMin, orderAtMax] = orderAtRange.value
+      const [payAtMin, _] = payAtRange.value
+
+      // 결제일자가 주문일자 범위를 벗어나면 의미가 없음.
+      if (orderAtMax <= payAtMin) payAtRange.value[0] = addDays(orderAtMax, -1)
+      else if (orderAtMin > payAtMin) payAtRange.value[0] = orderAtMin
+
+      // 이전 날짜가 더 크다면 하루 더해준다.
+      if (payAtRange.value[0] >= payAtRange.value[1]) payAtRange.value[1] = addDays(payAtRange.value[0], 1)
+    }
+  },
+  { deep: true }
+)
+watch(
+  [payAtRange, togglePayAt],
+  () => {
+    if (togglePayAt.value) filter.value.payAtRange = payAtRange.value
+    else filter.value.payAtRange = null
+
+    if (togglePayAt.value) {
+      payTypes.value = PAY_TYPES.filter((pt) => pt.val != 'UNPAID')
+
+      // 미수 선택 되어있다면 해제
+      if (filter.value.payType == 'UNPAID') filter.value.payType = null
+    } else {
+      payTypes.value = PAY_TYPES
+    }
+  },
+  { deep: true }
+)
+
+function onClickToday(type: 'ORDER' | 'PAY') {
+  const range = [today(), addDays(today(), 1)]
+
+  if (type == 'ORDER') filter.value.orderAtRange = range
+  else if (type == 'PAY') payAtRange.value = range
 }
+function onClickThisMonth(type: 'ORDER' | 'PAY') {
+  const range = (() => {
+    const st = today()
+    st.setDate(1)
+    const end = addMonths(today(), 1)
+    end.setDate(1)
+    return [st, end]
+  })()
+
+  if (type == 'ORDER') filter.value.orderAtRange = range
+  else if (type == 'PAY') payAtRange.value = range
+}
+
+const searchStoreText = ref('')
 </script>
 
 <template>
@@ -262,26 +332,51 @@ function onTogglePayAt() {
       <!-- <v-toolbar flat>
         <v-toolbar-title>{{ title }}</v-toolbar-title>
       </v-toolbar> -->
-      <section class="tw-flex tw-flex-col tw-gap-3 tw-pb-2 tw-border-b">
+      <section class="tw-flex tw-flex-col tw-gap-3 tw-pb-2 tw-border-b tw-px-4">
         <section class="tw-flex tw-gap-4">
           <div class="form-item">
-            <label class="tw-w-10">결제일</label>
-            <BVueDatePicker v-model="filter.orderAtRange" range :format="'yy.MM.dd'" />
+            <v-switch label="주문일" v-model="toggleOrderAt" color="var(--color-point)"></v-switch>
+            <!-- <Dropdown>
+              <v-btn><font-awesome-icon :icon="['fas', 'filter']" /></v-btn>
+              <template #popper>
+                <v-btn @click="onClickToday('ORDER')"> 당일 </v-btn>
+                <v-btn @click="onClickThisMonth('ORDER')"> 당월 </v-btn>
+              </template>
+            </Dropdown> -->
+            <VueDatePicker v-model="orderAtRange" :disabled="!toggleOrderAt" range :format="'yy.MM.dd'" text-input teleport :max-date="today()">
+              <template #action-buttons>
+                <v-btn @click="onClickToday('ORDER')"> 당일 </v-btn>
+                <v-btn @click="onClickThisMonth('ORDER')"> 당월 </v-btn>
+              </template>
+            </VueDatePicker>
           </div>
           <div class="form-item">
-            <v-switch label="주문일" v-model="togglePayAt" color="var(--color-point)"></v-switch>
-            <BVueDatePicker v-model="filter.payAtRange" :disabled="!togglePayAt" range :format="'yy.MM.dd'" />
+            <v-switch label="결제일" v-model="togglePayAt" color="var(--color-point)"></v-switch>
+            <BVueDatePicker
+              v-model="payAtRange"
+              :disabled="!togglePayAt"
+              range
+              :format="'yy.MM.dd'"
+              text-input
+              :min-date="orderAtRange[0]"
+              :max-date="today()"
+              teleport
+            />
           </div>
         </section>
         <section class="tw-flex tw-justify-between tw-gap-4">
           <div class="tw-flex tw-gap-3">
             <div class="form-item">
               <label>결제방식</label>
-              <v-select class="height-40" v-model="filter.payType" :items="PAY_TYPES" item-title="label" item-value="val"></v-select>
+              <v-select class="height-40" v-model="filter.payType" :items="payTypes" item-title="label" item-value="val"></v-select>
             </div>
             <div class="form-item">
               <label>매장명</label>
-              <BInputCho v-model="filter.srchStore" />
+              <BInputCho v-model="filter.storeName" />
+              <v-btn @click="() => $emit('search')" style="min-width: 0" color="primary">
+                <span class="tw-mr-2">검색</span>
+                <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
+              </v-btn>
             </div>
           </div>
 
@@ -356,7 +451,6 @@ function onTogglePayAt() {
 
 <style lang="scss">
 .order-list {
-  overflow: hidden;
   .v-table__wrapper {
     margin: 8px 0;
   }

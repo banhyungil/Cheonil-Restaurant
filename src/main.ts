@@ -56,8 +56,6 @@ const app = createApp(App)
 library.add(fas)
 library.add(faSquare)
 app.component('font-awesome-icon', FontAwesomeIcon)
-// VueDatePicker.locale = 'ko-KR'
-VueDatePicker.locale = 'ko-KR'
 app.component('VueDatePicker', VueDatePicker)
 
 const pinia = createPinia()

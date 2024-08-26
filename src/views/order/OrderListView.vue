@@ -11,36 +11,34 @@ const totalOrderCnt = ref(0)
 const pageSize = ref<number | null>(PAGE_SIZE_LIST[0])
 
 const filter = ref({
-  orderAtRange: [today(), addDays(today(), 7)],
+  orderAtRange: [addDays(today(), -7), today()],
 }) as Ref<Filter>
 
 const { pageNo, cOffset } = usePagination(totalOrderCnt, pageSize)
 
-watch(
-  [pageNo, pageSize, () => filter.value],
-  async () => {
-    const statusIn = (filter.value.payType == 'UNPAID' ? ['COOKED'] : ['COOKED', 'PAID']) as Order['status'][]
-    const { orderAtRange, payAtRange } = filter.value
-    const payTypes = (() => {
-      if (filter.value.payType == 'CARD' || filter.value.payType == 'CASH') return [filter.value.payType]
-      else return null
-    })() as PaymentEntity['payType'][] | undefined
+async function search() {
+  const statusIn = (filter.value.payType == 'UNPAID' ? ['COOKED'] : ['COOKED', 'PAID']) as Order['status'][]
+  const { orderAtRange, payAtRange, storeName } = filter.value
+  const payTypes = (() => {
+    if (filter.value.payType == 'CARD' || filter.value.payType == 'CASH') return [filter.value.payType]
+    else return null
+  })() as PaymentEntity['payType'][] | undefined
 
-    const res = await apiOrder.selectList({
-      whereOptions: {
-        status: { in: statusIn },
-        orderAt: { gte: orderAtRange[0], lte: orderAtRange[1] },
-        payAt: payAtRange ? { gte: payAtRange[0], lte: payAtRange[1] } : undefined,
-        payType: payTypes ? { in: payTypes } : undefined,
-      },
-      limit: pageSize.value ?? undefined,
-      offset: cOffset.value,
-    })
-    orders.value = res.orders
-    totalOrderCnt.value = res.totalCnt
-  },
-  { immediate: true, deep: true }
-)
+  const res = await apiOrder.selectList({
+    whereOptions: {
+      status: { in: statusIn },
+      orderAt: orderAtRange ? { between: [orderAtRange[0], orderAtRange[1]] } : undefined,
+      payAt: payAtRange ? { between: [payAtRange[0], payAtRange[1]] } : undefined,
+      payType: payTypes ? { in: payTypes } : undefined,
+      storeName: storeName ? { eq: storeName } : undefined,
+    },
+    limit: pageSize.value ?? undefined,
+    offset: cOffset.value,
+  })
+  orders.value = res.orders
+  totalOrderCnt.value = res.totalCnt
+}
+watch([pageNo, pageSize], search, { immediate: true })
 </script>
 
 <template>
@@ -54,6 +52,7 @@ watch(
     class="order-list-view"
     :active-delete="true"
     :active-paging="true"
+    @search="search"
   >
   </OrderList>
 </template>

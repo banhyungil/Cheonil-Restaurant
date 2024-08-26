@@ -18,6 +18,7 @@
     }
   ],
   "rules": {
+    "vue/no-unused-vars": "warn",
     "no-unused-vars": "warn",
     "vue/valid-v-slot": "off"
   }

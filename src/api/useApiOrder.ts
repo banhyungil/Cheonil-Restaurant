@@ -5,6 +5,7 @@ export type OrderCURes = Omit<Order, 'payments' | 'store'>
 interface Additional {
   payType?: PaymentEntity['payType'][]
   payAt?: PaymentEntity['payAt']
+  storeName?: StoreEntity['name']
 }
 
 export default function useApiOrder() {
