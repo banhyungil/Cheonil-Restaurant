@@ -191,7 +191,7 @@ const isDisplaykitchen = ref(false)
 
   @apply tw-text-3xl;
 
-  @media screen and (max-width: 1900px) {
+  @media screen and (max-width: 1824px) {
     @apply tw-text-lg;
   }
 
