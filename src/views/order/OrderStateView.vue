@@ -191,10 +191,6 @@ const isDisplaykitchen = ref(false)
 
   @apply tw-text-3xl;
 
-  @media screen and (max-width: 1824px) {
-    @apply tw-text-lg;
-  }
-
   .react-grid-col {
     $item-min-width: 240px;
 
@@ -315,7 +311,7 @@ const isDisplaykitchen = ref(false)
         color: #fff;
       }
 
-      @media screen and (max-width: 1924px) {
+      @media screen and (max-width: 1824px) {
         @apply tw-text-lg;
         .store {
           @apply tw-text-lg;
