@@ -122,7 +122,13 @@ function isDisplayTime(order: Order) {
 
 function getElapsedClass(order: Order) {
   const elapsedMinute = differenceInMinutes(now.value, order.orderAt!)
-  const info = ELPASED_MINUES_INFO.find((item) => item.minute >= elapsedMinute) ?? _.last(ELPASED_MINUES_INFO)
+  const idx = _.findIndex(ELPASED_MINUES_INFO, (item) => item.minute >= elapsedMinute)
+
+  const info = (() => {
+    if (idx == 0) return ELPASED_MINUES_INFO[idx]
+    else if (idx > 0) return ELPASED_MINUES_INFO[idx - 1]
+    else return _.last(ELPASED_MINUES_INFO)
+  })()
 
   if (info) return info.title
   else return ''
