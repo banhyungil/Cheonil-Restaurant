@@ -43,13 +43,24 @@ WS.listen('/api/order', 'POST', async (sync) => {
   orders.value.push(nOrder)
 })
 
-WS.listen('/api/order/:seq', 'PATCH', (sync) => {
-  const tgtOrder = orders.value.find((od) => od.seq == sync.resBody.seq)
-  if (tgtOrder) Object.assign(tgtOrder, sync.resBody)
+WS.listen('/api/order', 'PATCH', async (sync) => {
+  if (sync.resBody.status == 'COOKED') {
+    const tgtOrder = _.remove(orders.value, (od) => od.seq == sync.resBody.seq)[0] ?? (await apiOrder.select(sync.resBody.seq))
+    Object.assign(tgtOrder, sync.resBody)
+
+    completeOrders.value.splice(0, 0, tgtOrder)
+  } else if (sync.resBody.status == 'READY') {
+    const tgtOrders = _.remove(completeOrders.value, (od) => od.seq == sync.resBody.seq)
+    if (tgtOrders.length == 0) tgtOrders.push(await apiOrder.select(sync.resBody.seq))
+
+    orders.value.push(...tgtOrders)
+    orders.value = _.orderBy(orders.value, ['orderAt'])
+  }
 })
 
-WS.listen('/api/order/:seq', 'DELETE', (sync) => {
+WS.listen('/api/order', 'DELETE', (sync) => {
   _.remove(orders.value, (od) => od.seq == +sync.routeParams.seq)
+  _.remove(completeOrders.value, (od) => od.seq == +sync.routeParams.seq)
 })
 
 const Swal = useSwal()
@@ -64,12 +75,8 @@ async function onComplete(order: Order) {
     cookedAt: new Date(),
   } as MyOrderEntity
 
-  const uOrderRes = await apiOrder.update(data)
+  await apiOrder.update(data)
   Swal.fireCustom({ toast: true, title: '주문이 처리되었습니다.', icon: 'success' })
-  _.remove(orders.value, order)
-  Object.assign(order, uOrderRes)
-
-  completeOrders.value.splice(0, 0, order)
 
   dLoading.value[order.seq!] = false
 }
@@ -86,8 +93,6 @@ async function onUnComplete(order: Order) {
 
   await apiOrder.update(data)
   _.remove(completeOrders.value, order)
-  orders.value.push(order)
-  orders.value.sort((a, b) => a.orderAt!.getTime() - b.orderAt!.getTime())
 
   dLoading.value[order.seq!] = false
 }
@@ -104,7 +109,6 @@ function onUpdate(orderSeq: number) {
 async function onRemove(orderId: number) {
   if (await Swal.fireCustom({ isConfirm: true, messageType: 'remove' })) {
     apiOrder.remove(orderId)
-    _.remove(orders.value, (od) => od.seq == orderId)
 
     Swal.fireCustom({ toast: true, messageType: 'remove' })
   }

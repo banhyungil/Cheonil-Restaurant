@@ -3,7 +3,7 @@ import type { OrderCURes } from './useApiOrder'
 
 interface Sync {
   url: URLs
-  baseUrl: string
+  baseUrl: BaseURLs
   method: Methods
   resBody: any
   routeParams: any
@@ -25,20 +25,20 @@ export default function useWebSocket() {
   const callbackDict = ref({} as CallbackDict)
 
   /* eslint-disable no-unused-vars */
-  function listen(url: ApiMenu.URL, method: 'POST', callback: (resBody: ApiMenu.Post['resBody']) => void): void
-  function listen(url: ApiMenu.URLSeq, method: 'PATCH', callback: (resBody: ApiMenu.Post['resBody']) => void): void
-  function listen(url: ApiMenu.URLSeq, method: 'DELETE', callback: (seq: number) => void): void
-  function listen(url: ApiMenuCtg.URL, method: 'POST', callback: (resBody: ApiMenuCtg.Post['resBody']) => void): void
-  function listen(url: ApiMenuCtg.URLSeq, method: 'PATCH', callback: (resBody: ApiMenuCtg.Post['resBody']) => void): void
-  function listen(url: ApiMenuCtg.URLSeq, method: 'DELETE', callback: (seq: number) => void): void
-  function listen(url: ApiOrder.URL, method: 'POST', callback: (sync: ApiOrder.Post['orderSync']) => void): void
-  function listen(url: ApiOrder.URLSeq, method: 'PATCH', callback: (sync: ApiOrder.Patch['orderSync']) => void): void
-  function listen(url: ApiOrder.URLSeq, method: 'DELETE', callback: (sync: ApiOrder.Delete['orderSync']) => void): void
-  function listen(url: URLs, method: Methods, callback: Function) {
-    if (callbackDict.value[url] == null) callbackDict.value[url] = {} as any
-    if (callbackDict.value[url][method] == null) callbackDict.value[url][method] = []
+  function listen(baseUrl: ApiMenu.URL, method: 'POST', callback: (resBody: ApiMenu.Post['resBody']) => void): void
+  function listen(baseUrl: ApiMenu.URL, method: 'PATCH', callback: (resBody: ApiMenu.Post['resBody']) => void): void
+  function listen(baseUrl: ApiMenu.URL, method: 'DELETE', callback: (seq: number) => void): void
+  function listen(baseUrl: ApiMenuCtg.URL, method: 'POST', callback: (resBody: ApiMenuCtg.Post['resBody']) => void): void
+  function listen(baseUrl: ApiMenuCtg.URL, method: 'PATCH', callback: (resBody: ApiMenuCtg.Post['resBody']) => void): void
+  function listen(baseUrl: ApiMenuCtg.URL, method: 'DELETE', callback: (seq: number) => void): void
+  function listen(baseUrl: ApiOrder.URL, method: 'POST', callback: (sync: ApiOrder.Post['orderSync']) => void): void
+  function listen(baseUrl: ApiOrder.URL, method: 'PATCH', callback: (sync: ApiOrder.Patch['orderSync']) => void): void
+  function listen(baseUrl: ApiOrder.URL, method: 'DELETE', callback: (sync: ApiOrder.Delete['orderSync']) => void): void
+  function listen(baseUrl: URLs, method: Methods, callback: Function) {
+    if (callbackDict.value[baseUrl] == null) callbackDict.value[baseUrl] = {} as any
+    if (callbackDict.value[baseUrl][method] == null) callbackDict.value[baseUrl][method] = []
 
-    callbackDict.value[url][method].push(callback)
+    callbackDict.value[baseUrl][method].push(callback)
   }
   /* eslint-enable no-unused-vars */
 
@@ -61,9 +61,10 @@ export default function useWebSocket() {
       const oData = JSON.parse(data.value)
       if (isSync(oData) == false) return
 
-      const { url, method } = oData
+      const { baseUrl, method } = oData
       console.log('websocket data: ', oData)
-      callbackDict.value[url][method].forEach((fn) => fn(oData))
+
+      callbackDict.value[baseUrl][method].forEach((fn) => fn(oData))
     },
     { deep: true }
   )
