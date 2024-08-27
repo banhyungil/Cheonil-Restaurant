@@ -13,7 +13,9 @@ button, a {
   &:hover {
     opacity: 0.8;
   }
+  
 }
+
 button {
   cursor: pointer;
   border: none;
@@ -47,8 +49,20 @@ button {
   }
   
   @include hover;
-}
 
+  &.chi {
+    padding: 4px;
+
+    @apply tw-shadow-md;
+
+    &.primary {
+        background-color: var(--color-point);
+        color: #fff;
+
+        box-shadow: var(--box-shadow);
+    }
+  }
+}
 
 .v-select {
     $v-height: 36px;
