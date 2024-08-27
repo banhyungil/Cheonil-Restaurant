@@ -167,7 +167,7 @@ useEventListener(document, 'keyup', (e) => {
         </div>
       </section>
       <section class="btt">
-        <v-btn class="complete" :class="{ update: seq }" @click="onComplete" :disabled="orderMenues.length < 1">
+        <v-btn class="complete" :class="{ update: seq }" color="primary" @click="onComplete" :disabled="orderMenues.length < 1">
           {{ seq ? '수정완료' : '주문완료' }}
         </v-btn>
       </section>

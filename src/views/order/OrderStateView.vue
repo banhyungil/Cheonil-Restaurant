@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import useApiOrder from '@/api/useApiOrder'
 import { ref } from 'vue'
-import { format, differenceInSeconds, toDate } from 'date-fns'
+import { format, differenceInSeconds, toDate, differenceInMinutes } from 'date-fns'
 import { useNow } from '@vueuse/core'
 import useSwal from '@/composable/useSwal'
 import { useRouter } from 'vue-router'
@@ -15,6 +15,21 @@ const orders = ref<Order[]>([])
 const completeOrders = ref<Order[]>([])
 const dLoading = ref<Record<string, boolean>>({})
 const router = useRouter()
+const ELPASED_MINUES_INFO = [
+  {
+    title: 'caution',
+    minute: 15,
+  },
+  {
+    title: 'warning',
+    minute: 25,
+  },
+  {
+    title: 'danger',
+    minute: 35,
+  },
+]
+
 apiOrder.selectList({ whereOptions: { status: { eq: 'READY' } } }).then((list) => {
   orders.value = list.orders
 })
@@ -26,7 +41,6 @@ apiOrder.selectList({ whereOptions: { status: { eq: 'COOKED' }, orderAt: { gte: 
 WS.listen('/api/order', 'POST', async (sync) => {
   const nOrder = await apiOrder.select(sync.resBody.seq)
   orders.value.push(nOrder)
-  orders.value = _.orderBy(orders.value, ['orderAt'], ['desc'])
 })
 
 WS.listen('/api/order/:seq', 'PATCH', (sync) => {
@@ -96,6 +110,18 @@ async function onRemove(orderId: number) {
   }
 }
 const isDisplaykitchen = ref(false)
+
+function isDisplayTime(order: Order) {
+  return isDisplaykitchen.value == false || differenceInMinutes(now.value, order.orderAt!) > ELPASED_MINUES_INFO[0].minute
+}
+
+function getElapsedClass(order: Order) {
+  const elapsedMinute = differenceInMinutes(now.value, order.orderAt!)
+  const info = ELPASED_MINUES_INFO.find((item) => item.minute >= elapsedMinute) ?? _.last(ELPASED_MINUES_INFO)
+
+  if (info) return info.title
+  else return ''
+}
 </script>
 
 <template>
@@ -107,7 +133,7 @@ const isDisplaykitchen = ref(false)
     </div>
     <div class="react-grid-col ready">
       <TransitionGroup name="slide">
-        <div v-for="order in orders" :key="order.seq" class="item c-order">
+        <div v-for="order in orders" :key="order.seq" class="item c-order" :class="getElapsedClass(order)">
           <div class="store">
             <span>{{ order.store.name }}</span>
             <Dropdown class="c-choice">
@@ -129,16 +155,14 @@ const isDisplaykitchen = ref(false)
             </div>
           </div>
           <div v-if="order.cmt">{{ `요청사항: ${order.cmt}` }}</div>
-          <template v-if="isDisplaykitchen == false">
-            <div class="time">
-              <span class="order-time" v-tooltip="'주문접수시간'">
-                <font-awesome-icon :icon="['fas', 'timer']" />
-                {{ order.orderAt ? format(order.orderAt, 'hh:mm aa') : null }}
-              </span>
-              <span class="elapsed"> {{ `${formatTime(differenceInSeconds(now, order.orderAt!))}` }}</span>
-            </div>
-            <v-btn class="complete" @click="onComplete(order)" :loading="dLoading[order.seq!]">완료</v-btn>
-          </template>
+          <div v-if="isDisplayTime(order)" class="time">
+            <span v-if="isDisplaykitchen == false" class="order-time" v-tooltip="'주문접수시간'">
+              <font-awesome-icon :icon="['fas', 'timer']" />
+              {{ order.orderAt ? format(order.orderAt, 'hh:mm aa') : null }}
+            </span>
+            <span class="elapsed"> {{ `${formatTime(differenceInSeconds(now, order.orderAt!))}` }}</span>
+          </div>
+          <v-btn v-if="isDisplaykitchen == false" class="complete" @click="onComplete(order)" :loading="dLoading[order.seq!]">완료</v-btn>
         </div>
       </TransitionGroup>
     </div>
@@ -166,7 +190,7 @@ const isDisplaykitchen = ref(false)
                 {{ order.cookedAt ? format(order.cookedAt, 'hh:mm aa') : null }}
               </span>
             </div>
-            <v-btn class="complete" style="background-color: var(--color-d)" @click="onUnComplete(order)" :loading="dLoading[order.seq!]">완료 취소</v-btn>
+            <v-btn class="complete" style="background-color: var(--color-danger)" @click="onUnComplete(order)" :loading="dLoading[order.seq!]">완료 취소</v-btn>
           </div>
         </TransitionGroup>
       </div>
@@ -189,10 +213,18 @@ const isDisplaykitchen = ref(false)
     }
   }
 
-  @apply tw-text-3xl;
+  &.kitchen {
+    @apply tw-text-6xl;
 
-  @media screen and (max-height: 1000px) {
-    @apply tw-text-lg;
+    @media screen and (max-height: 1000px) {
+      @apply tw-text-lg;
+    }
+
+    .c-order {
+      .time {
+        @apply tw-text-2xl;
+      }
+    }
   }
 
   .react-grid-col {
@@ -269,8 +301,6 @@ const isDisplaykitchen = ref(false)
         color: #fff;
         background-color: #646464;
 
-        @apply tw-text-6xl;
-
         .c-choice {
           position: absolute;
           right: 4px;
@@ -289,8 +319,6 @@ const isDisplaykitchen = ref(false)
         display: flex;
         flex-wrap: wrap;
         margin: 10px 0;
-
-        @apply tw-text-6xl;
       }
 
       .time {
@@ -315,16 +343,18 @@ const isDisplaykitchen = ref(false)
         color: #fff;
       }
 
-      @media screen and (max-height: 1000px) {
-        @apply tw-text-lg;
+      &.caution {
+      }
+
+      &.warning {
         .store {
-          @apply tw-text-lg;
+          background-color: var(--color-warning);
         }
-        .menues {
-          @apply tw-text-lg;
-        }
-        .time {
-          @apply tw-text-lg;
+      }
+
+      &.danger {
+        .store {
+          background-color: var(--color-danger);
         }
       }
     }
@@ -368,7 +398,7 @@ const isDisplaykitchen = ref(false)
         background-color: var(--color-u);
       }
       &.remove:hover {
-        background-color: var(--color-d);
+        background-color: var(--color-danger);
       }
     }
   }

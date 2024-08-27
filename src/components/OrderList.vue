@@ -295,7 +295,7 @@ watch(
 function onClickToday(type: 'ORDER' | 'PAY') {
   const range = [today(), addDays(today(), 1)]
 
-  if (type == 'ORDER') filter.value.orderAtRange = range
+  if (type == 'ORDER') orderAtRange.value = range
   else if (type == 'PAY') payAtRange.value = range
 }
 function onClickThisMonth(type: 'ORDER' | 'PAY') {
@@ -307,11 +307,9 @@ function onClickThisMonth(type: 'ORDER' | 'PAY') {
     return [st, end]
   })()
 
-  if (type == 'ORDER') filter.value.orderAtRange = range
+  if (type == 'ORDER') orderAtRange.value = range
   else if (type == 'PAY') payAtRange.value = range
 }
-
-const searchStoreText = ref('')
 </script>
 
 <template>
@@ -332,36 +330,50 @@ const searchStoreText = ref('')
       <!-- <v-toolbar flat>
         <v-toolbar-title>{{ title }}</v-toolbar-title>
       </v-toolbar> -->
-      <section class="tw-flex tw-flex-col tw-gap-3 tw-pb-2 tw-border-b tw-px-4">
+      <section class="tw-flex tw-flex-col tw-gap-3 tw-border-b tw-px-4 tw-pb-2">
         <section class="tw-flex tw-gap-4">
           <div class="form-item">
             <v-switch label="주문일" v-model="toggleOrderAt" color="var(--color-point)"></v-switch>
-            <!-- <Dropdown>
-              <v-btn><font-awesome-icon :icon="['fas', 'filter']" /></v-btn>
-              <template #popper>
-                <v-btn @click="onClickToday('ORDER')"> 당일 </v-btn>
-                <v-btn @click="onClickThisMonth('ORDER')"> 당월 </v-btn>
-              </template>
-            </Dropdown> -->
-            <VueDatePicker v-model="orderAtRange" :disabled="!toggleOrderAt" range :format="'yy.MM.dd'" text-input teleport :max-date="today()">
-              <template #action-buttons>
-                <v-btn @click="onClickToday('ORDER')"> 당일 </v-btn>
-                <v-btn @click="onClickThisMonth('ORDER')"> 당월 </v-btn>
+            <VueDatePicker
+              v-model="orderAtRange"
+              :disabled="!toggleOrderAt"
+              range
+              :format="'yy.MM.dd'"
+              text-input
+              teleport
+              :max-date="addDays(today(), 1)"
+              :enable-time-picker="false"
+              locale="ko-KR"
+            >
+              <template #action-extra>
+                <div class="justify-center tw-flex tw-gap-1">
+                  <button class="chi primary" @click="onClickToday('ORDER')">당일</button>
+                  <button class="chi primary" @click="onClickThisMonth('ORDER')">당월</button>
+                </div>
               </template>
             </VueDatePicker>
           </div>
           <div class="form-item">
             <v-switch label="결제일" v-model="togglePayAt" color="var(--color-point)"></v-switch>
-            <BVueDatePicker
+            <VueDatePicker
               v-model="payAtRange"
               :disabled="!togglePayAt"
               range
               :format="'yy.MM.dd'"
               text-input
-              :min-date="orderAtRange[0]"
-              :max-date="today()"
+              :min-date="toggleOrderAt ? orderAtRange[0] : undefined"
+              :max-date="addDays(today(), 1)"
               teleport
-            />
+              :enable-time-picker="false"
+              locale="ko-KR"
+            >
+              <template #action-extra>
+                <div class="justify-center tw-flex tw-gap-1">
+                  <button class="chi primary" @click="onClickToday('PAY')">당일</button>
+                  <button class="chi primary" @click="onClickThisMonth('PAY')">당월</button>
+                </div>
+              </template>
+            </VueDatePicker>
           </div>
         </section>
         <section class="tw-flex tw-justify-between tw-gap-4">
@@ -417,7 +429,7 @@ const searchStoreText = ref('')
     </template>
     <template #item.actions="{ value }">
       <div style="display: flex; justify-content: center; gap: 10px">
-        <button @click="onRemove(value)" style="color: var(--color-d)" v-tooltip="'삭제'">
+        <button @click="onRemove(value)" style="color: var(--color-danger)" v-tooltip="'삭제'">
           <font-awesome-icon :icon="['fas', 'trash']" />
         </button>
         <button @click="onUpdate(value)" style="color: var(--color-u)" v-tooltip="'수정'">
@@ -462,7 +474,7 @@ const searchStoreText = ref('')
 
     .type {
       font-weight: bold;
-      color: var(--color-d);
+      color: var(--color-danger);
 
       &.collected {
         color: var(--color-u);

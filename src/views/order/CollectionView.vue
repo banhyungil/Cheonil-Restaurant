@@ -3,6 +3,7 @@ import useApiOrder from '@/api/useApiOrder'
 import type { Filter } from '@/components/OrderList.vue'
 import usePagination, { PAGE_SIZE_LIST } from '@/composable/usePagination'
 import { today } from '@/utils/CommonUtils'
+import { addDays } from 'date-fns'
 
 const apiOrder = useApiOrder()
 const orders = ref<Order[]>([])
@@ -10,7 +11,7 @@ const totalOrderCnt = ref(0)
 const pageSize = ref<number | null>(PAGE_SIZE_LIST[0])
 
 const filter = ref({
-  orderAtRange: [today(), today()],
+  orderAtRange: [today(), addDays(today(), 1)],
 } as Filter)
 
 const { pageNo, cOffset } = usePagination(totalOrderCnt, pageSize)
@@ -38,7 +39,7 @@ async function search() {
   totalOrderCnt.value = res.totalCnt
 }
 
-watch([pageNo, pageSize, () => filter.value], search, { immediate: true, deep: true })
+watch([pageNo, pageSize], search, { immediate: true, deep: true })
 </script>
 
 <template>
