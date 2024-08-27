@@ -2,7 +2,7 @@
 import useApiOrder from '@/api/useApiOrder'
 import { ref } from 'vue'
 import { format, differenceInSeconds, toDate, differenceInMinutes } from 'date-fns'
-import { useNow } from '@vueuse/core'
+import { useNow, useStorage } from '@vueuse/core'
 import useSwal from '@/composable/useSwal'
 import { useRouter } from 'vue-router'
 import _ from 'lodash'
@@ -113,7 +113,8 @@ async function onRemove(orderId: number) {
     Swal.fireCustom({ toast: true, messageType: 'remove' })
   }
 }
-const isDisplaykitchen = ref(false)
+
+const isDisplaykitchen = useStorage('isDisplaykitchen', false, sessionStorage)
 
 function isDisplayTime(order: Order) {
   return isDisplaykitchen.value == false || differenceInMinutes(now.value, order.orderAt!) > ELPASED_MINUES_INFO[0].minute
@@ -126,14 +127,16 @@ function getElapsedClass(order: Order) {
   if (info) return info.title
   else return ''
 }
+
+function toggleDisplayKitchen() {
+  isDisplaykitchen.value = !isDisplaykitchen.value
+}
 </script>
 
 <template>
   <div class="order-state-view" :class="{ kitchen: isDisplaykitchen }">
     <div class="tw-flex tw-justify-end">
-      <v-btn @click="() => (isDisplaykitchen = !isDisplaykitchen)" :color="isDisplaykitchen ? 'primary' : ''" class="kitchen" style="height: 24px">
-        주방용
-      </v-btn>
+      <v-btn @click="toggleDisplayKitchen" :color="isDisplaykitchen ? 'primary' : ''" class="kitchen" style="height: 24px"> 주방용 </v-btn>
     </div>
     <div class="react-grid-col ready">
       <TransitionGroup name="slide">
