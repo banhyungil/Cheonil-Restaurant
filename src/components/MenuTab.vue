@@ -27,7 +27,6 @@ const inpSrch = ref({} as InstanceType<typeof BInputCho>)
 watch(
   () => props.focusSrch,
   () => {
-    console.log('watch props.focusSrch', props.focusSrch)
     if (props.focusSrch) nextTick().then(() => inpSrch.value.$el.focus())
   }
 )

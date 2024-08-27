@@ -27,7 +27,6 @@ const props = defineProps<Props>()
 watch(
   () => props.focusSrch,
   () => {
-    console.log('watch props.focusSrch', props.focusSrch)
     if (props.focusSrch) nextTick().then(() => compSrch.value.$el.focus())
   }
 )
