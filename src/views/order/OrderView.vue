@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import MenuTab from '@/components/MenuTab.vue'
-import StoreTab from '@/components/StoreTab.vue'
 import { useMenuStore } from '@/stores/menuStore'
 import { computed, ref, watch } from 'vue'
 import _ from 'lodash'
@@ -8,6 +6,7 @@ import useApiOrder from '@/api/useApiOrder'
 import { useEventListener, useWindowSize } from '@vueuse/core'
 import useSwal from '@/composable/useSwal'
 import { useRouter } from 'vue-router'
+import type MenuTab from '@/components/MenuTab.vue'
 
 const router = useRouter()
 const menuStore = useMenuStore()
@@ -110,12 +109,14 @@ async function onComplete() {
   init()
 }
 
+const menuTabComp = ref() as Ref<InstanceType<typeof MenuTab>>
 function init() {
   order.value = { amount: 0 } as MyOrderEntity
   orderMenues.value = []
   tab.value = 'STORE'
   selStore.value = null
   menuSrchText.value = ''
+  menuTabComp.value.selCtg = null
 }
 
 useEventListener(document, 'keyup', (e) => {
@@ -131,7 +132,7 @@ useEventListener(document, 'keyup', (e) => {
   <div class="order-view">
     <section class="left">
       <StoreTab v-show="tab == 'STORE'" @selectItem="onChoiceStore" :focusSrch="tab == 'STORE'" v-model:srch-text="storeSrchText" />
-      <MenuTab v-show="tab == 'MENU'" @selectItem="onChoiceMenu" :focusSrch="tab == 'MENU'" v-model:srch-text="menuSrchText" />
+      <MenuTab ref="menuTabComp" v-show="tab == 'MENU'" @selectItem="onChoiceMenu" :focusSrch="tab == 'MENU'" v-model:srch-text="menuSrchText" />
     </section>
     <section class="right">
       <section class="top">

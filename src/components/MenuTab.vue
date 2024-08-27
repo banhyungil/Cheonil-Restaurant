@@ -42,6 +42,13 @@ const emit = defineEmits<{
 // 메뉴 조회
 apiMenu.selectList().then((list) => {
   menuStore.items = _.orderBy(list, ['name'])
+
+  // temp 메뉴 즐겨찾기 나올때 까지는 정식 먼저 나오도록
+  const tgtMenuIdx = menuStore.items.findIndex((menu) => menu.name == '정식')
+  if (tgtMenuIdx >= 0) {
+    const tgtMenu = menuStore.items.splice(tgtMenuIdx, 1)[0]
+    menuStore.items.splice(0, 0, tgtMenu)
+  }
 })
 
 // 메뉴 카테고리 조회
@@ -107,6 +114,7 @@ function onAddItem() {
   if (isCategory(selCtg.value)) router.push({ path: '/menuEdit', query: { ctgSeq: selCtg.value.seq } })
   else router.push({ path: '/menuEdit' })
 }
+
 useEventListener(document, 'keyup', (e) => {
   if (e.key == 'Escape') {
     if (isEdit.value) {
@@ -114,6 +122,8 @@ useEventListener(document, 'keyup', (e) => {
     }
   }
 })
+
+defineExpose({ selCtg })
 </script>
 
 <template>

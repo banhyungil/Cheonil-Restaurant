@@ -103,6 +103,7 @@ function onClickItem(item: StoreEntity) {
   } else {
     emit('selectItem', item)
     srchText.value = ''
+    selCtg.value = null
   }
 }
 
