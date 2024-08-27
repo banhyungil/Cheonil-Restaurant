@@ -50,10 +50,10 @@ WS.listen('/api/order', 'PATCH', async (sync) => {
 
     completeOrders.value.splice(0, 0, tgtOrder)
   } else if (sync.resBody.status == 'READY') {
-    const tgtOrders = _.remove(completeOrders.value, (od) => od.seq == sync.resBody.seq)
-    if (tgtOrders.length == 0) tgtOrders.push(await apiOrder.select(sync.resBody.seq))
+    _.remove(completeOrders.value, (od) => od.seq == sync.resBody.seq)
+    _.remove(orders.value, (od) => od.seq == sync.resBody.seq)
 
-    orders.value.push(...tgtOrders)
+    orders.value.push(await apiOrder.select(sync.resBody.seq))
     orders.value = _.orderBy(orders.value, ['orderAt'])
   }
 })

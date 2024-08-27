@@ -29,10 +29,8 @@ const router = createRouter({
       path: '/order', // orderId, 수정
       component: OrderView,
     },
-
     {
       path: '/order/:seq', // orderId, 수정
-      props: true,
       component: OrderView,
     },
     {

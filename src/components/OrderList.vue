@@ -76,6 +76,7 @@ const headers = ref([
   { title: '순번', key: 'no', sortable: false, align: 'start', width: '60px' },
   { title: '매장명', key: 'storeNm', align: 'center' },
   { title: '메뉴', key: 'menuNm', align: 'center' },
+  { title: '주문금액', key: 'amount', align: 'center' },
   { title: '주문시간', key: 'orderAtF', align: 'center' },
   { title: '완료시간', key: 'cookedAtF', align: 'center' },
   { title: '결제방식', key: 'payInfo', align: 'center' },
@@ -132,6 +133,7 @@ const cDtOrders = computed(() =>
       no: cOffset.value + idx + 1,
       storeNm: od.store.name,
       menuNm,
+      amount: od.amount.toLocaleString(),
       orderAtF,
       payInfo,
       payAtF,
@@ -327,9 +329,6 @@ function onClickThisMonth(type: 'ORDER' | 'PAY') {
     :hide-default-footer="true"
   >
     <template #top>
-      <!-- <v-toolbar flat>
-        <v-toolbar-title>{{ title }}</v-toolbar-title>
-      </v-toolbar> -->
       <section class="tw-flex tw-flex-col tw-gap-3 tw-border-b tw-px-4 tw-pb-2">
         <section class="tw-flex tw-gap-4">
           <div class="form-item">

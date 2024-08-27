@@ -8,7 +8,7 @@ interface Sync {
   resBody: any
   routeParams: any
 }
-const { data, open } = _useWebSocket(`ws://localhost:8100`, {
+const { data } = _useWebSocket(`ws://localhost:8100`, {
   onConnected() {
     console.log('websocket connected')
   },

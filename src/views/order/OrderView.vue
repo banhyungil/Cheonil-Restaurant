@@ -9,13 +9,6 @@ import { useEventListener, useWindowSize } from '@vueuse/core'
 import useSwal from '@/composable/useSwal'
 import { useRouter } from 'vue-router'
 
-interface Props {
-  // orderId
-  seq?: number
-}
-
-const props = defineProps<Props>()
-
 const router = useRouter()
 const menuStore = useMenuStore()
 const selStore = ref<StoreEntity | null>(null)
@@ -36,19 +29,27 @@ const menuSrchText = ref('')
 const orderMenues = ref<OrderMenuEntityCreation[]>([])
 const order = ref({ amount: 0, status: 'READY' } as MyOrderEntity)
 
-if (props.seq) {
-  apiOrder.select(props.seq).then((orderResult) => {
-    if (orderResult == null) {
-      router.push('/order')
-    } else {
-      order.value = orderResult
-      selStore.value = orderResult.store
-      orderMenues.value = orderResult.orderMenues
-    }
+watch(
+  () => router.currentRoute.value.params.seq,
+  () => {
+    if (router.currentRoute.value.params.seq) {
+      const { seq } = router.currentRoute.value.params
+      apiOrder.select(+seq).then((orderResult) => {
+        if (orderResult == null) {
+          router.push('/order')
+        } else {
+          order.value = orderResult
+          selStore.value = orderResult.store
+          orderMenues.value = orderResult.orderMenues
+        }
 
-    tab.value = 'MENU'
-  })
-}
+        tab.value = 'MENU'
+      })
+    }
+  },
+  { immediate: true }
+)
+const cIsUpdate = computed(() => router.currentRoute.value.params.seq != null)
 
 watch(
   orderMenues,
@@ -95,7 +96,7 @@ async function onComplete() {
     order.value.amount += om.price * om.cnt
   })
 
-  if (props.seq) {
+  if (router.currentRoute.value.params.seq) {
     // 신규 추가 메뉴는 기존 주문 seq를 삽입
     orderMenues.value.forEach((om) => (om.orderSeq = order.value.seq))
 
@@ -105,8 +106,8 @@ async function onComplete() {
   } else {
     await apiOrder.create(order.value, orderMenues.value)
     Swal.fireCustom({ toast: true, messageType: 'save' })
-    init()
   }
+  init()
 }
 
 function init() {
@@ -145,7 +146,7 @@ useEventListener(document, 'keyup', (e) => {
             <div class="main">
               <!-- price 반응형 레이아웃 적용 -->
               <div class="c-title">
-                <span class="name">{{ menuStore.dict[om.menuSeq].name }}</span>
+                <span class="name">{{ menuStore.dict[om.menuSeq]?.name }}</span>
                 <span v-if="width < 1024" style="float: right">{{ ` ${om.price.toLocaleString('ko-KR')}` }}</span>
               </div>
               <div class="c-cnt-btn">
@@ -167,8 +168,8 @@ useEventListener(document, 'keyup', (e) => {
         </div>
       </section>
       <section class="btt">
-        <v-btn class="complete" :class="{ update: seq }" color="primary" @click="onComplete" :disabled="orderMenues.length < 1">
-          {{ seq ? '수정완료' : '주문완료' }}
+        <v-btn class="complete" :class="{ update: cIsUpdate }" color="primary" @click="onComplete" :disabled="orderMenues.length < 1">
+          {{ cIsUpdate ? '수정완료' : '주문완료' }}
         </v-btn>
       </section>
     </section>
