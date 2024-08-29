@@ -180,7 +180,7 @@ defineExpose({ selCtg })
         </button>
         <!-- see: https://www.npmjs.com/package/vue-draggable-next?activeTab=readme#with-transition-group -->
         <VueDraggableNext v-model="menuStore.categories" @change="() => (isCtgUpdated = true)" :animation="500" :disabled="!isEdit">
-          <button v-for="ctg in menuStore.categories" :key="ctg.name" :category="ctg" @click="onClickCategory(ctg)" :class="{ on: selCtg == ctg }">
+          <button class="item" v-for="ctg in menuStore.categories" :key="ctg.name" :category="ctg" @click="onClickCategory(ctg)" :class="{ on: selCtg == ctg }">
             <span>{{ ctg.name ?? '' }}</span>
           </button>
         </VueDraggableNext>
