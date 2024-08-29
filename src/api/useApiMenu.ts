@@ -13,6 +13,7 @@ export default function useApiMenu() {
 
     return res.data as MenuEntity[]
   }
+
   const select = async (seq: number) => {
     const res = await api.get(`${prefix}/${seq}`, {
       data: '',

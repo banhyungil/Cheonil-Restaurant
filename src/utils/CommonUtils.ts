@@ -47,3 +47,7 @@ export function getInitials(str: string) {
 export function today() {
   return toDate(new Date().setHours(0, 0, 0, 0))
 }
+
+export function assertionExist<T>(val: T | undefined): asserts val is T {
+  if (val == null) throw new Error('fail assertion')
+}

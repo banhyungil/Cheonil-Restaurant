@@ -225,7 +225,12 @@ interface SettingEntity {
   seq: number
 
   /* 설정 정보 */
-  config: string
+  config: SettingConfig
+}
+
+interface SettingConfig {
+  menuCtgOrders: { seq: number; order: number }[]
+  storeCtgOrders: { seq: number; order: number }[]
 }
 
 /* 매장 */

@@ -1,13 +1,39 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="C extends object, T extends object">
 import { computed, ref } from 'vue'
 import useApiMenu from '@/api/useApiMenu'
-import { assertionExist, getInitials } from '@/utils/CommonUtils'
+import { getInitials } from '@/utils/CommonUtils'
 import { useRouter } from 'vue-router'
-import BInputCho from './base/BInputCho.vue'
+import BInputCho from './BInputCho.vue'
 import { useEventListener } from '@vueuse/core'
 import _ from 'lodash'
 import { VueDraggableNext } from 'vue-draggable-next'
 import useSwal from '@/composable/useSwal'
+import useFilterCho from '@/composable/useFilterCho'
+
+// props
+// ctgs, ctgKey, items, itemKey
+// emit
+// toggleEdit, clickCtg, addCtg, clickItem, addItem, changeOrder
+// v-model
+// srchText, isEdit, selCtg (dummy)
+// expose
+// inpSrch (포커스 용도)
+interface Props {
+  ctgs: C[]
+  ctgKey: keyof C
+  items: T[]
+  itemKey: keyof T
+}
+const props = defineProps<Props>()
+
+defineEmits<{
+  (e: 'toggleEdit', value: boolean): void
+  (e: 'clickCtg', ctg: C): void
+  (e: 'addCtg', ctg: C): void
+  (e: 'clickItem', item: T): void
+  (e: 'addItem', item: T): void
+  (e: 'changeCtgOrder', ctgs: C[]): void
+}>()
 
 const menuStore = useMenuStore()
 const settingStore = useSettingStore()
@@ -21,10 +47,6 @@ const apiMenu = useApiMenu()
 const apiMenuCtg = useApiMenuCtg()
 const router = useRouter()
 
-interface Props {
-  focusSrch?: boolean
-}
-const props = defineProps<Props>()
 const inpSrch = ref({} as InstanceType<typeof BInputCho>)
 
 watch(
@@ -37,10 +59,6 @@ watch(
 const srchText = defineModel('srchText', {
   default: '',
 })
-
-const emit = defineEmits<{
-  (e: 'selectItem', item: MenuEntity): void
-}>()
 
 // 메뉴 조회
 apiMenu.selectList().then((list) => {
@@ -57,14 +75,6 @@ apiMenu.selectList().then((list) => {
 // 메뉴 카테고리 조회
 apiMenuCtg.selectList().then((list) => {
   menuStore.categories = list
-
-  watch(
-    settingStore.setting,
-    () => {
-      if (settingStore.setting.config.menuCtgOrders) menuStore.categories = menuStore.order(menuStore.categories)
-    },
-    { immediate: true, deep: true }
-  )
 })
 
 const isEdit = ref(false)
@@ -138,18 +148,16 @@ useEventListener(document, 'keyup', (e) => {
 const isCtgUpdated = ref(false)
 watch(isEdit, async () => {
   if (isCtgUpdated.value) {
-    const menuCtgOrders = menuStore.categories.map((ctg, idx) => ({ seq: ctg.seq, order: idx }))
+    const ctgOrders = menuStore.categories.map((ctg, idx) => ({ seq: ctg.seq, order: idx }))
 
-    if (_.isEqual(menuCtgOrders, settingStore.setting.config.menuCtgOrders) == false) {
-      settingStore.setting.config.menuCtgOrders = menuCtgOrders
+    if (_.isEqual(ctgOrders, settingStore.setting.config.ctgOrders) == false) {
+      settingStore.setting.config.ctgOrders = ctgOrders
       await apiSetting.update(settingStore.setting)
 
       swal.fireCustom({ toast: true, title: '', icon: 'success', text: '카테고리 순서가 변경되었습니다' })
     }
   }
 })
-
-defineExpose({ selCtg })
 </script>
 
 <template>
@@ -171,7 +179,7 @@ defineExpose({ selCtg })
           <span>{{ '전체' }}</span>
         </button>
         <!-- see: https://www.npmjs.com/package/vue-draggable-next?activeTab=readme#with-transition-group -->
-        <VueDraggableNext v-model="menuStore.categories" @change="() => (isCtgUpdated = true)" :animation="500" :disabled="!isEdit">
+        <VueDraggableNext v-model="menuStore.categories" @change="() => (isCtgUpdated = true)" :animation="600" :disabled="!isEdit">
           <button v-for="ctg in menuStore.categories" :key="ctg.name" :category="ctg" @click="onClickCategory(ctg)" :class="{ on: selCtg == ctg }">
             <span>{{ ctg.name ?? '' }}</span>
           </button>
@@ -184,8 +192,9 @@ defineExpose({ selCtg })
       </ul>
       <section class="grid">
         <button class="item" v-for="item in cFilteredItems" :key="item.name" @click="onClickItem(item)">
-          <span class="main">{{ item['name'] }}</span>
-          <span class="sub">{{ item['price'].toLocaleString() }}</span>
+          <slot name="item" v-bind="item">
+            {{ item }}
+          </slot>
         </button>
         <Transition name="slide">
           <button v-show="isEdit" class="item add" @click="onAddItem">

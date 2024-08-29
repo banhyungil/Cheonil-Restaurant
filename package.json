@@ -44,6 +44,9 @@
     "sweetalert2": "^11.10.3",
     "validator": "^13.11.0",
     "vue": "^3.4.35",
+    "vue-draggable-next": "^2.2.1",
+    "vue-draggable-resizable": "^3.0.0",
+    "vue-grid-layout": "^2.4.0",
     "vue-router": "^4.4.0",
     "vuetify": "^3.6.6"
   },

@@ -8,8 +8,14 @@ import { getInitials } from '@/utils/CommonUtils'
 import BInputCho from './base/BInputCho.vue'
 import { useEventListener } from '@vueuse/core'
 import _ from 'lodash'
+import useSwal from '@/composable/useSwal'
+import { VueDraggableNext } from 'vue-draggable-next'
+import useFilterCho from '@/composable/useFilterCho'
 
 const storeStore = useStoreStore()
+const settingStore = useSettingStore()
+const apiSetting = useApiSetting()
+const swal = useSwal()
 
 type SelStoreCtg = StoreCategoryEntity | null
 const selCtg = ref<SelStoreCtg>(null)
@@ -114,6 +120,20 @@ useEventListener(document, 'keyup', (e) => {
     }
   }
 })
+
+const isCtgUpdated = ref(false)
+watch(isEdit, async () => {
+  if (isCtgUpdated.value) {
+    const storeCtgOrders = storeStore.categories.map((ctg, idx) => ({ seq: ctg.seq, order: idx }))
+
+    if (_.isEqual(storeCtgOrders, settingStore.setting.config.storeCtgOrders) == false) {
+      settingStore.setting.config.storeCtgOrders = storeCtgOrders
+      await apiSetting.update(settingStore.setting)
+
+      swal.fireCustom({ toast: true, title: '', icon: 'success', text: '카테고리 순서가 변경되었습니다' })
+    }
+  }
+})
 </script>
 
 <!-- 클릭하면 등록 화면으로 이동 -->
@@ -134,9 +154,18 @@ useEventListener(document, 'keyup', (e) => {
         <button @click="onClickCategory(null)" :class="{ on: selCtg == null }">
           <span>{{ '전체' }}</span>
         </button>
-        <button class="item" v-for="ctg in storeStore.categories" :key="ctg.name" :category="ctg" @click="onClickCategory(ctg)" :class="{ on: selCtg == ctg }">
-          <span>{{ ctg.name ?? '' }}</span>
-        </button>
+        <VueDraggableNext v-model="storeStore.categories" @change="() => (isCtgUpdated = true)" :animation="200" :disabled="!isEdit">
+          <button
+            class="item"
+            v-for="ctg in storeStore.categories"
+            :key="ctg.name"
+            :category="ctg"
+            @click="onClickCategory(ctg)"
+            :class="{ on: selCtg == ctg }"
+          >
+            <span>{{ ctg.name ?? '' }}</span>
+          </button>
+        </VueDraggableNext>
         <Transition name="slide">
           <button v-show="isEdit" class="item" @click="onAddCategory">
             <font-awesome-icon :icon="['fas', 'plus']" />

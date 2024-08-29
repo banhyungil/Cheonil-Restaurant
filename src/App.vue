@@ -1,8 +1,14 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
-import { useLayoutStore } from '@/stores/layoutStore'
 
 const layoutStore = useLayoutStore()
+
+// 설정 값 조회
+const settingStore = useSettingStore()
+const apiSetting = useApiSetting()
+apiSetting.select().then((res) => {
+  settingStore.setting = res
+})
 </script>
 
 <template>
