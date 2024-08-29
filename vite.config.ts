@@ -12,7 +12,19 @@ export default defineConfig({
     vue(),
     AutoImport({
       // global imports to register
-      imports: ['vue', 'vue-router', 'pinia'],
+      imports: [
+        'vue',
+        'vue-router',
+        'pinia',
+
+        // example type import
+        {
+          from: 'vue',
+          imports: ['Ref'],
+          type: true,
+        },
+      ],
+
       dirs: ['./src/stores', './src/api'],
       dts: true,
     }),

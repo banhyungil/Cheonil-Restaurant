@@ -52,6 +52,18 @@ apiStore.selectList().then((list) => {
 // 매장 카테고리 조회
 apiStoreCtg.selectList().then((list) => {
   storeStore.categories = list
+
+  watch(
+    () => settingStore.setting.config.storeCtgOrders,
+    () => {
+      if (settingStore.setting.config.storeCtgOrders == null) {
+        settingStore.setting.config.storeCtgOrders = storeStore.categories.map((ctg, idx) => ({ seq: ctg.seq, order: idx }))
+      } else {
+        storeStore.categories = storeStore.order(storeStore.categories)
+      }
+    },
+    { immediate: true, deep: true }
+  )
 })
 
 const isEdit = ref(false)
@@ -127,10 +139,14 @@ watch(isEdit, async () => {
     const storeCtgOrders = storeStore.categories.map((ctg, idx) => ({ seq: ctg.seq, order: idx }))
 
     if (_.isEqual(storeCtgOrders, settingStore.setting.config.storeCtgOrders) == false) {
-      settingStore.setting.config.storeCtgOrders = storeCtgOrders
-      await apiSetting.update(settingStore.setting)
+      if (await swal.fireCustom({ isConfirm: true, title: '', text: '카테고리 순서를 변경하시겠습니까?', icon: 'question' })) {
+        settingStore.setting.config.storeCtgOrders = storeCtgOrders
+        await apiSetting.update(settingStore.setting)
 
-      swal.fireCustom({ toast: true, title: '', icon: 'success', text: '카테고리 순서가 변경되었습니다' })
+        swal.fireCustom({ toast: true, title: '', icon: 'success', text: '카테고리 순서가 변경되었습니다' })
+      } else {
+        storeStore.categories = storeStore.order(storeStore.categories)
+      }
     }
   }
 })

@@ -59,9 +59,13 @@ apiMenuCtg.selectList().then((list) => {
   menuStore.categories = list
 
   watch(
-    settingStore.setting,
+    () => settingStore.setting.config.menuCtgOrders,
     () => {
-      if (settingStore.setting.config.menuCtgOrders) menuStore.categories = menuStore.order(menuStore.categories)
+      if (settingStore.setting.config.menuCtgOrders == null) {
+        settingStore.setting.config.menuCtgOrders = menuStore.categories.map((ctg, idx) => ({ seq: ctg.seq, order: idx }))
+      } else {
+        menuStore.categories = menuStore.order(menuStore.categories)
+      }
     },
     { immediate: true, deep: true }
   )
@@ -141,10 +145,14 @@ watch(isEdit, async () => {
     const menuCtgOrders = menuStore.categories.map((ctg, idx) => ({ seq: ctg.seq, order: idx }))
 
     if (_.isEqual(menuCtgOrders, settingStore.setting.config.menuCtgOrders) == false) {
-      settingStore.setting.config.menuCtgOrders = menuCtgOrders
-      await apiSetting.update(settingStore.setting)
+      if (await swal.fireCustom({ isConfirm: true, title: '', text: '카테고리 순서를 변경하시겠습니까?', icon: 'question' })) {
+        settingStore.setting.config.menuCtgOrders = menuCtgOrders
+        await apiSetting.update(settingStore.setting)
 
-      swal.fireCustom({ toast: true, title: '', icon: 'success', text: '카테고리 순서가 변경되었습니다' })
+        swal.fireCustom({ toast: true, title: '', icon: 'success', text: '카테고리 순서가 변경되었습니다' })
+      } else {
+        menuStore.categories = menuStore.order(menuStore.categories)
+      }
     }
   }
 })
