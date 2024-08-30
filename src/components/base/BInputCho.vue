@@ -59,6 +59,7 @@ defineExpose({ eltInp })
 
   & > label {
     cursor: pointer;
+    transition: all 0.2s ease-in-out;
   }
   &.focus > label {
     color: var(--color-point);
