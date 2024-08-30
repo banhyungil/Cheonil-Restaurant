@@ -42,11 +42,9 @@ defineExpose({ eltInp })
       v-bind="$attrs"
       placeholder="검색"
     />
-    <Transition name="vueSlide">
-      <button v-show="inpFocused" @click="onCancel">
-        <font-awesome-icon :icon="['fas', 'circle-x']" />
-      </button>
-    </Transition>
+    <button @click="onCancel">
+      <font-awesome-icon :icon="['fas', 'circle-x']" />
+    </button>
   </div>
 </template>
 
