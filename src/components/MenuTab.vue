@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import useApiMenu from '@/api/useApiMenu'
-import { assertionExist, getInitials } from '@/utils/CommonUtils'
+import { getInitials } from '@/utils/CommonUtils'
 import { useRouter } from 'vue-router'
 import BInputCho from './base/BInputCho.vue'
 import { useEventListener } from '@vueuse/core'
@@ -64,7 +64,7 @@ apiMenuCtg.selectList().then((list) => {
       if (settingStore.setting?.config?.menuCtgOrders == null) {
         settingStore.setting.config.menuCtgOrders = menuStore.categories.map((ctg, idx) => ({ seq: ctg.seq, order: idx }))
       } else {
-        menuStore.categories = menuStore.order(menuStore.categories)
+        menuStore.orderCtgs()
       }
     },
     { immediate: true, deep: true }
@@ -144,6 +144,7 @@ watch(isEdit, async () => {
   if (isCtgUpdated.value) {
     const menuCtgOrders = menuStore.categories.map((ctg, idx) => ({ seq: ctg.seq, order: idx }))
 
+    // 카테고리 순서 변경
     if (_.isEqual(menuCtgOrders, settingStore.setting.config.menuCtgOrders) == false) {
       if (await swal.fireCustom({ isConfirm: true, title: '', text: '카테고리 순서를 변경하시겠습니까?', icon: 'question' })) {
         settingStore.setting.config.menuCtgOrders = menuCtgOrders
@@ -151,7 +152,7 @@ watch(isEdit, async () => {
 
         swal.fireCustom({ toast: true, title: '', icon: 'success', text: '카테고리 순서가 변경되었습니다' })
       } else {
-        menuStore.categories = menuStore.order(menuStore.categories)
+        menuStore.orderCtgs()
       }
     }
   }

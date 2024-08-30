@@ -10,7 +10,6 @@ import { useEventListener } from '@vueuse/core'
 import _ from 'lodash'
 import useSwal from '@/composable/useSwal'
 import { VueDraggableNext } from 'vue-draggable-next'
-import useFilterCho from '@/composable/useFilterCho'
 
 const storeStore = useStoreStore()
 const settingStore = useSettingStore()
@@ -61,7 +60,7 @@ apiStoreCtg.selectList().then((list) => {
 
         settingStore.setting.config.storeCtgOrders = storeStore.categories.map((ctg, idx) => ({ seq: ctg.seq, order: idx }))
       } else {
-        storeStore.categories = storeStore.order(storeStore.categories)
+        storeStore.orderCtgs()
       }
     },
     { immediate: true, deep: true }
@@ -140,6 +139,7 @@ watch(isEdit, async () => {
   if (isCtgUpdated.value) {
     const storeCtgOrders = storeStore.categories.map((ctg, idx) => ({ seq: ctg.seq, order: idx }))
 
+    // 카테고리 순서 변경
     if (_.isEqual(storeCtgOrders, settingStore.setting.config.storeCtgOrders) == false) {
       if (await swal.fireCustom({ isConfirm: true, title: '', text: '카테고리 순서를 변경하시겠습니까?', icon: 'question' })) {
         settingStore.setting.config.storeCtgOrders = storeCtgOrders
@@ -147,7 +147,7 @@ watch(isEdit, async () => {
 
         swal.fireCustom({ toast: true, title: '', icon: 'success', text: '카테고리 순서가 변경되었습니다' })
       } else {
-        storeStore.categories = storeStore.order(storeStore.categories)
+        storeStore.orderCtgs()
       }
     }
   }

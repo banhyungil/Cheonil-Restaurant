@@ -1,6 +1,7 @@
 /* eslint-disable */
 
 import { toDate } from "date-fns";
+import _ from "lodash";
 
 // 초성(19개)
 const CHO_HANGUL = [
@@ -50,4 +51,14 @@ export function today() {
 
 export function assertionExist<T>(val: T | undefined): asserts val is T {
   if (val == null) throw new Error('fail assertion')
+}
+
+export function orderWithList<T, K extends keyof T>(origins: Partial<T>[], targets: T[], key: K) {
+  const orderedList = origins.reduce((arr: T[], item) => {
+    const tgt = targets.find((tgt) => tgt[key] == item[key])
+    if (tgt) arr.push(tgt)
+    return arr
+  }, [])
+
+  return _.unionBy(orderedList, targets, key)
 }
