@@ -32,7 +32,8 @@ const order = ref({ amount: 0, status: 'READY' } as PartialOrder)
 watch(
   () => router.currentRoute.value.params.seq,
   () => {
-    if (router.currentRoute.value.params.seq) {
+    // 주문 수정 시
+    if (router.currentRoute.value.path == '/order' && router.currentRoute.value.params.seq) {
       const { seq } = router.currentRoute.value.params
       apiOrder.select(+seq).then((orderResult) => {
         if (orderResult == null) {
@@ -145,7 +146,7 @@ function init() {
     </section>
     <section class="right">
       <section class="top">
-        <v-btn class="store-name" @click="unSelectStore">
+        <v-btn class="store-name" :color="selStore ? 'primary' : undefined" @click="unSelectStore">
           {{ selStore?.name ?? '미지정' }}
         </v-btn>
         <button class="chi tw-absolute tw-right-2 tw-w-10" style="border: 1px solid #bababa" @click="init">
@@ -226,9 +227,7 @@ function init() {
       button.store-name {
         width: 55%;
         height: 55%;
-        color: #fff;
         font-weight: bold;
-        background-color: var(--color-point);
       }
     }
 
