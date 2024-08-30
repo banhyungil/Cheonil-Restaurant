@@ -139,7 +139,7 @@ useEventListener(document, 'keyup', (e) => {
         <v-btn class="store-name" @click="onClickStoreName">
           {{ selStore?.name ?? '미지정' }}
         </v-btn>
-        <button class="chi tw-absolute tw-right-2 tw-w-10" @click="init">
+        <button class="chi tw-absolute tw-right-2 tw-w-10" style="border: 1px solid #bababa" @click="init">
           <font-awesome-icon :icon="['fas', 'rotate-left']" />
         </button>
       </section>
