@@ -54,9 +54,11 @@ apiStoreCtg.selectList().then((list) => {
   storeStore.categories = list
 
   watch(
-    () => settingStore.setting.config.storeCtgOrders,
+    () => settingStore.setting?.config?.storeCtgOrders,
     () => {
-      if (settingStore.setting.config.storeCtgOrders == null) {
+      if (settingStore.setting.config?.storeCtgOrders == null) {
+        if (settingStore.setting?.config == null) return
+
         settingStore.setting.config.storeCtgOrders = storeStore.categories.map((ctg, idx) => ({ seq: ctg.seq, order: idx }))
       } else {
         storeStore.categories = storeStore.order(storeStore.categories)

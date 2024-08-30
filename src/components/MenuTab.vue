@@ -59,9 +59,9 @@ apiMenuCtg.selectList().then((list) => {
   menuStore.categories = list
 
   watch(
-    () => settingStore.setting.config.menuCtgOrders,
+    () => settingStore.setting?.config?.menuCtgOrders,
     () => {
-      if (settingStore.setting.config.menuCtgOrders == null) {
+      if (settingStore.setting?.config?.menuCtgOrders == null) {
         settingStore.setting.config.menuCtgOrders = menuStore.categories.map((ctg, idx) => ({ seq: ctg.seq, order: idx }))
       } else {
         menuStore.categories = menuStore.order(menuStore.categories)
