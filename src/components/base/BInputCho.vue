@@ -20,6 +20,10 @@ function onInput(e: any) {
   }
 }
 
+function onCancel() {
+  srchText.value = ''
+  nextTick(() => eltInp.value?.focus())
+}
 const uuid = 'a' + Uuid()
 defineExpose({ eltInp })
 </script>
@@ -39,7 +43,7 @@ defineExpose({ eltInp })
       placeholder="검색"
     />
     <Transition name="vueSlide">
-      <button v-show="inpFocused" @click="() => (srchText = '')">
+      <button v-show="inpFocused" @click="onCancel">
         <font-awesome-icon :icon="['fas', 'circle-x']" />
       </button>
     </Transition>
