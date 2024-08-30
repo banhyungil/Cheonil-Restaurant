@@ -30,7 +30,7 @@ const inpSrch = ref({} as InstanceType<typeof BInputCho>)
 watch(
   () => props.focusSrch,
   () => {
-    if (props.focusSrch) nextTick().then(() => inpSrch.value.$el.focus())
+    if (props.focusSrch) nextTick().then(() => inpSrch.value.eltInp?.focus())
   }
 )
 
@@ -118,7 +118,7 @@ function onClickItem(item: MenuEntity) {
     router.push({ path: `/menuEdit/${item.seq}` })
   } else {
     emit('selectItem', item)
-    nextTick().then(() => inpSrch.value.$el.focus())
+    nextTick().then(() => inpSrch.value.eltInp?.focus())
   }
 }
 

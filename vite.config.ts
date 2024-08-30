@@ -16,7 +16,9 @@ export default defineConfig({
         'vue',
         'vue-router',
         'pinia',
-
+        {
+          uuid: ['v4', 'Uuid'],
+        },
         // example type import
         {
           from: 'vue',

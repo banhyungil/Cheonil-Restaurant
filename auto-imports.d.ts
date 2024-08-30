@@ -7,6 +7,7 @@ export {}
 declare global {
   const EffectScope: typeof import('vue')['EffectScope']
   const Op: typeof import('./src/api/useApi')['Op']
+  const Uuid: typeof import('uuid')['Uuid']
   const acceptHMRUpdate: typeof import('pinia')['acceptHMRUpdate']
   const computed: typeof import('vue')['computed']
   const createApp: typeof import('vue')['createApp']
@@ -91,6 +92,8 @@ declare global {
   const useSlots: typeof import('vue')['useSlots']
   const useStoreStore: typeof import('./src/stores/storeStore')['useStoreStore']
   const useWebSocket: typeof import('./src/api/useWebSocket')['default']
+  const uuidv4: typeof import('uuid')['uuidv4']
+  const v4: typeof import('uuid')['v4']
   const watch: typeof import('vue')['watch']
   const watchEffect: typeof import('vue')['watchEffect']
   const watchPostEffect: typeof import('vue')['watchPostEffect']

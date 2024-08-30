@@ -1,8 +1,11 @@
 <script setup lang="ts">
+import { useFocus } from '@vueuse/core'
 import { isCho, isJong, divideByJong } from 'hangul-util'
+import { v4 as Uuid } from 'uuid'
 
 const srchText = defineModel<string>()
-const eltInp = ref({} as HTMLInputElement)
+const eltInp = ref<HTMLInputElement>()
+const { focused: inpFocused } = toRefs(useFocus(eltInp))
 
 function onInput(e: any) {
   console.log('onInput targetValue:', e.target.value)
@@ -16,16 +19,68 @@ function onInput(e: any) {
     srchText.value = e.target.value
   }
 }
+
+const uuid = 'a' + Uuid()
+defineExpose({ eltInp })
 </script>
 
 <template>
-  <input class="b-input-cho" ref="eltInp" type="text" v-model="srchText" @input="onInput" placeholder="검색" />
+  <div class="b-input-cho" :class="{ focus: inpFocused }">
+    <label :for="uuid"><font-awesome-icon :icon="['fas', 'magnifying-glass']" /></label>
+    <input
+      class="b-input-cho"
+      :id="uuid"
+      ref="eltInp"
+      type="text"
+      @keyup.esc="() => (srchText = '')"
+      v-model="srchText"
+      @input="onInput"
+      v-bind="$attrs"
+      placeholder="검색"
+    />
+    <Transition name="vueSlide">
+      <button v-show="inpFocused" @click="() => (srchText = '')">
+        <font-awesome-icon :icon="['fas', 'circle-x']" />
+      </button>
+    </Transition>
+  </div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .b-input-cho {
-  padding-inline-start: 6px;
   border: 1px solid #000;
   border-radius: 8px;
+  padding: 4px 6px;
+  width: 220px;
+  display: flex;
+  align-items: center;
+
+  & > label {
+    cursor: pointer;
+  }
+  &.focus > label {
+    color: var(--color-point);
+  }
+
+  & > input {
+    padding-inline-start: 6px;
+    border: none;
+    width: 100%;
+
+    &:focus {
+      outline: none;
+    }
+  }
+  & > button {
+    opacity: 0.6;
+
+    &:hover {
+      color: var(--color-danger);
+      background-color: transparent;
+      opacity: 1;
+    }
+  }
+
+  @include vueSlide(10px);
 }
 </style>

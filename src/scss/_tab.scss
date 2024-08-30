@@ -5,12 +5,12 @@
   flex-direction: column;
   height: 100%;
 
-  .top {
+  & > .top {
     display: flex;
     align-items: center;
     justify-content: space-between;
 
-    input {
+    & > input {
       border: 1px solid grey;
       margin: 4px;
       padding-inline-start: 4px;

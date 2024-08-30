@@ -33,7 +33,7 @@ const props = defineProps<Props>()
 watch(
   () => props.focusSrch,
   () => {
-    if (props.focusSrch) nextTick().then(() => compSrch.value.$el.focus())
+    if (props.focusSrch) nextTick().then(() => compSrch.value.eltInp?.focus())
   }
 )
 const srchText = defineModel('srchText', {
