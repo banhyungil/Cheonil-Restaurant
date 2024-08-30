@@ -12,13 +12,15 @@ apiSetting.select().then((res) => {
 </script>
 
 <template>
-  <component :is="layoutStore.cLayoutComp">
-    <RouterView v-slot="{ Component }">
-      <KeepAlive :include="['StoreView', 'MenuView', 'AccountView', 'OrderListView', 'OrderView', 'OrderStateView']">
-        <component :is="Component"></component>
-      </KeepAlive>
-    </RouterView>
-  </component>
+  <transition name="fade" mode="out-in">
+    <component name="fade" mode="out-in" :is="layoutStore.cLayoutComp">
+      <RouterView v-slot="{ Component }">
+        <KeepAlive :include="['StoreView', 'MenuView', 'AccountView', 'OrderListView', 'OrderView', 'OrderStateView']">
+          <component :is="Component"></component>
+        </KeepAlive>
+      </RouterView>
+    </component>
+  </transition>
 </template>
 
 <style scoped>
