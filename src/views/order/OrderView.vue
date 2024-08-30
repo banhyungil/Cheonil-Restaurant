@@ -86,11 +86,17 @@ function onChoiceMenu(menu: MenuEntity) {
   }
 }
 
-function onClickStoreName() {
+function unSelectStore() {
   tab.value = 'STORE'
   selStore.value = null
   order.value.storeSeq = undefined
 }
+
+useEventListener(document, 'keyup', (e) => {
+  if (e.key == 'Escape') {
+    unSelectStore()
+  }
+})
 
 function validate(order: PartialOrder): order is MyOrderEntity {
   return order.storeSeq ? true : false
@@ -126,13 +132,9 @@ function init() {
   menuTabComp.value.selCtg = null
 }
 
-useEventListener(document, 'keyup', (e) => {
-  if (e.key == 'Escape') {
-    if (tab.value == 'MENU') {
-      tab.value = 'STORE'
-    }
-  }
-})
+// 매장및 메뉴에 즐겨찾기 등록을하는 경우 순서 지정은...boolean으로 하면 순서지정은안됨.
+// 아니면 즐겨찾기가 아니라 order을 만들까그냥..?그럼 setting으로 똑같이?
+// 순서는 어떻게 ?? 그냥 리스트 순으로할까... 바꿀수 있게도 할까..
 </script>
 
 <template>
@@ -143,7 +145,7 @@ useEventListener(document, 'keyup', (e) => {
     </section>
     <section class="right">
       <section class="top">
-        <v-btn class="store-name" @click="onClickStoreName">
+        <v-btn class="store-name" @click="unSelectStore">
           {{ selStore?.name ?? '미지정' }}
         </v-btn>
         <button class="chi tw-absolute tw-right-2 tw-w-10" style="border: 1px solid #bababa" @click="init">
