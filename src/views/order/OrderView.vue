@@ -139,6 +139,9 @@ useEventListener(document, 'keyup', (e) => {
         <v-btn class="store-name" @click="onClickStoreName">
           {{ selStore?.name ?? '미지정' }}
         </v-btn>
+        <button class="chi tw-absolute tw-right-2 tw-w-10" @click="init">
+          <font-awesome-icon :icon="['fas', 'rotate-left']" />
+        </button>
       </section>
       <section class="content">
         <ul class="orders">
@@ -206,6 +209,7 @@ useEventListener(document, 'keyup', (e) => {
     @apply tw-shadow-xl;
 
     .top {
+      position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
