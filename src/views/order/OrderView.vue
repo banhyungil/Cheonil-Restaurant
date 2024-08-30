@@ -26,7 +26,8 @@ const menuSrchText = ref('')
 
 // 주문 목록 entity는 주문을 할떄 만들어진다
 const orderMenues = ref<OrderMenuEntityCreation[]>([])
-const order = ref({ amount: 0, status: 'READY' } as MyOrderEntity)
+type PartialOrder = PartialK<MyOrderEntity, 'storeSeq'>
+const order = ref({ amount: 0, status: 'READY' } as PartialOrder)
 
 watch(
   () => router.currentRoute.value.params.seq,
@@ -88,9 +89,15 @@ function onChoiceMenu(menu: MenuEntity) {
 function onClickStoreName() {
   tab.value = 'STORE'
   selStore.value = null
+  order.value.storeSeq = undefined
 }
 
+function validate(order: PartialOrder): order is MyOrderEntity {
+  return order.storeSeq ? true : false
+}
 async function onComplete() {
+  if (validate(order.value) == false) return
+
   orderMenues.value.forEach((om) => {
     order.value.amount += om.price * om.cnt
   })
@@ -172,7 +179,7 @@ useEventListener(document, 'keyup', (e) => {
         </div>
       </section>
       <section class="btt">
-        <v-btn class="complete" :class="{ update: cIsUpdate }" color="primary" @click="onComplete" :disabled="orderMenues.length < 1">
+        <v-btn class="complete" :class="{ update: cIsUpdate }" color="primary" @click="onComplete" :disabled="order.storeSeq == null || orderMenues.length < 1">
           {{ cIsUpdate ? '수정완료' : '주문완료' }}
         </v-btn>
       </section>
