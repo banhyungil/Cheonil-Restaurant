@@ -229,8 +229,10 @@ interface SettingEntity {
 }
 
 interface SettingConfig {
-  menuCtgOrders: { seq: number; order: number }[]
-  storeCtgOrders: { seq: number; order: number }[]
+  menuCtgOrders?: { seq: number; order: number }[]
+  menuOrders?: { seq: number; order: number }[]
+  storeCtgOrders?: { seq: number; order: number }[]
+  storeOrders?: { seq: number; order: number }[]
 }
 
 /* 매장 */

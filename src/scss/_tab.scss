@@ -94,7 +94,8 @@
         width: 0;
     }
 
-    button.item {
+    .item {
+        position: relative;
       display: flex;
       flex-direction: column;
       justify-content: center;

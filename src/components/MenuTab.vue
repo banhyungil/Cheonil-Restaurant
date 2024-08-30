@@ -141,19 +141,21 @@ useEventListener(document, 'keyup', (e) => {
 
 const isCtgUpdated = ref(false)
 watch(isEdit, async () => {
-  if (isCtgUpdated.value) {
-    const menuCtgOrders = menuStore.categories.map((ctg, idx) => ({ seq: ctg.seq, order: idx }))
+  // 편집 -> 기본 으로 돌아올 때만 검사
+  if (isEdit.value) return
 
-    // 카테고리 순서 변경
-    if (_.isEqual(menuCtgOrders, settingStore.setting.config.menuCtgOrders) == false) {
-      if (await swal.fireCustom({ isConfirm: true, title: '', text: '카테고리 순서를 변경하시겠습니까?', icon: 'question' })) {
-        settingStore.setting.config.menuCtgOrders = menuCtgOrders
-        await apiSetting.update(settingStore.setting)
+  // 카테고리 순서 변경
+  // * 순서가 바뀐 경우 저장
+  const menuCtgOrders = menuStore.categories.map((ctg, idx) => ({ seq: ctg.seq, order: idx }))
 
-        swal.fireCustom({ toast: true, title: '', icon: 'success', text: '카테고리 순서가 변경되었습니다' })
-      } else {
-        menuStore.orderCtgs()
-      }
+  if (_.isEqual(menuCtgOrders, settingStore.setting.config.menuCtgOrders) == false) {
+    if (await swal.fireCustom({ isConfirm: true, title: '', text: '카테고리 순서를 변경하시겠습니까?', icon: 'question' })) {
+      settingStore.setting.config.menuCtgOrders = menuCtgOrders
+      await apiSetting.update(settingStore.setting)
+
+      swal.fireCustom({ toast: true, title: '', icon: 'success', text: '카테고리 순서가 변경되었습니다' })
+    } else {
+      menuStore.orderCtgs()
     }
   }
 })

@@ -52,14 +52,15 @@ apiStore.selectList().then((list) => {
 apiStoreCtg.selectList().then((list) => {
   storeStore.categories = list
 
+  if (settingStore?.setting?.config?.storeCtgOrders == null) {
+    settingStore.setting.config.storeCtgOrders = storeStore.categories.map((ctg, idx) => ({ seq: ctg.seq, order: idx }))
+  }
+
   watch(
     () => settingStore.setting?.config?.storeCtgOrders,
     () => {
-      if (settingStore.setting.config?.storeCtgOrders == null) {
-        if (settingStore.setting?.config == null) return
-
-        settingStore.setting.config.storeCtgOrders = storeStore.categories.map((ctg, idx) => ({ seq: ctg.seq, order: idx }))
-      } else {
+      if (settingStore.setting?.config == null) return
+      else {
         storeStore.orderCtgs()
       }
     },
@@ -134,24 +135,34 @@ useEventListener(document, 'keyup', (e) => {
   }
 })
 
-const isCtgUpdated = ref(false)
+const storeOrders = ref<NonNullable<SettingConfig['storeOrders']>>([])
+const cStoreCtgOrders = computed(() => storeStore.categories.map((ctg, idx) => ({ seq: ctg.seq, order: idx })))
+
 watch(isEdit, async () => {
-  if (isCtgUpdated.value) {
-    const storeCtgOrders = storeStore.categories.map((ctg, idx) => ({ seq: ctg.seq, order: idx }))
+  if (isEdit.value && settingStore.setting == null) return
+  const setting = settingStore.setting!
 
-    // 카테고리 순서 변경
-    if (_.isEqual(storeCtgOrders, settingStore.setting.config.storeCtgOrders) == false) {
-      if (await swal.fireCustom({ isConfirm: true, title: '', text: '카테고리 순서를 변경하시겠습니까?', icon: 'question' })) {
-        settingStore.setting.config.storeCtgOrders = storeCtgOrders
-        await apiSetting.update(settingStore.setting)
+  const storeCtgOrders = storeStore.categories.map((ctg, idx) => ({ seq: ctg.seq, order: idx }))
 
-        swal.fireCustom({ toast: true, title: '', icon: 'success', text: '카테고리 순서가 변경되었습니다' })
-      } else {
-        storeStore.orderCtgs()
-      }
+  // 카테고리 순서 변경
+  if (_.isEqual(storeCtgOrders, setting.config.storeCtgOrders) == false) {
+    if (await swal.fireCustom({ isConfirm: true, title: '', text: '설정 정보를 저장하시겠습니까?', icon: 'question' })) {
+      setting.config.storeCtgOrders = storeCtgOrders
+      await apiSetting.update(setting)
+
+      swal.fireCustom({ toast: true, messageType: 'save' })
+    } else {
+      storeStore.orderCtgs()
     }
   }
 })
+
+function onClickFavorite(store: StoreEntity) {
+  const idx = storeOrders.value.findIndex((storeOrder) => storeOrder.seq == store.seq)
+  // 있으면 삭제, 없으면 생성
+  if (idx >= 0) storeOrders.value.splice(idx, 1)
+  else storeOrders.value.push({ seq: store.seq, order: storeOrders.value.length })
+}
 </script>
 
 <!-- 클릭하면 등록 화면으로 이동 -->
@@ -172,7 +183,7 @@ watch(isEdit, async () => {
         <button @click="onClickCategory(null)" :class="{ on: selCtg == null }">
           <span>{{ '전체' }}</span>
         </button>
-        <VueDraggableNext v-model="storeStore.categories" @change="() => (isCtgUpdated = true)" :animation="200" :disabled="!isEdit">
+        <VueDraggableNext v-model="storeStore.categories" :animation="200" :disabled="!isEdit">
           <button
             class="item"
             v-for="ctg in storeStore.categories"
@@ -191,9 +202,15 @@ watch(isEdit, async () => {
         </Transition>
       </ul>
       <section class="grid">
-        <button class="item" v-for="item in cFilteredItems" :key="item.name" @click="onClickItem(item)">
-          {{ item['name'] ?? '' }}
-        </button>
+        <div class="item" v-for="item in cFilteredItems" :key="item.name">
+          <button @click="onClickFavorite(item)">
+            <font-awesome-icon :icon="['fas', 'star']" style="color: #ffd43b" />
+            <font-awesome-icon :icon="['far', 'star']" />
+          </button>
+          <button @click="onClickItem(item)">
+            {{ item['name'] ?? '' }}
+          </button>
+        </div>
         <Transition name="slide">
           <button v-show="isEdit" class="item add" @click="onAddItem">
             <font-awesome-icon :icon="['fas', 'plus']" />
