@@ -53,6 +53,9 @@ export function assertionExist<T>(val: T | undefined): asserts val is T {
   if (val == null) throw new Error('fail assertion')
 }
 
+/**
+ * (mutable) 정렬된 list를 기반으로 대상 리스트 정렬
+ */
 export function orderWithList<T, K extends keyof T>(origins: Partial<T>[], targets: T[], key: K) {
   const orderedList = origins.reduce((arr: T[], item) => {
     const tgt = targets.find((tgt) => tgt[key] == item[key])
@@ -60,5 +63,16 @@ export function orderWithList<T, K extends keyof T>(origins: Partial<T>[], targe
     return arr
   }, [])
 
-  return _.unionBy(orderedList, targets, key)
+  const ordered = _.unionBy(orderedList, targets, key)
+  targets.splice(0)
+  targets.push(...ordered)
+  return ordered
+}
+
+/**
+ * 초성
+ */
+export function isMatchInitials(srchText: string, targetText: string) {
+  if (srchText == '') return true
+  else return getInitials(targetText).includes(getInitials(srchText))
 }

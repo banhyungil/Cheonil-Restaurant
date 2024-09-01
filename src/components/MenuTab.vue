@@ -58,18 +58,16 @@ apiMenu.selectList().then((list) => {
 apiMenuCtg.selectList().then((list) => {
   menuStore.categories = list
 
-  watch(
-    () => settingStore.setting?.config?.menuCtgOrders,
-    () => {
-      if (settingStore.setting?.config?.menuCtgOrders == null) {
-        settingStore.setting.config.menuCtgOrders = menuStore.categories.map((ctg, idx) => ({ seq: ctg.seq, order: idx }))
-      } else {
-        menuStore.orderCtgs()
-      }
-    },
-    { immediate: true, deep: true }
-  )
+  settingStore.orderMenuCtgs(menuStore.categories)
 })
+
+watch(
+  () => settingStore.setting.config?.menuCtgOrders,
+  () => {
+    settingStore.orderMenuCtgs(menuStore.categories)
+  },
+  { deep: true }
+)
 
 const isEdit = ref(false)
 function onToggleEdit() {
@@ -155,7 +153,7 @@ watch(isEdit, async () => {
 
       swal.fireCustom({ toast: true, title: '', icon: 'success', text: '카테고리 순서가 변경되었습니다' })
     } else {
-      menuStore.orderCtgs()
+      settingStore.orderMenuCtgs(menuStore.categories)
     }
   }
 })

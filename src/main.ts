@@ -67,5 +67,12 @@ app.use(pinia)
 app.use(router)
 app.use(vuetify)
 app.use(FloatingVue)
-
-app.mount('#app')
+;(async () => {
+  // 설정 값 조회
+  const settingStore = useSettingStore()
+  const apiSetting = useApiSetting()
+  // 존재하는경우 localStorage 값 먼저 사용 후 조회하여 갱신 (mount non-block)
+  if (settingStore.setting == null) settingStore.setting = await apiSetting.select()
+  else apiSetting.select().then((res) => (settingStore.setting = res))
+  app.mount('#app')
+})()

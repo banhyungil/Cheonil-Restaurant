@@ -61,7 +61,7 @@ apiStoreCtg.selectList().then((list) => {
     () => {
       if (settingStore.setting?.config == null) return
       else {
-        storeStore.orderCtgs()
+        settingStore.orderStoreCtgs(storeStore.categories)
       }
     },
     { immediate: true, deep: true }
@@ -152,7 +152,7 @@ watch(isEdit, async () => {
 
       swal.fireCustom({ toast: true, messageType: 'save' })
     } else {
-      storeStore.orderCtgs()
+      settingStore.orderStoreCtgs(storeStore.categories)
     }
   }
 })
