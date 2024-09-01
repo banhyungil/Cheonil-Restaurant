@@ -84,6 +84,9 @@ const cFilteredItems = computed(() => {
     }
   })() as MenuEntity[]
 
+  // 초성 검색
+  // 초성으로만 검색할 수 있고 글자로도 입력할 수 있음
+
   // 검색 필터링
   if (srchText.value == '') {
     return items
