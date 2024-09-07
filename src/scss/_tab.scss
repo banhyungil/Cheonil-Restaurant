@@ -35,7 +35,7 @@
   &.edit {
     .ctgs {
       button {
-        margin: 1.3px;
+        margin: 1px;
         &.item{
           outline: 1.4px dashed grey;
         }
@@ -44,7 +44,7 @@
     }
     .grid {
       button {
-        margin: 1.3px;
+        margin: 1px;
         &.item {
           outline: 1.6px dashed darkgrey;
         }
@@ -95,7 +95,7 @@
     }
 
     .item {
-        position: relative;
+      position: relative;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -105,6 +105,19 @@
       padding: 10px;
       border: 1px solid grey;
       box-shadow: var(--box-shadow);
+      margin: 0;
+
+      & > .favorite {
+        position: absolute;
+        top: 0;
+        right: 0;
+        font-size: 1.2rem; 
+        margin-right: 10px;
+
+        &:disabled {
+            pointer-events: none;
+        }
+      }
 
       @include hover(); 
       

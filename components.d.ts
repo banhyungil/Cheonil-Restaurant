@@ -21,5 +21,8 @@ declare module 'vue' {
     StoreTab: typeof import('./src/components/StoreTab.vue')['default']
     TabEditor: typeof import('./src/components/TabEditor.vue')['default']
     VBtn: typeof import('vuetify/components')['VBtn']
+    VListItem: typeof import('vuetify/components')['VListItem']
+    VSelect: typeof import('vuetify/components')['VSelect']
+    VTextarea: typeof import('vuetify/components')['VTextarea']
   }
 }

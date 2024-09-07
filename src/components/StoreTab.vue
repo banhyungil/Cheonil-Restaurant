@@ -4,7 +4,7 @@ import useApiStoreCtg from '@/api/useApiStoreCtg'
 import useApiStore from '@/api/useApiStore'
 import { useRouter } from 'vue-router'
 import { useStoreStore } from '@/stores/storeStore'
-import { getInitials } from '@/utils/CommonUtils'
+import { getInitials, orderWithList } from '@/utils/CommonUtils'
 import BInputCho from './base/BInputCho.vue'
 import { useEventListener } from '@vueuse/core'
 import _ from 'lodash'
@@ -69,18 +69,23 @@ apiStoreCtg.selectList().then((list) => {
 })
 
 const isEdit = ref(false)
-function onToggleEdit() {
-  isEdit.value = !isEdit.value
-}
 const cFilteredItems = computed(() => {
   // 카테고리 필터링
-  const items = (() => {
+  let items = (() => {
     if (selCtg.value == null) {
       return storeStore.items
     } else {
       return storeStore.items?.filter((item) => item.ctgSeq == (selCtg.value as StoreCategoryEntity).seq)
     }
   })() as StoreEntity[]
+
+  items = orderWithList(
+    favorites.value.map((seq) => {
+      return { seq }
+    }),
+    _.orderBy(items, 'name'),
+    'seq'
+  )
 
   // 검색 필터링
   if (srchText.value == '') {
@@ -135,33 +140,55 @@ useEventListener(document, 'keyup', (e) => {
   }
 })
 
-const storeOrders = ref<NonNullable<SettingConfig['storeOrders']>>([])
+// 즐겨 찾기 등록된 목록 관리
+// 즐겨 찾기 등록된 항목 관리해야함.
+const favorites = ref<number[]>(settingStore.setting.config.storeOrders?.map((item) => item.seq) ?? [])
+
 const cStoreCtgOrders = computed(() => storeStore.categories.map((ctg, idx) => ({ seq: ctg.seq, order: idx })))
 
-watch(isEdit, async () => {
-  if (isEdit.value && settingStore.setting == null) return
-  const setting = settingStore.setting!
+// 매장 카테고리 순서 변경여부
+const cIsCtgOrderUpdated = computed(() => _.isEqual(cStoreCtgOrders.value, settingStore.setting.config.storeCtgOrders) == false)
+// 매장순서 변경여부
+const cIsStoreOrderUpdated = computed(
+  () =>
+    _.isEqual(
+      favorites.value,
+      settingStore.setting.config.storeOrders?.map((item) => item.seq)
+    ) == false
+)
+async function onToggleEdit() {
+  const setting = settingStore.setting
 
-  const storeCtgOrders = storeStore.categories.map((ctg, idx) => ({ seq: ctg.seq, order: idx }))
-
-  // 카테고리 순서 변경
-  if (_.isEqual(storeCtgOrders, setting.config.storeCtgOrders) == false) {
-    if (await swal.fireCustom({ isConfirm: true, title: '', text: '설정 정보를 저장하시겠습니까?', icon: 'question' })) {
-      setting.config.storeCtgOrders = storeCtgOrders
+  if (isEdit.value == true && (cIsCtgOrderUpdated.value || cIsStoreOrderUpdated.value)) {
+    // 카테고리 순서 변경
+    if (cIsCtgOrderUpdated.value && (await swal.fireCustom({ isConfirm: true, title: '', text: '설정 정보를 저장하시겠습니까?', icon: 'question' }))) {
+      setting.config.storeCtgOrders = cStoreCtgOrders.value
       await apiSetting.update(setting)
 
       swal.fireCustom({ toast: true, messageType: 'save' })
     } else {
       settingStore.orderStoreCtgs(storeStore.categories)
     }
+
+    // 매장 순서 변경
+    if (cIsStoreOrderUpdated.value && (await swal.fireCustom({ isConfirm: true, title: '', text: '설정 정보를 저장하시겠습니까?', icon: 'question' }))) {
+      setting.config.storeOrders = favorites.value.map((fvt, idx) => ({ seq: fvt, order: idx }))
+      await apiSetting.update(setting)
+
+      swal.fireCustom({ toast: true, messageType: 'save' })
+    } else {
+      favorites.value = settingStore.setting.config.storeOrders?.map((item) => item.seq) ?? []
+    }
   }
-})
+  // 토글
+  isEdit.value = !isEdit.value
+}
 
 function onClickFavorite(store: StoreEntity) {
-  const idx = storeOrders.value.findIndex((storeOrder) => storeOrder.seq == store.seq)
+  const idx = favorites.value.findIndex((seq) => seq == store.seq)
   // 있으면 삭제, 없으면 생성
-  if (idx >= 0) storeOrders.value.splice(idx, 1)
-  else storeOrders.value.push({ seq: store.seq, order: storeOrders.value.length })
+  if (idx >= 0) favorites.value.splice(idx, 1)
+  else favorites.value.push(store.seq)
 }
 </script>
 
@@ -202,15 +229,17 @@ function onClickFavorite(store: StoreEntity) {
         </Transition>
       </ul>
       <section class="grid">
-        <div class="item" v-for="item in cFilteredItems" :key="item.name">
-          <button @click="onClickFavorite(item)">
-            <font-awesome-icon :icon="['fas', 'star']" style="color: #ffd43b" />
-            <font-awesome-icon :icon="['far', 'star']" />
+        <TransitionGroup name="list">
+          <button v-for="item in cFilteredItems" :key="item.seq" @click="onClickItem(item)" class="item">
+            <button @click.stop="onClickFavorite(item)" class="favorite" :disabled="!isEdit">
+              <font-awesome-icon v-if="favorites.includes(item.seq)" :icon="['fas', 'star']" style="color: #ffd43b" />
+              <font-awesome-icon v-else-if="isEdit" :icon="['far', 'star']" />
+            </button>
+            <span>
+              {{ item['name'] ?? '' }}
+            </span>
           </button>
-          <button @click="onClickItem(item)">
-            {{ item['name'] ?? '' }}
-          </button>
-        </div>
+        </TransitionGroup>
         <Transition name="slide">
           <button v-show="isEdit" class="item add" @click="onAddItem">
             <font-awesome-icon :icon="['fas', 'plus']" />

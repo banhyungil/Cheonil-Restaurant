@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import useApiMenu from '@/api/useApiMenu'
-import { getInitials } from '@/utils/CommonUtils'
+import { getInitials, orderWithList } from '@/utils/CommonUtils'
 import { useRouter } from 'vue-router'
 import BInputCho from './base/BInputCho.vue'
 import { useEventListener } from '@vueuse/core'
@@ -45,13 +45,6 @@ const emit = defineEmits<{
 // 메뉴 조회
 apiMenu.selectList().then((list) => {
   menuStore.items = _.orderBy(list, ['name'])
-
-  // temp 메뉴 즐겨찾기 나올때 까지는 정식 먼저 나오도록
-  const tgtMenuIdx = menuStore.items.findIndex((menu) => menu.name == '정식')
-  if (tgtMenuIdx >= 0) {
-    const tgtMenu = menuStore.items.splice(tgtMenuIdx, 1)[0]
-    menuStore.items.splice(0, 0, tgtMenu)
-  }
 })
 
 // 메뉴 카테고리 조회
@@ -70,13 +63,54 @@ watch(
 )
 
 const isEdit = ref(false)
-function onToggleEdit() {
+
+// 즐겨 찾기 등록된 목록 관리
+// 즐겨 찾기 등록된 항목 관리해야함.
+const favorites = ref<number[]>(settingStore.setting.config.menuOrders?.map((item) => item.seq) ?? [])
+
+const cMenuCtgOrders = computed(() => menuStore.categories.map((ctg, idx) => ({ seq: ctg.seq, order: idx })))
+
+// 매장 카테고리 순서 변경여부
+const cIsCtgOrderUpdated = computed(() => _.isEqual(cMenuCtgOrders.value, settingStore.setting.config.menuCtgOrders) == false)
+// 매장순서 변경여부
+const cIsMenuOrderUpdated = computed(
+  () =>
+    _.isEqual(
+      favorites.value,
+      settingStore.setting.config.menuOrders?.map((item) => item.seq)
+    ) == false
+)
+async function onToggleEdit() {
+  const setting = settingStore.setting
+
+  if (isEdit.value == true && (cIsCtgOrderUpdated.value || cIsMenuOrderUpdated.value)) {
+    // 카테고리 순서 변경
+    if (cIsCtgOrderUpdated.value && (await swal.fireCustom({ isConfirm: true, title: '', text: '설정 정보를 저장하시겠습니까?', icon: 'question' }))) {
+      setting.config.menuCtgOrders = cMenuCtgOrders.value
+      await apiSetting.update(setting)
+
+      swal.fireCustom({ toast: true, messageType: 'save' })
+    } else {
+      settingStore.orderStoreCtgs(menuStore.categories)
+    }
+
+    // 매장 순서 변경
+    if (cIsMenuOrderUpdated.value && (await swal.fireCustom({ isConfirm: true, title: '', text: '설정 정보를 저장하시겠습니까?', icon: 'question' }))) {
+      setting.config.menuOrders = favorites.value.map((fvt, idx) => ({ seq: fvt, order: idx }))
+      await apiSetting.update(setting)
+
+      swal.fireCustom({ toast: true, messageType: 'save' })
+    } else {
+      favorites.value = settingStore.setting.config.menuOrders?.map((item) => item.seq) ?? []
+    }
+  }
+
   isEdit.value = !isEdit.value
 }
 
 const cFilteredItems = computed(() => {
   // 카테고리 필터링
-  const items = (() => {
+  let items = (() => {
     if (selCtg.value == null) {
       return menuStore.items
     } else {
@@ -84,8 +118,13 @@ const cFilteredItems = computed(() => {
     }
   })() as MenuEntity[]
 
-  // 초성 검색
-  // 초성으로만 검색할 수 있고 글자로도 입력할 수 있음
+  items = orderWithList(
+    favorites.value.map((seq) => {
+      return { seq }
+    }),
+    _.orderBy(items, 'name'),
+    'seq'
+  )
 
   // 검색 필터링
   if (srchText.value == '') {
@@ -141,26 +180,13 @@ useEventListener(document, 'keyup', (e) => {
 })
 
 const isCtgUpdated = ref(false)
-watch(isEdit, async () => {
-  // 편집 -> 기본 으로 돌아올 때만 검사
-  if (isEdit.value) return
 
-  // 카테고리 순서 변경
-  // * 순서가 바뀐 경우 저장
-  const menuCtgOrders = menuStore.categories.map((ctg, idx) => ({ seq: ctg.seq, order: idx }))
-
-  if (_.isEqual(menuCtgOrders, settingStore.setting.config.menuCtgOrders) == false) {
-    if (await swal.fireCustom({ isConfirm: true, title: '', text: '카테고리 순서를 변경하시겠습니까?', icon: 'question' })) {
-      settingStore.setting.config.menuCtgOrders = menuCtgOrders
-      await apiSetting.update(settingStore.setting)
-
-      swal.fireCustom({ toast: true, title: '', icon: 'success', text: '카테고리 순서가 변경되었습니다' })
-    } else {
-      settingStore.orderMenuCtgs(menuStore.categories)
-    }
-  }
-})
-
+function onClickFavorite(store: StoreEntity) {
+  const idx = favorites.value.findIndex((seq) => seq == store.seq)
+  // 있으면 삭제, 없으면 생성
+  if (idx >= 0) favorites.value.splice(idx, 1)
+  else favorites.value.push(store.seq)
+}
 defineExpose({ selCtg })
 </script>
 
@@ -195,10 +221,18 @@ defineExpose({ selCtg })
         </Transition>
       </ul>
       <section class="grid">
-        <button class="item" v-for="item in cFilteredItems" :key="item.name" @click="onClickItem(item)">
-          <span class="main">{{ item['name'] }}</span>
-          <span class="sub">{{ item['price'].toLocaleString() }}</span>
-        </button>
+        <TransitionGroup name="list">
+          <button v-for="item in cFilteredItems" :key="item.seq" @click="onClickItem(item)" class="item">
+            <button @click.stop="onClickFavorite(item)" class="favorite" :disabled="!isEdit">
+              <font-awesome-icon v-if="favorites.includes(item.seq)" :icon="['fas', 'star']" style="color: #ffd43b" />
+              <font-awesome-icon v-else-if="isEdit" :icon="['far', 'star']" />
+            </button>
+            <span>
+              {{ item['name'] ?? '' }}
+            </span>
+          </button>
+        </TransitionGroup>
+
         <Transition name="slide">
           <button v-show="isEdit" class="item add" @click="onAddItem">
             <font-awesome-icon :icon="['fas', 'plus']" />

@@ -174,6 +174,7 @@ input {
   border: 1px solid #AEAEAE;
 }
 
+// Vue-Transition
 // animation
 .fade-enter-active, .fade-leave-active {
     transition: opacity 0.15s;
@@ -181,3 +182,7 @@ input {
 .fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
     opacity: 0;
 }
+
+.list-move {
+    transition: all 0.3s;
+  }
