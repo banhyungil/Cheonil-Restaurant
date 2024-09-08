@@ -2,7 +2,7 @@
 import useApiOrder from '@/api/useApiOrder'
 import type { Filter } from '@/components/OrderList.vue'
 import usePagination, { PAGE_SIZE_LIST } from '@/composable/usePagination'
-import { today } from '@/utils/CommonUtils'
+import { getDayOfEnd, today } from '@/utils/CommonUtils'
 import { addDays } from 'date-fns'
 
 const apiOrder = useApiOrder()
@@ -27,8 +27,8 @@ async function search() {
   const res = await apiOrder.selectList({
     whereOptions: {
       status: { in: statusIn },
-      orderAt: orderAtRange ? { between: [orderAtRange[0], orderAtRange[1]] } : undefined,
-      payAt: payAtRange ? { between: [payAtRange[0], payAtRange[1]] } : undefined,
+      orderAt: orderAtRange ? { between: [orderAtRange[0], getDayOfEnd(orderAtRange[1])] } : undefined,
+      payAt: payAtRange ? { between: [payAtRange[0], getDayOfEnd(payAtRange[1])] } : undefined,
       payType: payTypes ? { in: payTypes } : undefined,
       storeName: storeName ? { eq: storeName } : undefined,
     },

@@ -1,6 +1,6 @@
 /* eslint-disable */
 
-import { toDate } from "date-fns";
+import { addDays, addSeconds, toDate } from "date-fns";
 import _ from "lodash";
 
 // 초성(19개)
@@ -67,6 +67,10 @@ export function orderWithList<T, K extends keyof T>(origins: Partial<T>[], targe
   targets.splice(0)
   targets.push(...ordered)
   return ordered
+}
+
+export function getDayOfEnd(date: Date) {
+  return addSeconds(addDays(date, 1), -1)
 }
 
 /**

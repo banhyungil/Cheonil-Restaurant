@@ -295,18 +295,24 @@ watch(
 )
 
 function onClickToday(type: 'ORDER' | 'PAY') {
-  const range = [today(), addDays(today(), 1)]
+  const range = [today(), today()]
 
   if (type == 'ORDER') orderAtRange.value = range
   else if (type == 'PAY') payAtRange.value = range
 }
+
+function onAddDay(type: 'ORDER' | 'PAY', add: number) {
+  if (type == 'ORDER') orderAtRange.value = orderAtRange.value.map((day) => addDays(day, add))
+  else if (type == 'PAY') payAtRange.value = payAtRange.value.map((day) => addDays(day, add))
+}
+
 function onClickThisMonth(type: 'ORDER' | 'PAY') {
   const range = (() => {
     const st = today()
     st.setDate(1)
     const end = addMonths(today(), 1)
     end.setDate(1)
-    return [st, end]
+    return [st, addDays(end, -1)]
   })()
 
   if (type == 'ORDER') orderAtRange.value = range
@@ -346,8 +352,10 @@ function onClickThisMonth(type: 'ORDER' | 'PAY') {
             >
               <template #action-extra>
                 <div class="justify-center tw-flex tw-gap-1">
+                  <button class="chi primary tw-w-8" @click="onAddDay('ORDER', -1)"><font-awesome-icon :icon="['fas', 'minus']" /></button>
                   <button class="chi primary" @click="onClickToday('ORDER')">당일</button>
                   <button class="chi primary" @click="onClickThisMonth('ORDER')">당월</button>
+                  <button class="chi primary tw-w-8" @click="onAddDay('ORDER', 1)"><font-awesome-icon :icon="['fas', 'plus']" /></button>
                 </div>
               </template>
             </VueDatePicker>
@@ -368,8 +376,10 @@ function onClickThisMonth(type: 'ORDER' | 'PAY') {
             >
               <template #action-extra>
                 <div class="justify-center tw-flex tw-gap-1">
+                  <button class="chi primary tw-w-8" @click="onAddDay('PAY', -1)"><font-awesome-icon :icon="['fas', 'minus']" /></button>
                   <button class="chi primary" @click="onClickToday('PAY')">당일</button>
                   <button class="chi primary" @click="onClickThisMonth('PAY')">당월</button>
+                  <button class="chi primary tw-w-8" @click="onAddDay('PAY', 1)"><font-awesome-icon :icon="['fas', 'plus']" /></button>
                 </div>
               </template>
             </VueDatePicker>
