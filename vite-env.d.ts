@@ -1,7 +1,7 @@
 interface ImportMetaEnv {
-  readonly VITE_WS_PORT: number
+    readonly VITE_WS_PORT: number
 }
 
 interface ImportMeta {
-  readonly env: ImportMetaEnv
+    readonly env: ImportMetaEnv
 }

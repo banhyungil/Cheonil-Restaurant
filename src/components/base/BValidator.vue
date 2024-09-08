@@ -1,10 +1,10 @@
 <template>
-  <div></div>
+    <div></div>
 </template>
 
 <script setup lang="ts">
 interface Props {
-  validator: any
+    validator: any
 }
 </script>
 

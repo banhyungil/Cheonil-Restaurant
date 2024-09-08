@@ -2,29 +2,29 @@ import useApi from './useApi'
 import { assertionExist } from '@/utils/CommonUtils'
 
 export default function useApiMenuCtg() {
-  const api = useApi()
-  const prefix = '/menuCategory'
-  const settingStore = useSettingStore()
+    const api = useApi()
+    const prefix = '/menuCategory'
+    const settingStore = useSettingStore()
 
-  const selectList = async () => {
-    const res = await api.get(prefix)
+    const selectList = async () => {
+        const res = await api.get(prefix)
 
-    return res.data as MenuCategoryEntity[]
-  }
+        return res.data as MenuCategoryEntity[]
+    }
 
-  const create = async (menuCtg: MenuCategoryEntityCreation) => {
-    const res = await api.post(prefix, menuCtg)
-    return res.data as MenuCategoryEntity
-  }
+    const create = async (menuCtg: MenuCategoryEntityCreation) => {
+        const res = await api.post(prefix, menuCtg)
+        return res.data as MenuCategoryEntity
+    }
 
-  const update = async (menuCtg: MenuCategoryEntity) => {
-    const res = await api.patch(`${prefix}/${menuCtg.seq}`, menuCtg)
-    return res.data as MenuCategoryEntity
-  }
+    const update = async (menuCtg: MenuCategoryEntity) => {
+        const res = await api.patch(`${prefix}/${menuCtg.seq}`, menuCtg)
+        return res.data as MenuCategoryEntity
+    }
 
-  const remove = (seq: number) => {
-    return api.delete(`${prefix}/${seq}`)
-  }
+    const remove = (seq: number) => {
+        return api.delete(`${prefix}/${seq}`)
+    }
 
-  return { selectList, create, update, remove }
+    return { selectList, create, update, remove }
 }

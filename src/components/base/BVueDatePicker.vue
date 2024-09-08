@@ -1,9 +1,9 @@
 <template>
-  <VueDatePicker v-bind="{ ...$props, ...$attrs }" locale="ko-KR">
-    <template v-for="(_, name) in $slots" v-slot="props">
-      <slot :name="name" v-bind="props ?? {}"></slot>
-    </template>
-  </VueDatePicker>
+    <VueDatePicker v-bind="{ ...$props, ...$attrs }" locale="ko-KR">
+        <template v-for="(_, name) in $slots" v-slot="props">
+            <slot :name="name" v-bind="props ?? {}"></slot>
+        </template>
+    </VueDatePicker>
 </template>
 
 <script setup lang="ts">

@@ -29,27 +29,27 @@ import VueDatePicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
 
 const vuetify = createVuetify({
-  components,
-  directives,
-  icons: {
-    defaultSet: 'fa',
-    aliases,
-    sets: {
-      fa,
-    },
-  },
-  theme: {
-    themes: {
-      light: {
-        dark: false,
-        colors: {
-          primary: '#2aac8e',
-          success: '#5697d4',
-          warning: '#fa4a4a',
+    components,
+    directives,
+    icons: {
+        defaultSet: 'fa',
+        aliases,
+        sets: {
+            fa,
         },
-      },
     },
-  },
+    theme: {
+        themes: {
+            light: {
+                dark: false,
+                colors: {
+                    primary: '#2aac8e',
+                    success: '#5697d4',
+                    warning: '#fa4a4a',
+                },
+            },
+        },
+    },
 })
 const app = createApp(App)
 
@@ -68,11 +68,11 @@ app.use(router)
 app.use(vuetify)
 app.use(FloatingVue)
 ;(async () => {
-  // 설정 값 조회
-  const settingStore = useSettingStore()
-  const apiSetting = useApiSetting()
-  // 존재하는경우 localStorage 값 먼저 사용 후 조회하여 갱신 (mount non-block)
-  if (settingStore.setting == null) settingStore.setting = await apiSetting.select()
-  else apiSetting.select().then((res) => (settingStore.setting = res))
-  app.mount('#app')
+    // 설정 값 조회
+    const settingStore = useSettingStore()
+    const apiSetting = useApiSetting()
+    // 존재하는경우 localStorage 값 먼저 사용 후 조회하여 갱신 (mount non-block)
+    if (settingStore.setting == null) settingStore.setting = await apiSetting.select()
+    else apiSetting.select().then((res) => (settingStore.setting = res))
+    app.mount('#app')
 })()

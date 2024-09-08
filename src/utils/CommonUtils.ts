@@ -28,55 +28,55 @@ const JONG_HANGUL = [
 
 // 한글 문자열의 초성을 추출하는 함수
 export function getInitials(str: string) {
-  let initials = ''
+    let initials = ''
 
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charAt(i)
-    if (char >= '가' && char <= '힣') {
-      initials += CHO_HANGUL[((char.charCodeAt(0) - 44032) / 588) | 0]
-    } else {
-      initials += char
+    for (let i = 0; i < str.length; i++) {
+        const char = str.charAt(i)
+        if (char >= '가' && char <= '힣') {
+            initials += CHO_HANGUL[((char.charCodeAt(0) - 44032) / 588) | 0]
+        } else {
+            initials += char
+        }
     }
-  }
 
-  return initials
-}
-
-/**
- * 시간 정보를 제외한 현재 날짜만 반환
- */
-export function today() {
-  return toDate(new Date().setHours(0, 0, 0, 0))
+    return initials
 }
 
 export function assertionExist<T>(val: T | undefined): asserts val is T {
-  if (val == null) throw new Error('fail assertion')
+    if (val == null) throw new Error('fail assertion')
 }
 
 /**
  * (mutable) 정렬된 list를 기반으로 대상 리스트 정렬
  */
 export function orderWithList<T, K extends keyof T>(origins: Partial<T>[], targets: T[], key: K) {
-  const orderedList = origins.reduce((arr: T[], item) => {
-    const tgt = targets.find((tgt) => tgt[key] == item[key])
-    if (tgt) arr.push(tgt)
-    return arr
-  }, [])
+    const orderedList = origins.reduce((arr: T[], item) => {
+        const tgt = targets.find((tgt) => tgt[key] == item[key])
+        if (tgt) arr.push(tgt)
+        return arr
+    }, [])
 
-  const ordered = _.unionBy(orderedList, targets, key)
-  targets.splice(0)
-  targets.push(...ordered)
-  return ordered
+    const ordered = _.unionBy(orderedList, targets, key)
+    targets.splice(0)
+    targets.push(...ordered)
+    return ordered
+}
+
+/**
+ * 시간 정보를 제외한 현재 날짜만 반환
+ */
+export function today() {
+    return toDate(new Date().setHours(0, 0, 0, 0))
 }
 
 export function getDayOfEnd(date: Date) {
-  return addSeconds(addDays(date, 1), -1)
+    return addSeconds(addDays(date, 1), -1)
 }
 
 /**
  * 초성
  */
 export function isMatchInitials(srchText: string, targetText: string) {
-  if (srchText == '') return true
-  else return getInitials(targetText).includes(getInitials(srchText))
+    if (srchText == '') return true
+    else return getInitials(targetText).includes(getInitials(srchText))
 }

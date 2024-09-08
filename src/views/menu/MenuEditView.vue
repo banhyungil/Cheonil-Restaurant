@@ -20,35 +20,35 @@ const router = useRouter()
 const routeQuery = useRoute().query
 
 onMounted(async () => {
-  if (menuStore.items.length == 0) {
-    menuStore.items = await apiMenu.selectList()
-    menuStore.categories = await apiMenuCtg.selectList()
-  }
-
-  if (props.seq) {
-    origin.value = menuStore.items.find((item) => item.seq == props.seq)
-
-    if (origin.value == null) {
-      router.back()
-    } else {
-      menu.value = _.cloneDeep(origin.value)
+    if (menuStore.items.length == 0) {
+        menuStore.items = await apiMenu.selectList()
+        menuStore.categories = await apiMenuCtg.selectList()
     }
-  }
 
-  if (routeQuery) {
-    if ('ctgSeq' in routeQuery && typeof routeQuery.ctgSeq == 'string') {
-      menu.value.ctgSeq = +routeQuery.ctgSeq
+    if (props.seq) {
+        origin.value = menuStore.items.find((item) => item.seq == props.seq)
+
+        if (origin.value == null) {
+            router.back()
+        } else {
+            menu.value = _.cloneDeep(origin.value)
+        }
     }
-  }
+
+    if (routeQuery) {
+        if ('ctgSeq' in routeQuery && typeof routeQuery.ctgSeq == 'string') {
+            menu.value.ctgSeq = +routeQuery.ctgSeq
+        }
+    }
 })
 
 const ctgs = ref<MenuCategoryEntity[]>([])
 apiMenuCtg.selectList().then((res) => {
-  ctgs.value = res
+    ctgs.value = res
 })
 
 interface Props {
-  seq?: string | number
+    seq?: string | number
 }
 
 const props = defineProps<Props>()
@@ -60,112 +60,112 @@ const cDisabled = computed(() => cIsUpdate.value && _.isEqual(origin.value, menu
 const menu = ref({ name: '', price: 0 } as MenuEntityCreation)
 
 const oMenuProp: { [k in keyof MenuEntityCreation]: { label: string } } = {
-  ctgSeq: { label: '카테고리' },
-  name: { label: '메뉴명' },
-  abv: { label: '메뉴명(축약)' },
-  price: { label: '가격' },
-  cmt: { label: '비고' },
+    ctgSeq: { label: '카테고리' },
+    name: { label: '메뉴명' },
+    abv: { label: '메뉴명(축약)' },
+    price: { label: '가격' },
+    cmt: { label: '비고' },
 }
 
 const rules = {
-  ctgSeq: {
-    required: helpers.withMessage(`${oMenuProp.ctgSeq.label}를 선택해주세요.`, required),
-  },
-  name: {
-    required: helpers.withMessage(`${oMenuProp.name.label}을 입력해주세요.`, required),
-  },
-  price: {
-    required: helpers.withMessage(`${oMenuProp.price.label}을 입력해주세요.`, required),
-  },
+    ctgSeq: {
+        required: helpers.withMessage(`${oMenuProp.ctgSeq.label}를 선택해주세요.`, required),
+    },
+    name: {
+        required: helpers.withMessage(`${oMenuProp.name.label}을 입력해주세요.`, required),
+    },
+    price: {
+        required: helpers.withMessage(`${oMenuProp.price.label}을 입력해주세요.`, required),
+    },
 } as ValidationArgs<MenuEntityCreation>
 const v$ = useVuelidate(rules, menu)
 
 // TODO validate와 input focus를 같이 할 수 있는 방법 찾기
 async function validate() {
-  if ((await v$.value.$validate()) == false) return false
-  if (cIsUpdate.value == false) return menuStore.items.every((item) => item.name != menu.value.name)
-  return true
+    if ((await v$.value.$validate()) == false) return false
+    if (cIsUpdate.value == false) return menuStore.items.every((item) => item.name != menu.value.name)
+    return true
 }
 
 async function onSave() {
-  if ((await validate()) == false) {
-    const message = v$.value.$silentErrors[0]?.$message ?? '동일한 메뉴명이 존재합니다.'
-    Swal.fireCustom({ toast: true, title: message, icon: 'warning' })
-    return
-  }
+    if ((await validate()) == false) {
+        const message = v$.value.$silentErrors[0]?.$message ?? '동일한 메뉴명이 존재합니다.'
+        Swal.fireCustom({ toast: true, title: message, icon: 'warning' })
+        return
+    }
 
-  // 수정
-  if (cIsUpdate.value) {
-    const uMenu = await apiMenu.update(menu.value as MenuEntity)
-    const tgt = menuStore.items.find((item) => item.seq == uMenu.seq)
-    if (tgt) Object.assign(tgt, uMenu)
+    // 수정
+    if (cIsUpdate.value) {
+        const uMenu = await apiMenu.update(menu.value as MenuEntity)
+        const tgt = menuStore.items.find((item) => item.seq == uMenu.seq)
+        if (tgt) Object.assign(tgt, uMenu)
 
-    Swal.fireCustom({ toast: true, messageType: 'update' })
+        Swal.fireCustom({ toast: true, messageType: 'update' })
 
-    // 등록
-  } else {
-    if (menu.value.abv == null) menu.value.abv = menu.value.name.slice(0, 2)
-    const nMenu = await apiMenu.create(menu.value)
-    menuStore.items.push(nMenu)
+        // 등록
+    } else {
+        if (menu.value.abv == null) menu.value.abv = menu.value.name.slice(0, 2)
+        const nMenu = await apiMenu.create(menu.value)
+        menuStore.items.push(nMenu)
 
-    Swal.fireCustom({ toast: true, messageType: 'save' })
-  }
+        Swal.fireCustom({ toast: true, messageType: 'save' })
+    }
 
-  router.back()
+    router.back()
 }
 
 async function onRemove() {
-  if (props.seq && (await Swal.fireCustom({ isConfirm: true, messageType: 'remove' }))) {
-    await apiMenu.remove(+props.seq)
-    _.remove(menuStore.items, (item) => item.seq == props.seq)
+    if (props.seq && (await Swal.fireCustom({ isConfirm: true, messageType: 'remove' }))) {
+        await apiMenu.remove(+props.seq)
+        _.remove(menuStore.items, (item) => item.seq == props.seq)
 
-    Swal.fireCustom({ toast: true, messageType: 'remove' })
-    router.back()
-  }
+        Swal.fireCustom({ toast: true, messageType: 'remove' })
+        router.back()
+    }
 }
 
 function onCancel() {
-  router.back()
+    router.back()
 }
 </script>
 
 <template>
-  <section class="menu-view">
-    <section class="wrapper g-form">
-      <section class="top">{{ `메뉴 ${cText}` }}</section>
-      <section class="content">
-        <div class="row">
-          <span class="label required">{{ oMenuProp.ctgSeq.label }}</span>
-          <v-select :items="ctgs" item-value="seq" item-title="name" v-model="menu.ctgSeq" density="comfortable"></v-select>
-        </div>
-        <div class="row">
-          <span class="label required">{{ oMenuProp.name.label }}</span>
-          <input class="val" type="text" v-model="menu.name" />
-        </div>
-        <div class="row">
-          <span class="label">{{ oMenuProp.abv!.label }}</span>
-          <input class="val" type="text" v-model="menu.abv" :placeholder="menu.name.slice(0, 2)" />
-        </div>
-        <div class="row">
-          <span class="label required">{{ oMenuProp.price.label }}</span>
-          <BInputNumFormat class="val" v-model="menu.price"></BInputNumFormat>
-        </div>
-        <div class="row">
-          <span>{{ oMenuProp.cmt!.label }}</span>
-          <v-textarea class="val" v-model="menu.cmt" rows="1" auto-grow bg-color="#fff" variant="outlined" style="height: fit-content"></v-textarea>
-        </div>
-      </section>
-      <section class="btt">
-        <v-btn @click="onSave" :disabled="cDisabled">{{ cText }}</v-btn>
-        <v-btn v-if="cIsUpdate" @click="onRemove">삭제</v-btn>
-        <v-btn @click="onCancel">취소</v-btn>
-      </section>
+    <section class="menu-view">
+        <section class="wrapper g-form">
+            <section class="top">{{ `메뉴 ${cText}` }}</section>
+            <section class="content">
+                <div class="row">
+                    <span class="label required">{{ oMenuProp.ctgSeq.label }}</span>
+                    <v-select :items="ctgs" item-value="seq" item-title="name" v-model="menu.ctgSeq" density="comfortable"></v-select>
+                </div>
+                <div class="row">
+                    <span class="label required">{{ oMenuProp.name.label }}</span>
+                    <input class="val" type="text" v-model="menu.name" />
+                </div>
+                <div class="row">
+                    <span class="label">{{ oMenuProp.abv!.label }}</span>
+                    <input class="val" type="text" v-model="menu.abv" :placeholder="menu.name.slice(0, 2)" />
+                </div>
+                <div class="row">
+                    <span class="label required">{{ oMenuProp.price.label }}</span>
+                    <BInputNumFormat class="val" v-model="menu.price"></BInputNumFormat>
+                </div>
+                <div class="row">
+                    <span>{{ oMenuProp.cmt!.label }}</span>
+                    <v-textarea class="val" v-model="menu.cmt" rows="1" auto-grow bg-color="#fff" variant="outlined" style="height: fit-content"></v-textarea>
+                </div>
+            </section>
+            <section class="btt">
+                <v-btn @click="onSave" :disabled="cDisabled">{{ cText }}</v-btn>
+                <v-btn v-if="cIsUpdate" @click="onRemove">삭제</v-btn>
+                <v-btn @click="onCancel">취소</v-btn>
+            </section>
+        </section>
     </section>
-  </section>
 </template>
 
 <style lang="scss" scoped>
 .menu-view {
-  @include center-view;
+    @include center-view;
 }
 </style>
