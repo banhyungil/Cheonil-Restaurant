@@ -48,7 +48,9 @@ const cOrdersCash = computed(() => orders.value.filter((od) => od.status == 'PAI
 const cOrdersCard = computed(() => orders.value.filter((od) => od.status == 'PAID' && od.payments.every((p) => p.payType == 'CARD')))
 const cOrdersNotPaid = computed(() => orders.value.filter((od) => od.status == 'COOKED'))
 // 회수 주문 목록
-const cOrdersCollection = computed(() => orders.value.filter((od) => od.status == 'PAID' && od.payments.some((pay) => pay.payAt > od.orderAt!)))
+const cOrdersCollection = computed(() =>
+    orders.value.filter((od) => od.status == 'PAID' && od.payments.some((pay) => format(pay.payAt, 'yyyyMMdd') > format(od.orderAt!, 'yyyyMMdd')))
+)
 const cTotalAmountNotPaid = computed(() =>
     cOrdersNotPaid.value.reduce((result, od) => {
         result = result + od.amount
@@ -147,13 +149,13 @@ function getTotalPayAmount(pOrders: Order[]) {
                             </div>
                             <h2
                                 v-tooltip="{
-                                    content: '당일 주문에 대한 매출 (회수금 제외)',
+                                    content: '회수금 제외',
                                     disabled: cOrdersCollection.length == 0,
                                 }"
                                 style="color: var(--color-point)"
                                 :style="cOrdersCollection.length > 0 ? { cursor: 'help' } : undefined"
                             >
-                                총 매출
+                                당일 매출
                             </h2>
                             <h2>{{ cTotalAmount.toLocaleString() }}</h2>
                         </div>
