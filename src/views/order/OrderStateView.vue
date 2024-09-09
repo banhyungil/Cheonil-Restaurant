@@ -120,18 +120,24 @@ function isDisplayTime(order: Order) {
     return isDisplaykitchen.value == false || differenceInMinutes(now.value, order.orderAt!) > ELPASED_MINUES_INFO[0].minute
 }
 
+/**
+ * 경과 시간에 따른 class 목록 반환
+ */
 function getElapsedClass(order: Order) {
     const elapsedMinute = differenceInMinutes(now.value, order.orderAt!)
     const idx = _.findIndex(ELPASED_MINUES_INFO, (item) => item.minute >= elapsedMinute)
 
+    const result = []
     const info = (() => {
         if (idx == 0) return ELPASED_MINUES_INFO[idx]
         else if (idx > 0) return ELPASED_MINUES_INFO[idx - 1]
         else return _.last(ELPASED_MINUES_INFO)
     })()
 
-    if (info) return info.title
-    else return ''
+    if (info) result.push(info.title)
+    if (differenceInSeconds(now.value, order.orderAt!) < 60) result.push('new')
+
+    return result
 }
 
 function toggleDisplayKitchen() {
@@ -359,6 +365,13 @@ function toggleDisplayKitchen() {
             }
 
             &.caution {
+            }
+
+            &.new {
+                .store {
+                    background-color: var(--color-second);
+                    animation: aniBlink 2s infinite;
+                }
             }
 
             &.warning {
