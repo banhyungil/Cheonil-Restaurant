@@ -35,7 +35,7 @@ const Route = useRoute()
         font-size: 22px;
         padding: 14px;
         box-shadow: var(--box-shadow-section);
-        color: var(--color-u);
+        color: var(--color-second);
     }
 
     .c-menues {

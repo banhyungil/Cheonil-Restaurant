@@ -1,4 +1,4 @@
-import { addDays } from 'date-fns'
+import { addDays, format } from 'date-fns'
 import useApi from './useApi'
 import qs from 'qs'
 
@@ -28,8 +28,8 @@ export default function useApiOrder() {
      * 당일 결제 + 당일 미수
      */
     async function selectListAccount(dateRange: [Date, Date]) {
-        console.log('selectListAccount', dateRange)
-        const resData = (await api.post(`${prefix}/account`, { dateRange, startDate: dateRange[0] })).data as Order[]
+        const formatted = dateRange.map((date) => format(date, 'yyyy-MM-dd'))
+        const resData = (await api.post(`${prefix}/account`, { dateRange: formatted })).data as Order[]
 
         return resData
     }

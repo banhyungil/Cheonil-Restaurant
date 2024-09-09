@@ -44,11 +44,11 @@
         }
 
         &.link {
-            border-color: var(--color-u);
-            color: var(--color-u);
+            border-color: var(--color-second);
+            color: var(--color-second);
 
             &:hover {
-                background-color: var(--color-u);
+                background-color: var(--color-second);
                 color: #fff;
             }
         }

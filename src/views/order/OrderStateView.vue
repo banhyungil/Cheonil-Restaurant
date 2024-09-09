@@ -347,7 +347,7 @@ function toggleDisplayKitchen() {
                 }
                 .elapsed {
                     margin-left: 4px;
-                    color: var(--color-u);
+                    color: var(--color-second);
                 }
             }
 
@@ -410,7 +410,7 @@ function toggleDisplayKitchen() {
                 color: #fff;
             }
             &.update:hover {
-                background-color: var(--color-u);
+                background-color: var(--color-second);
             }
             &.remove:hover {
                 background-color: var(--color-danger);

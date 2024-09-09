@@ -334,7 +334,7 @@ function onClickThisMonth(type: 'ORDER' | 'PAY') {
         :items-per-page="0"
         :hide-default-footer="true"
     >
-        <template #top v-if="activeFilter">
+        <template #top>
             <slot
                 name="top"
                 :orderAmount="getTotalOrderAmount(orders)"
@@ -453,7 +453,7 @@ function onClickThisMonth(type: 'ORDER' | 'PAY') {
                 <button @click="onRemove(value)" style="color: var(--color-danger)" v-tooltip="'삭제'">
                     <font-awesome-icon :icon="['fas', 'trash']" />
                 </button>
-                <button @click="onUpdate(value)" style="color: var(--color-u)" v-tooltip="'수정'">
+                <button @click="onUpdate(value)" style="color: var(--color-second)" v-tooltip="'수정'">
                     <font-awesome-icon :icon="['fas', 'pen-to-square']" />
                 </button>
             </div>
@@ -498,7 +498,7 @@ function onClickThisMonth(type: 'ORDER' | 'PAY') {
             color: var(--color-danger);
 
             &.collected {
-                color: var(--color-u);
+                color: var(--color-second);
             }
         }
 
@@ -520,7 +520,7 @@ function onClickThisMonth(type: 'ORDER' | 'PAY') {
         display: flex;
         flex-direction: column;
         align-items: end;
-        color: var(--color-u);
+        color: var(--color-second);
         font-weight: bold;
 
         .grp {

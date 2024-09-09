@@ -3,12 +3,11 @@ import useApiOrder from '@/api/useApiOrder'
 import type { Filter } from '@/components/OrderList.vue'
 import usePagination, { PAGE_SIZE_LIST } from '@/composable/usePagination'
 import { getDayOfEnd, today } from '@/utils/CommonUtils'
-import { addDays, addSeconds } from 'date-fns'
 
 const apiOrder = useApiOrder()
 const orders = ref<Order[]>([])
 const totalOrderCnt = ref(0)
-const pageSize = ref<number | null>(PAGE_SIZE_LIST[0])
+const pageSize = ref(PAGE_SIZE_LIST.find((size) => (size ?? 0) > 100) ?? PAGE_SIZE_LIST[0])
 
 const filter = ref({
     orderAtRange: [today(), today()],
