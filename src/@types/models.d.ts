@@ -8,8 +8,14 @@ interface ExpenseEntity {
     /* 지출 Seq */
     seq: number
 
-    /* 식자재 Seq */
-    supplySeq: number
+    /* 매장 Seq */
+    storeSeq: number
+
+    /* 제품 Seq */
+    prdSeq: number
+
+    /* 가격 */
+    price: number
 
     /* 금액 */
     amount: number
@@ -17,11 +23,14 @@ interface ExpenseEntity {
     /* 수량 */
     cnt: number
 
-    /* 지출 날짜 */
+    /* 지출일 */
     expenseAt: Date
 
     /* 비고 */
     cmt?: string | null
+
+    /* 추가 정보 */
+    options?: string | null
 
     /* 수정시간 */
     updatedAt?: Date | null
@@ -194,7 +203,7 @@ interface PaymentEntity {
     amount: number
 
     /* CASH: 현금, CARD: 카드 */
-    payType: 'CASH' | 'CARD'
+    payType?: 'CASH' | 'CARD'
 
     /* 지급날짜 */
     payAt: Date
@@ -219,6 +228,37 @@ interface PlaceCategoryEntity {
 
 type PlaceCategoryEntityCreation = PartialK<PlaceCategoryEntity, 'seq'>
 
+/* 제품 */
+interface ProductEntity {
+    /* 제품 Seq */
+    seq: number
+
+    /* 식자재 Seq */
+    splSeq: number
+
+    /* 식자재 명 */
+    name: string
+
+    /* 단위 */
+    unit: string
+
+    /* 단위수량 */
+    unitCnt?: number | null
+
+    /* 비고 */
+    cmt?: string | null
+
+    /* 추가 정보 */
+    options?: string | null
+
+    /* 생성시간 */
+    createdAt?: Date | null
+
+    /* 수정시간 */
+    updatedAt?: Date | null
+}
+
+type ProductEntityCreation = PartialK<ProductEntity, 'seq'>
 /* 설정 */
 interface SettingEntity {
     /* 설정 Seq */
@@ -291,28 +331,34 @@ interface StoreCategoryEntity {
     updatedAt?: Date | null
 }
 
+/* 매장 지출 로그 */
+interface StoreExpenseLogEntity {
+    /* 매장 지출 로그 Seq */
+    seq?: number
+
+    /* 매장 Seq */
+    storeSeq: number
+
+    /* 지출일 */
+    expenseAt: Date
+
+    /* 비고 */
+    cmt: string
+}
+
 /* 식자재 */
 interface SupplyEntity {
     /* 식자재 Seq */
     seq: number
 
-    /* 매장 Seq */
-    storeSeq: number
-
     /* 식자재 명 */
     name: string
 
-    /* 단위 */
-    unit: string
-
-    /* 수량 */
-    cnt: number
+    /* 단위 목록 */
+    unitList: string
 
     /* 단위수량 목록 */
-    unitCntOptions?: string | null
-
-    /* 비고 */
-    cmt?: string | null
+    unitCntList?: string | null
 
     /* 추가 정보 */
     options?: string | null
@@ -323,3 +369,5 @@ interface SupplyEntity {
     /* 수정시간 */
     updatedAt?: Date | null
 }
+
+type SupplyEntityCreation = PartialK<SupplyEntity, 'seq'>
