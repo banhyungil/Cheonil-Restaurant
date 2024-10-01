@@ -110,17 +110,19 @@ const cDtOrders = computed(() =>
         const orderAtF = od.orderAt ? format(od.orderAt, 'yy.MM.dd hh:mm aa') : null
 
         const payAt = _.last(od.payments)?.payAt
-        const payType = (() => {
-            if (od.payments.length == 0) return '미수'
+        const [payType, payTypeLabel] = (() => {
+            if (od.payments.length == 0) return ['UNPAID', '미수']
 
             const payTypes = _.uniq(od.payments.map((p) => p.payType))
-            if (payTypes.length > 1) return '복합'
-            else if (payTypes[0] == 'CASH') return '현금'
-            else return '카드'
+            if (payTypes.length > 1) return ['UNION', '복합']
+            else if (payTypes[0] == 'CASH') return [payTypes[0], '현금']
+            else return [payTypes[0], '카드']
         })()
+
         const payInfo = {
             order: od,
             type: payType,
+            typeLabel: payTypeLabel,
             seqs: od.payments.map((p) => p.seq),
         }
 
@@ -138,72 +140,76 @@ const cDtOrders = computed(() =>
             payInfo,
             payAtF,
             cookedAtF,
-            actions: od.seq,
+            actions: od,
             payAmount: payAmount.toLocaleString(),
         }
     })
 )
 
 const COLLECT_MESSAGE_OPTION = { toast: true, messageType: 'save' } as SweetAlertOptionsCustom
-async function collect(order: Order, type: PaymentEntity['payType'], showMessage = true) {
+function createPayment(order: Order, type: PaymentEntity['payType']) {
     const amount = type == 'CASH' ? order.amount : order.amount + Math.ceil(order.amount / 10)
-    const payment = {
+    return {
         orderSeq: order.seq,
         amount,
         payAt: new Date(),
         payType: type,
     } as PaymentEntityCreation
+}
+async function collect(order: Order, type: PaymentEntity['payType'], showMessage = true) {
+    const payment = createPayment(order, type)
 
-    const nPayment = await apiPayment.create(payment)
+    const { payments: nPayments, order: uOrder } = await apiOrder.collect(order.seq, [payment])
 
-    order.payments.push(nPayment)
-    order.status = 'PAID'
-    await apiOrder.update(order)
+    order.payments.push(...nPayments)
+    Object.assign(order, uOrder)
 
     if (showMessage) Swal.fireCustom(COLLECT_MESSAGE_OPTION)
 }
 
-async function collectGroup(type: PaymentEntity['payType']) {
+async function collectList(type: PaymentEntity['payType']) {
     if ((await Swal.fireCustom({ isConfirm: true, messageType: 'save' })) == false) return
 
-    const prms = checkedSeqs.value.map((orderSeq) => {
-        const od = orders.value.find((od) => od.seq == orderSeq)
-        if (od == null || od.status == 'PAID') return
+    const reqBody = orders.value
+        .filter((od) => checkedSeqs.value.includes(od.seq) && od.status != 'PAID')
+        .map((order) => ({ seq: order.seq, payments: [createPayment(order, type)] }))
+    const results = await apiOrder.collectList(reqBody)
+    results.forEach((item) => {
+        const target = orders.value.find((od) => od.seq == item.order.seq)
 
-        return collect(od, type, false)
+        if (target) {
+            Object.assign(target, item.order)
+            target.payments = item.payments
+        }
     })
-    await Promise.all(prms)
 
     Swal.fireCustom({ toast: true, messageType: 'save' })
     checkedSeqs.value.splice(0)
 }
 
 const CANCEL_MESSAGE_OPTION = { toast: true, title: '', text: '수금이 취소되었습니다.' }
-async function cancelCollection(order: Order, seqs: number[], showMessage = true) {
-    await apiPayment.remove(seqs)
+async function cancelCollection(order: Order, showMessage = true) {
+    const { order: uOrder } = await apiOrder.cancelCollect(order.seq)
     order.payments.splice(0)
 
-    order.status = 'COOKED'
-    await apiOrder.update(order)
-
+    Object.assign(order, uOrder)
     if (showMessage) Swal.fireCustom(CANCEL_MESSAGE_OPTION)
 }
 
-async function cancelCollectionGroup() {
+async function cancelCollectionList() {
     if ((await Swal.fireCustom({ isConfirm: true, messageType: 'remove', title: '수금을 취소하시겠습니까?' })) == false) return
 
-    const prms = checkedSeqs.value.map((orderSeq) => {
-        const od = orders.value.find((od) => od.seq == orderSeq)
-        if (od == null || od.status == 'COOKED') return
+    const seqs = orders.value.filter((od) => checkedSeqs.value.includes(od.seq) && od.status == 'PAID').map((od) => od.seq)
+    const result = await apiOrder.cancelCollectList(seqs)
+    result.forEach((item) => {
+        const target = orders.value.find((od) => od.seq == item.order.seq)
 
-        return cancelCollection(
-            od,
-            od.payments.map((p) => p.seq),
-            false
-        )
+        if (target) {
+            Object.assign(target, item.order)
+            target.payments.splice(0)
+        }
     })
 
-    await Promise.all(prms)
     Swal.fireCustom(CANCEL_MESSAGE_OPTION)
     checkedSeqs.value.splice(0)
 }
@@ -318,6 +324,8 @@ function onClickThisMonth(type: 'ORDER' | 'PAY') {
     if (type == 'ORDER') orderAtRange.value = range
     else if (type == 'PAY') payAtRange.value = range
 }
+
+const isLoading = ref(false)
 </script>
 
 <template>
@@ -414,11 +422,13 @@ function onClickThisMonth(type: 'ORDER' | 'PAY') {
                             </div>
                         </div>
 
-                        <div>
+                        <div class="tw-flex tw-justify-center tw-gap-2">
                             <template v-if="isEdit && activeCollection">
-                                <v-btn @click="collectGroup('CASH')" base-color="primary" :disabled="!cCollectAble">현금</v-btn>
-                                <v-btn @click="collectGroup('CARD')" base-color="primary" :disabled="!cCollectAble">카드</v-btn>
-                                <v-btn @click="cancelCollectionGroup" base-color="error" :disabled="!cCancelAble">수금취소</v-btn>
+                                <v-btn @click="collectList('CASH')" base-color="success" :disabled="!cCollectAble">현금</v-btn>
+                                <v-btn @click="collectList('CARD')" base-color="primary" :disabled="!cCollectAble">카드</v-btn>
+                                <v-btn @click="cancelCollectionList" base-color="warning" :disabled="!cCancelAble" style="transform: translateY(-1px)"
+                                    >수금취소</v-btn
+                                >
                             </template>
                             <!-- 삭제 또는 수금때만 보인다 -->
                             <v-btn
@@ -450,21 +460,26 @@ function onClickThisMonth(type: 'ORDER' | 'PAY') {
         </template>
         <template #item.actions="{ value }">
             <div style="display: flex; justify-content: center; gap: 10px">
-                <button @click="onRemove(value)" style="color: var(--color-danger)" v-tooltip="'삭제'">
+                <button @click="onRemove(value.seq)" style="color: var(--color-danger)" v-tooltip="'삭제'">
                     <font-awesome-icon :icon="['fas', 'trash']" />
                 </button>
-                <button @click="onUpdate(value)" style="color: var(--color-second)" v-tooltip="'수정'">
+                <button
+                    @click="onUpdate(value.seq)"
+                    :disabled="value.payments.length > 0"
+                    class="update"
+                    v-tooltip="value.payments.length > 0 ? '결제된 항목은 수정할 수 없습니다' : '수정'"
+                >
                     <font-awesome-icon :icon="['fas', 'pen-to-square']" />
                 </button>
             </div>
         </template>
         <template #item.payInfo="{ value }">
             <div class="pay-info">
-                <span class="type" :class="{ collected: value.order.payments.length > 0 }">{{ value.type }}</span>
+                <span class="type" :class="[value.type.toLocaleLowerCase()]">{{ value.typeLabel }}</span>
                 <div v-show="isEdit == false && activeCollection" class="c-btn">
                     <template v-if="value.seqs.length == 0">
-                        <v-btn baseColor="primary" text="현금" @click="collect(value.order, 'CASH')" style="color: #fff"></v-btn>
-                        <v-btn baseColor="primary" @click="collect(value.order, 'CARD')" style="color: #fff">카드</v-btn>
+                        <v-btn baseColor="primary" text="현금" @click="collect(value.order, 'CASH')" color="success"></v-btn>
+                        <v-btn baseColor="primary" @click="collect(value.order, 'CARD')" color="primary">카드</v-btn>
                     </template>
                     <v-btn v-else @click="cancelCollection(value.order, value.seqs)" base-color="warning">수금 취소</v-btn>
                 </div>
@@ -486,6 +501,19 @@ function onClickThisMonth(type: 'ORDER' | 'PAY') {
 .order-list {
     .v-table__wrapper {
         margin: 8px 0;
+
+        button {
+            &.update {
+                color: var(--color-success);
+            }
+
+            &:disabled {
+                color: grey;
+                &:hover {
+                    opacity: 1;
+                }
+            }
+        }
     }
 
     .pay-info {
@@ -495,10 +523,15 @@ function onClickThisMonth(type: 'ORDER' | 'PAY') {
 
         .type {
             font-weight: bold;
-            color: var(--color-danger);
 
-            &.collected {
-                color: var(--color-second);
+            &.unpaid {
+                color: var(--color-danger);
+            }
+            &.cash {
+                color: var(--color-success);
+            }
+            &.card {
+                color: var(--color-point);
             }
         }
 
@@ -520,7 +553,7 @@ function onClickThisMonth(type: 'ORDER' | 'PAY') {
         display: flex;
         flex-direction: column;
         align-items: end;
-        color: var(--color-second);
+        color: var(--color-success);
         font-weight: bold;
 
         .grp {

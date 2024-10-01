@@ -60,5 +60,29 @@ export default function useApiOrder() {
         return api.delete(`${prefix}/${seq}`)
     }
 
-    return { selectList, selectListAccount, select, create, update, remove }
+    async function collect(seq: number, payments: PaymentEntityCreation[]) {
+        const res = await api.post(`${prefix}/collect/${seq}`, payments)
+        return res.data as CollectRes
+    }
+
+    async function collectList(list: CollectListParam[]) {
+        const res = await api.post(`${prefix}/collect`, list)
+        return res.data as CollectRes[]
+    }
+
+    async function cancelCollect(seq: number) {
+        const res = await api.post(`${prefix}/cancelCollect/${seq}`)
+        return res.data as CancelCollectRes
+    }
+
+    async function cancelCollectList(seqs: number[]) {
+        const res = await api.post(`${prefix}/cancelCollect`, seqs)
+        return res.data as CancelCollectRes[]
+    }
+
+    return { selectList, selectListAccount, select, create, update, remove, collect, collectList, cancelCollect, cancelCollectList }
 }
+
+type CollectListParam = { seq: number; payments: PaymentEntityCreation[] }
+type CollectRes = { order: MyOrderEntity; payments: PaymentEntity[] }
+type CancelCollectRes = { order: MyOrderEntity; paymentSeqs: number[] }

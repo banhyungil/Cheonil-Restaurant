@@ -7,7 +7,7 @@ export default function useApiPayment() {
     async function create(payment: PaymentEntityCreation) {
         const res = await api.post(prefix, payment)
 
-        return res.data as PaymentEntity
+        return res.data as { payment: PaymentEntity; order: MyOrderEntity }
     }
 
     async function update(payment: PaymentEntity) {
@@ -16,8 +16,9 @@ export default function useApiPayment() {
         return res.data as PaymentEntity
     }
 
-    function remove(seqs: number[]) {
-        return api.post(`${prefix}/batch/delete`, seqs)
+    async function remove(payemnts: PaymentEntity[]) {
+        const res = await api.post(`${prefix}/batch/delete`, payemnts)
+        return res.data as { orders: MyOrderEntity[] }
     }
 
     return { create, update, remove }

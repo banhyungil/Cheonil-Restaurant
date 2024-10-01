@@ -28,29 +28,36 @@ const menuSrchText = ref('')
 const orderMenues = ref<OrderMenuEntityCreation[]>([])
 type PartialOrder = PartialK<MyOrderEntity, 'storeSeq'>
 const order = ref({ amount: 0, status: 'READY' } as PartialOrder)
+const originOrder = ref<Order>()
+const cIsUpdated = computed(() => {
+    return selStore.value?.seq != originOrder.value?.store.seq || _.isEqualWith(orderMenues.value, originOrder.value?.orderMenues) == false
+})
 
 watch(
     () => router.currentRoute.value.params.seq,
-    () => {
-        // 주문 수정 시
-        if (router.currentRoute.value.path == '/order' && router.currentRoute.value.params.seq) {
-            const { seq } = router.currentRoute.value.params
-            apiOrder.select(+seq).then((orderResult) => {
-                if (orderResult == null) {
-                    router.push('/order')
-                } else {
-                    order.value = orderResult
-                    selStore.value = orderResult.store
-                    orderMenues.value = orderResult.orderMenues
-                }
 
-                tab.value = 'MENU'
-            })
+    async () => {
+        // 주문 수정 시
+        if (router.currentRoute.value.path.includes('/order') && router.currentRoute.value.params.seq) {
+            const { seq } = router.currentRoute.value.params
+            originOrder.value = await apiOrder.select(+seq)
+
+            if (originOrder.value == null) {
+                Swal.fireCustom({ toast: true, text: '잘못된 경로입니다.', icon: 'warning' })
+                router.push('/order')
+            } else {
+                const clone = _.cloneDeep(originOrder.value)
+                order.value = clone
+                selStore.value = clone.store
+                orderMenues.value = clone.orderMenues
+            }
+
+            tab.value = 'MENU'
         }
     },
     { immediate: true }
 )
-const cIsUpdate = computed(() => router.currentRoute.value.params.seq != null)
+const cIsUpdateView = computed(() => router.currentRoute.value.params.seq != null)
 
 watch(
     orderMenues,
@@ -106,7 +113,7 @@ async function onComplete() {
     if (validate(order.value) == false) return
 
     orderMenues.value.forEach((om) => {
-        order.value.amount += om.price * om.cnt
+        order.value.amount = om.price * om.cnt
     })
 
     if (router.currentRoute.value.params.seq) {
@@ -183,14 +190,27 @@ function init() {
             </section>
             <section class="btt">
                 <v-btn
+                    v-if="cIsUpdateView == false"
                     class="complete"
-                    :class="{ update: cIsUpdate }"
+                    :class="{ update: cIsUpdateView }"
                     color="primary"
                     @click="onComplete"
                     :disabled="order.storeSeq == null || orderMenues.length < 1"
                 >
-                    {{ cIsUpdate ? '수정완료' : '주문완료' }}
+                    {{ cIsUpdateView ? '수정완료' : '주문완료' }}
                 </v-btn>
+                <template v-else>
+                    <v-btn
+                        class="update"
+                        :class="{ update: cIsUpdateView }"
+                        color="primary"
+                        @click="onComplete"
+                        :disabled="order.storeSeq == null || orderMenues.length < 1 || cIsUpdated == false"
+                    >
+                        {{ cIsUpdateView ? '수정완료' : '주문완료' }}
+                    </v-btn>
+                    <v-btn class="update" :class="{ update: cIsUpdateView }" color="warning" @click="() => router.back()"> 수정취소 </v-btn>
+                </template>
             </section>
         </section>
     </div>
