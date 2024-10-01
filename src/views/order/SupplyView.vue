@@ -143,50 +143,50 @@ const cDtOrders = computed(() =>
     })
 )
 
-const COLLECT_MESSAGE_OPTION = { toast: true, messageType: 'save' } as SweetAlertOptionsCustom
-async function collect(order: Order, type: PaymentEntity['payType'], showMessage = true) {
-    const amount = type == 'CASH' ? order.amount : order.amount + Math.ceil(order.amount / 10)
-    const payment = {
-        orderSeq: order.seq,
-        amount,
-        payAt: new Date(),
-        payType: type,
-    } as PaymentEntityCreation
+// const COLLECT_MESSAGE_OPTION = { toast: true, messageType: 'save' } as SweetAlertOptionsCustom
+// async function collect(order: Order, type: PaymentEntity['payType'], showMessage = true) {
+//     const amount = type == 'CASH' ? order.amount : order.amount + Math.ceil(order.amount / 10)
+//     const payment = {
+//         orderSeq: order.seq,
+//         amount,
+//         payAt: new Date(),
+//         payType: type,
+//     } as PaymentEntityCreation
 
-    const nPayment = await apiPayment.create(payment)
+//     const nPayment = await apiPayment.create(payment)
 
-    order.payments.push(nPayment)
-    order.status = 'PAID'
-    await apiOrder.update(order)
+//     order.payments.push(nPayment)
+//     order.status = 'PAID'
+//     await apiOrder.update(order)
 
-    if (showMessage) Swal.fireCustom(COLLECT_MESSAGE_OPTION)
-}
+//     if (showMessage) Swal.fireCustom(COLLECT_MESSAGE_OPTION)
+// }
 
-async function collectGroup(type: PaymentEntity['payType']) {
-    if ((await Swal.fireCustom({ isConfirm: true, messageType: 'save' })) == false) return
+// async function collectGroup(type: PaymentEntity['payType']) {
+//     if ((await Swal.fireCustom({ isConfirm: true, messageType: 'save' })) == false) return
 
-    const prms = checkedSeqs.value.map((orderSeq) => {
-        const od = orders.value.find((od) => od.seq == orderSeq)
-        if (od == null || od.status == 'PAID') return
+//     const prms = checkedSeqs.value.map((orderSeq) => {
+//         const od = orders.value.find((od) => od.seq == orderSeq)
+//         if (od == null || od.status == 'PAID') return
 
-        return collect(od, type, false)
-    })
-    await Promise.all(prms)
+//         return collect(od, type, false)
+//     })
+//     await Promise.all(prms)
 
-    Swal.fireCustom({ toast: true, messageType: 'save' })
-    checkedSeqs.value.splice(0)
-}
+//     Swal.fireCustom({ toast: true, messageType: 'save' })
+//     checkedSeqs.value.splice(0)
+// }
 
-const CANCEL_MESSAGE_OPTION = { toast: true, title: '', text: '수금이 취소되었습니다.' }
-async function cancelCollection(order: Order, seqs: number[], showMessage = true) {
-    await apiPayment.remove(seqs)
-    order.payments.splice(0)
+// const CANCEL_MESSAGE_OPTION = { toast: true, title: '', text: '수금이 취소되었습니다.' }
+// async function cancelCollection(order: Order, seqs: number[], showMessage = true) {
+//     await apiPayment.remove(seqs)
+//     order.payments.splice(0)
 
-    order.status = 'COOKED'
-    await apiOrder.update(order)
+//     order.status = 'COOKED'
+//     await apiOrder.update(order)
 
-    if (showMessage) Swal.fireCustom(CANCEL_MESSAGE_OPTION)
-}
+//     if (showMessage) Swal.fireCustom(CANCEL_MESSAGE_OPTION)
+// }
 
 async function cancelCollectionGroup() {
     if ((await Swal.fireCustom({ isConfirm: true, messageType: 'remove', title: '수금을 취소하시겠습니까?' })) == false) return
