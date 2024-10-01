@@ -217,7 +217,7 @@ function getTotalPayAmount(pOrders: Order[]) {
                 width: 80px;
             }
             & > button:hover {
-                background-color: var(--color-second);
+                background-color: var(--color-success);
                 color: #fff;
             }
         }

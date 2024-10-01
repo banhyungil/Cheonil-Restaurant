@@ -347,7 +347,7 @@ function init() {
             }
             button.update {
                 &:hover {
-                    background-color: var(--color-second);
+                    background-color: var(--color-success);
                     color: #fff;
                 }
             }

@@ -353,7 +353,7 @@ function toggleDisplayKitchen() {
                 }
                 .elapsed {
                     margin-left: 4px;
-                    color: var(--color-second);
+                    color: var(--color-success);
                 }
             }
 
@@ -369,7 +369,7 @@ function toggleDisplayKitchen() {
 
             &.new {
                 .store {
-                    background-color: var(--color-second);
+                    background-color: var(--color-success);
                     animation: aniBlink 2s infinite;
                 }
             }
@@ -423,7 +423,7 @@ function toggleDisplayKitchen() {
                 color: #fff;
             }
             &.update:hover {
-                background-color: var(--color-second);
+                background-color: var(--color-success);
             }
             &.remove:hover {
                 background-color: var(--color-danger);
