@@ -37,6 +37,7 @@ export default defineConfig({
                 (name) => {
                     // where `name` is always CapitalCase
                     if (name.includes('VueDatePicker')) return '@vuepic/vue-datepicker'
+                    else if (name.includes('VSelectExt')) return 'vue-select'
                 },
             ], // vuetify 컴포넌트 등록시 resolver 사용
         }),

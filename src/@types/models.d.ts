@@ -355,10 +355,10 @@ interface SupplyEntity {
     name: string
 
     /* 단위 목록 */
-    unitList: string
+    unitList: string[]
 
     /* 단위수량 목록 */
-    unitCntList?: string | null
+    unitCntList?: number[] | null
 
     /* 추가 정보 */
     options?: string | null

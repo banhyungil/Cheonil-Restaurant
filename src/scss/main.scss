@@ -86,6 +86,12 @@ button.chi {
     }
 }
 
+.v-text-field.compact {
+    input {
+        height: 45px;
+    }
+}
+
 .form-item {
     @apply tw-justify-center tw-flex tw-items-center tw-shadow-sm tw-gap-3;
 

@@ -27,6 +27,8 @@ import { aliases, fa } from 'vuetify/iconsets/fa-svg'
 
 import VueDatePicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
+import 'vue-select/dist/vue-select.css'
+import VSelectExt from 'vue-select'
 
 const vuetify = createVuetify({
     components,
@@ -59,6 +61,7 @@ library.add(faSquare)
 library.add(faStar)
 app.component('font-awesome-icon', FontAwesomeIcon)
 app.component('VueDatePicker', VueDatePicker)
+app.component('VSelectExt', VSelectExt)
 
 const pinia = createPinia()
 pinia.use(piniaPluginPersistedstate)

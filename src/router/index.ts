@@ -19,7 +19,7 @@ const router = createRouter({
         {
             path: '/expenseList',
             name: 'expenseList',
-            component: () => import('../views/order/ExpenseListView.vue'),
+            component: () => import('../views/expense/ExpenseListView.vue'),
         },
         {
             path: '/',
@@ -42,6 +42,16 @@ const router = createRouter({
             path: '/orderList',
             name: 'orderList',
             component: () => import('../views/order/OrderListView.vue'),
+        },
+        {
+            path: '/supply',
+            name: 'supply',
+            component: () => import('../views/supply/SupplyView.vue'),
+        },
+        {
+            path: '/supplyEdit',
+            name: 'supplyEdit',
+            component: () => import('../views/supply/SupplyEditView.vue'),
         },
         {
             path: '/menu',
