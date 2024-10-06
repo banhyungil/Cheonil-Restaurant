@@ -1,18 +1,21 @@
 <script setup lang="ts">
-import useApiPlaceCtg from '@/api/useApiPlaceCtg'
 import useSwal from '@/composable/useSwal'
-import { computed, onMounted, ref, type Ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import _ from 'lodash'
 import { helpers, required } from '@vuelidate/validators'
 import { useVuelidate, type ValidationArgs } from '@vuelidate/core'
+import type UnitEditPop from '@/components/UnitEditPop.vue'
 
 const Swal = useSwal()
 const router = useRouter()
 const apiSupply = useApiSupply()
+const apiUnit = useApiUnit()
 
 const originSupply = ref<SupplyEntity>()
-const supply = ref({ name: '', unitList: [] } as SupplyEntityCreation)
+const supply = ref<SupplyEntityCreation & { unitNms: string[] }>({ name: '', unitNms: [] })
+const supplies = ref<SupplyEntity[]>([])
+const units = ref<UnitEntity[]>([])
 
 interface Props {
     // routerParam
@@ -23,89 +26,83 @@ const props = defineProps<Props>()
 if (props.seq) {
     apiSupply.select(+props.seq).then((res) => {
         originSupply.value = _.cloneDeep(res)
-        supply.value = res
+        supply.value = { ...res, unitNms: res.units.map((u) => u.name) }
     })
 }
-const unit = ref<string>()
-const unitCnt = ref<number | null>()
+
+apiUnit.selectList().then((res) => {
+    units.value = res
+})
+
+apiSupply.selectList().then((res) => {
+    supplies.value = res
+})
 
 const cIsUpdateView = computed(() => (props.seq ? true : false))
 const cIsUpdated = computed(() => _.isEqual(supply.value, originSupply.value) == false)
 const cText = computed(() => (cIsUpdateView.value ? '수정' : '등록'))
-const REQUIRED_KEYS = ['name', 'unitList', 'unitCntList'] as ['name', 'unitList', 'unitCntList']
 const LABEL_INFO = {
     name: '명칭',
-    unitList: '단위목록',
-    unitCntList: '단위수량목록',
+    units: '단위',
 }
-const reqRules = REQUIRED_KEYS.reduce((result, key) => {
-    result[key] = {
-        required: helpers.withMessage(`${LABEL_INFO[key]}를 선택해주세요.`, required),
-    }
-    return result
-}, {} as any)
 const rules = {
-    ...reqRules,
+    name: {
+        required: helpers.withMessage(`${LABEL_INFO.name}을 선택해주세요.`, required),
+    },
 } as ValidationArgs<SupplyEntityCreation>
 const v$ = useVuelidate(rules, supply, { $autoDirty: true })
 
-const inp = ref() as Ref<HTMLInputElement>
-function validate(val: SupplyEntity, valid: boolean): val is SupplyEntity {
-    return valid
-}
-async function onSave() {
+async function validate() {
     if ((await v$.value.$validate()) == false) {
-        Swal.fireCustom({ toast: true, icon: 'error', text: v$.value.$errors[0].$message.toString() })
-        return
+        Swal.fireCustom({ toast: true, icon: 'error', title: '', text: v$.value.$errors[0].$message.toString() })
+        return false
+    } else if (supply.value.unitNms.length < 1) {
+        Swal.fireCustom({ toast: true, icon: 'error', title: '', text: '단위를 선택해주세요' })
+        return false
+    } else if (cIsUpdateView.value == false && supplies.value.some((supl) => supl.name == supply.value.name)) {
+        Swal.fireCustom({ toast: true, icon: 'error', title: '', text: '이미 등록된 식자재입니다.' })
+        return false
     }
 
-    // 검증
+    return true
+}
+
+async function onSave() {
+    if ((await validate()) == false) return
+
     if (cIsUpdateView.value) {
-        // await apiProduct.update(ctg.value as PlaceCategoryEntity)
-        // Swal.fireCustom({ toast: true, messageType: 'update' })
+        await apiSupply.update(supply.value, supply.value.unitNms)
+        Swal.fireCustom({ toast: true, messageType: 'save' })
     } else {
-        // await apiPlaceCtg.create(ctg.value)
-        // Swal.fireCustom({ toast: true, messageType: 'save' })
+        await apiSupply.create({ name: supply.value.name }, supply.value.unitNms)
+        Swal.fireCustom({ toast: true, messageType: 'save' })
     }
 
-    // list.value = await apiPlaceCtg.selectList()
     router.back()
 }
 
-async function onRemove() {
-    // if (ctg.value.seq && (await Swal.fireCustom({ isConfirm: true, messageType: 'remove' }))) {
-    //     await apiPlaceCtg.remove(ctg.value.seq)
-    //     // 카테고리 중 해당 구역 설정되어 있는 경우 수정
-    //     // 매장 중 해당 구역 설정되어 있는 경우 수정
-    //     storeStore.categories.forEach((storeCtg) => {
-    //         if (storeCtg.placeCtgSeq == ctg.value.seq) {
-    //             storeCtg.placeCtgSeq = null
-    //         }
-    //     })
-    //     storeStore.items.forEach((store) => {
-    //         if (store.placeCtgSeq == ctg.value.seq) {
-    //             store.placeCtgSeq = null
-    //         }
-    //     })
-    //     _.remove(list.value, (item) => item.seq == ctg.value.seq)
-    //     Swal.fireCustom({ toast: true, messageType: 'remove' })
-    //     router.back()
-    // }
-}
 function onCancel() {
     router.back()
 }
 
-function addUnit() {
-    if (unit.value) supply.value.unitList.push(unit.value)
-}
+// function addUnit() {
+//     if (unit.value) supply.value.units.push(unit.value)
+// }
 
-function addUnitCnt() {
-    if (unitCnt.value) {
-        if (supply.value.unitCntList == null) supply.value.unitCntList = []
+// function addUnitCnt() {
+//     if (unitCnt.value) {
+//         if (supply.value.unitCntList == null) supply.value.unitCntList = []
 
-        supply.value.unitCntList.push(unitCnt.value)
-    }
+//         supply.value.unitCntList.push(unitCnt.value)
+//     }
+// }
+
+const isOpenedPop = ref(false)
+const comp = ref<InstanceType<typeof UnitEditPop>>()
+
+function openPopup() {
+    isOpenedPop.value = true
+    console.log('onClickPrepend')
 }
 </script>
 <template>
@@ -119,52 +116,28 @@ function addUnitCnt() {
                 </div>
                 <div>
                     <div class="row">
-                        <span class="label">{{ LABEL_INFO.unitList }}</span>
-                        <div class="tw-flex tw-w-full tw-items-center">
-                            <VTextField type="text" v-model="unit" density="compact" class="compact" :hide-details="true"></VTextField>
-                            <VBtn @click="addUnit" :disabled="_.isEmpty(unit) || supply.unitList?.includes(unit!)" color="primary" class="plus-btn"
-                                ><font-awesome-icon :icon="['fas', 'plus']"
-                            /></VBtn>
-                            <VCheckbox :hide-details="true" :ripple="false"></VCheckbox>
+                        <span class="label">{{ LABEL_INFO.units }}</span>
+                        <div class="tw-flex tw-w-full tw-items-center tw-justify-center">
+                            <VSelect ref="comp" v-model="supply.unitNms" :items="units" item-title="name" chips multiple density="compact" :hide-details="true">
+                            </VSelect>
+                            <VBtn @click="openPopup" color="primary">
+                                <font-awesome-icon :icon="['fas', 'pencil']" />
+                            </VBtn>
                         </div>
-                    </div>
-                    <div class="chips">
-                        <v-chip v-for="unit in supply.unitList" :key="unit" class="ma-2" closable @click:close="_.remove(supply.unitList, (u) => u == unit)">
-                            {{ unit }}
-                        </v-chip>
-                    </div>
-                </div>
-
-                <div>
-                    <div class="row">
-                        <span class="label">{{ LABEL_INFO.unitCntList }}</span>
-                        <div class="tw-flex tw-w-full tw-items-center">
-                            <VTextField type="number" v-model="unitCnt" density="compact" class="compact" :hide-details="true"></VTextField>
-                            <VBtn @click="addUnitCnt" :disabled="unitCnt == null || supply.unitCntList?.includes(unitCnt)" color="primary" class="plus-btn"
-                                ><font-awesome-icon :icon="['fas', 'plus']"
-                            /></VBtn>
-                            <VCheckbox :hide-details="true" density="compact" :ripple="false"></VCheckbox>
-                        </div>
-                    </div>
-                    <div class="chips">
-                        <v-chip
-                            v-for="unitCnt in supply.unitCntList"
-                            :key="unitCnt"
-                            class="ma-2"
-                            closable
-                            @click:close="_.remove(supply.unitCntList!, (u) => u == unitCnt)"
-                        >
-                            {{ unitCnt }}
-                        </v-chip>
                     </div>
                 </div>
             </section>
             <section class="btt">
                 <v-btn @click="onSave" :disabled="cIsUpdated == false">{{ cText }}</v-btn>
-                <v-btn v-if="cIsUpdateView" @click="onRemove">삭제</v-btn>
-                <v-btn @click="onCancel">취소</v-btn>
+                <v-btn @click="onCancel" color="warning">취소</v-btn>
             </section>
         </section>
+        <UnitEditPop
+            v-if="isOpenedPop"
+            @close="() => (isOpenedPop = false)"
+            style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); height: fit-content"
+        >
+        </UnitEditPop>
     </section>
 </template>
 

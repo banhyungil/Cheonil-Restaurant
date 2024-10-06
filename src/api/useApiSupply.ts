@@ -14,14 +14,14 @@ export default function useApiSupply() {
         return res.data as SupplyEntity
     }
 
-    async function create(supply: SupplyEntityCreation) {
-        const res = await api.post(prefix, supply)
+    async function create(supply: SupplyEntityCreation, unitNms: string[]) {
+        const res = await api.post(prefix, { supply, unitNms })
 
         return res.data as SupplyEntity
     }
 
-    async function update(seq: number, supply: SupplyEntity) {
-        const res = await api.patch(`${prefix}/${seq}`, supply)
+    async function update(supply: SupplyEntityCreation, unitNms: string[]) {
+        const res = await api.patch(`${prefix}/${supply.seq}`, { supply, unitNms })
 
         return res.data as SupplyEntity
     }

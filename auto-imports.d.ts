@@ -79,6 +79,7 @@ declare global {
   const useApiStore: typeof import('./src/api/useApiStore')['default']
   const useApiStoreCtg: typeof import('./src/api/useApiStoreCtg')['default']
   const useApiSupply: typeof import('./src/api/useApiSupply')['default']
+  const useApiUnit: typeof import('./src/api/useApiUnit')['default']
   const useAttrs: typeof import('vue')['useAttrs']
   const useConfigStore: typeof import('./src/stores/configStore')['useConfigStore']
   const useCssModule: typeof import('vue')['useCssModule']

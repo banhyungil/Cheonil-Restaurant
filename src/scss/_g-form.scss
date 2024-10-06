@@ -29,7 +29,7 @@
         align-items: center;
         column-gap: 40px;
 
-        span, .label {
+        & > span, .label {
           width: fit-content;
           min-width: 100px;
           font-weight: bold;

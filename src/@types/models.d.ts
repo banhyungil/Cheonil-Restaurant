@@ -6,7 +6,7 @@
 /* 지출 */
 interface ExpenseEntity {
     /* 지출 Seq */
-    seq?: number
+    seq: number
 
     /* 매장 Seq */
     storeSeq: number
@@ -39,7 +39,7 @@ interface ExpenseEntity {
 /* 메뉴 */
 interface MenuEntity {
     /* 메뉴 Seq */
-    seq?: number
+    seq: number
 
     /* 메뉴 카테고리 Seq */
     ctgSeq: number
@@ -66,10 +66,12 @@ interface MenuEntity {
     updatedAt?: Date | null
 }
 
+type MenuEntityCreation = PartialK<MenuEntity, 'seq'>
+
 /* 메뉴 카테고리 */
 interface MenuCategoryEntity {
     /* 메뉴 카테고리 Seq */
-    seq?: number
+    seq: number
 
     /* 메뉴 카테고리 명 */
     name: string
@@ -84,10 +86,12 @@ interface MenuCategoryEntity {
     updatedAt?: Date | null
 }
 
+type MenuCategoryEntityCreation = PartialK<MenuCategoryEntity, 'seq'>
+
 /* 주문 */
 interface MyOrderEntity {
     /* 주문 Seq */
-    seq?: number
+    seq: number
 
     /* 매장 Seq */
     storeSeq: number
@@ -111,6 +115,14 @@ interface MyOrderEntity {
     updatedAt?: Date
 }
 
+type MyOrderEntityCreation = PartialK<MyOrderEntity, 'seq'>
+
+interface Order extends MyOrderEntity {
+    orderMenues: OrderMenu[]
+    payments: PaymentEntity[]
+    store: StoreEntity
+}
+
 /* 주문 메뉴 */
 interface OrderMenuEntity {
     /* 메뉴 Seq */
@@ -124,6 +136,12 @@ interface OrderMenuEntity {
 
     /* 수량 */
     cnt: number
+}
+
+type OrderMenuEntityCreation = PartialK<OrderMenuEntity, 'orderSeq'>
+
+interface OrderMenu extends OrderMenuEntity {
+    menu: MenuEntity
 }
 
 /* 주문 메뉴 예약 */
@@ -144,7 +162,7 @@ interface OrderMenuRsvEntity {
 /* 주문 예약 */
 interface OrderRsvEntity {
     /* 주문예약 Seq */
-    seq?: number
+    seq: number
 
     /* 매장 Seq */
     storeSeq: number
@@ -171,10 +189,12 @@ interface OrderRsvEntity {
     updatedAt?: Date | null
 }
 
+type OrderRsvEntityCreation = PartialK<OrderRsvEntity, 'seq'>
+
 /* 결재 */
 interface PaymentEntity {
     /* 결재 Seq */
-    seq?: number
+    seq: number
 
     /* 주문 Seq */
     orderSeq: number
@@ -189,10 +209,12 @@ interface PaymentEntity {
     payAt: Date
 }
 
+type PaymentEntityCreation = PartialK<PaymentEntity, 'seq'>
+
 /* 장소 카테고리 */
 interface PlaceCategoryEntity {
     /* 장소 카테고리 Seq */
-    seq?: number
+    seq: number
 
     /* 장소 카테고리 명 */
     name: string
@@ -204,10 +226,12 @@ interface PlaceCategoryEntity {
     options?: string | null
 }
 
+type PlaceCategoryEntityCreation = PartialK<PlaceCategoryEntity, 'seq'>
+
 /* 제품 */
 interface ProductEntity {
     /* 제품 Seq */
-    seq?: number
+    seq: number
 
     /* 식자재 Seq */
     suplSeq: number
@@ -234,19 +258,27 @@ interface ProductEntity {
     updatedAt?: Date | null
 }
 
+type ProductEntityCreation = PartialK<ProductEntity, 'seq'>
 /* 설정 */
 interface SettingEntity {
     /* 설정 Seq */
-    seq?: number
+    seq: number
 
     /* 설정 정보 */
-    config: string
+    config: SettingConfig
+}
+
+interface SettingConfig {
+    menuCtgOrders?: { seq: number; order: number }[]
+    menuOrders?: { seq: number; order: number }[]
+    storeCtgOrders?: { seq: number; order: number }[]
+    storeOrders?: { seq: number; order: number }[]
 }
 
 /* 매장 */
 interface StoreEntity {
     /* 매장 Seq */
-    seq?: number
+    seq: number
 
     /* 매장 카테고리 Seq */
     ctgSeq: number
@@ -276,10 +308,12 @@ interface StoreEntity {
     updatedAt?: Date | null
 }
 
+type StoreCategoryEntityCreation = PartialK<StoreCategoryEntity, 'seq'>
+
 /* 매장 카테고리 */
 interface StoreCategoryEntity {
     /* 매장 카테고리 Seq */
-    seq?: number
+    seq: number
 
     /* 장소 카테고리 Seq */
     placeCtgSeq?: number | null
@@ -315,7 +349,7 @@ interface StoreExpenseLogEntity {
 /* 식자재 */
 interface SupplyEntity {
     /* 식자재 Seq */
-    seq?: number
+    seq: number
 
     /* 식자재 명 */
     name: string
@@ -328,7 +362,12 @@ interface SupplyEntity {
 
     /* 수정시간 */
     updatedAt?: Date | null
+
+    /* 단위목록 */
+    units: UnitEntity[]
 }
+
+type SupplyEntityCreation = PartialK<SupplyEntity, 'seq' | 'units'>
 
 /* 식자재 단위 */
 interface SupplyUnitEntity {

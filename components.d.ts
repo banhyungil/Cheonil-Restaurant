@@ -20,6 +20,7 @@ declare module 'vue' {
     SideBar: typeof import('./src/components/layout/SideBar.vue')['default']
     StoreTab: typeof import('./src/components/StoreTab.vue')['default']
     TabEditor: typeof import('./src/components/TabEditor.vue')['default']
+    UnitEditPop: typeof import('./src/components/UnitEditPop.vue')['default']
     VBtn: typeof import('vuetify/components')['VBtn']
     VCheckbox: typeof import('vuetify/components')['VCheckbox']
     VChip: typeof import('vuetify/components')['VChip']

@@ -1,37 +1,22 @@
 <script setup lang="ts">
-import useApiOrder from '@/api/useApiOrder'
 import type { VDataTable } from 'vuetify/components'
-import _ from 'lodash'
-import { addDays, addMonths, format } from 'date-fns'
 import usePagination from '@/composable/usePagination'
-import useSwal, { type SweetAlertOptionsCustom } from '@/composable/useSwal'
-import useApiPayment from '@/api/useApiPayment'
-import { getTotalOrderAmount, getTotalPayAmount } from '@/stores/orderStore'
-import { today } from '@/utils/CommonUtils'
+import useSwal from '@/composable/useSwal'
+import _ from 'lodash'
 
 const router = useRouter()
 const Swal = useSwal()
 const apiSupply = useApiSupply()
-const apiProduct = useApiProduct()
 
 const supplies = ref<SupplyEntity[]>([])
-const cSupplyDict = computed(() => _.keyBy(supplies.value, 'seq'))
-const products = ref<ProductEntity[]>([])
-const cProducts = computed(() => {
-    return products.value.map((prd) => ({ ...prd, supply: cSupplyDict.value[prd.splSeq] }))
-})
-const cPrdTotalCnt = computed(() => products.value.length)
+const cSuplTotalCnt = computed(() => supplies.value.length)
 
 apiSupply.selectList().then((res) => {
     supplies.value = res
 })
 
-apiProduct.selectList().then((res) => {
-    products.value = res
-})
-
 const pageSize = ref<number | null>(0)
-const { pageNo, cOffset, cTotalPage, PAGE_SIZE_LIST } = usePagination(cPrdTotalCnt, pageSize)
+const { pageNo, cOffset, cTotalPage, PAGE_SIZE_LIST } = usePagination(cSuplTotalCnt, pageSize)
 pageSize.value = PAGE_SIZE_LIST[0]
 watch(pageNo, () => {
     window.scrollTo(0, 0)
@@ -39,9 +24,8 @@ watch(pageNo, () => {
 
 const headers = ref([
     { title: '순번', key: 'no', sortable: false, align: 'start', width: '60px' },
-    { title: '식자재', key: 'splNm', align: 'center' },
-    { title: '단위', key: 'unit', align: 'center' },
-    { title: '단위수량', key: 'unitCnt', align: 'center' },
+    { title: '식자재', key: 'name', align: 'center' },
+    { title: '단위', key: 'units', align: 'center' },
     { title: 'Actions', key: 'actions', align: 'center', sortable: false },
 ]) as Ref<NonNullable<Mutable<VDataTable['$props']['headers']>>>
 const cHeaders = computed(() => {
@@ -51,18 +35,36 @@ const cHeaders = computed(() => {
 const isEdit = ref(false)
 
 const cDtProducts = computed(() =>
-    cProducts.value.map((prd, idx) => {
+    supplies.value.map((supply, idx) => {
         return {
-            ...prd,
+            ...supply,
             no: cOffset.value + idx + 1,
-            splNm: prd.supply.name,
-            actions: prd.seq,
+            splNm: supply.name,
+            units: supply.units
+                ?.map((u) => {
+                    return (u.isUnitCnt ? '+' : '') + u.name
+                })
+                .join(', '),
+            actions: supply.seq,
         }
     })
 )
 
 function addProduct() {
     router.push('/supplyEdit')
+}
+
+function onUpdate(seq: number) {
+    router.push(`/supplyEdit/${seq}`)
+}
+
+async function onRemove(seq: number) {
+    if (await Swal.fireCustom({ isConfirm: true, messageType: 'remove' })) {
+        await apiSupply.remove(seq)
+        _.remove(supplies.value, (supl) => supl.seq == seq)
+
+        Swal.fireCustom({ toast: true, messageType: 'remove' })
+    }
 }
 </script>
 
@@ -79,11 +81,21 @@ function addProduct() {
                 </v-btn>
             </div>
         </template>
+        <template #item.actions="{ value }">
+            <div style="display: flex; justify-content: center; gap: 10px">
+                <button @click="onUpdate(value)" style="color: var(--color-success)" v-tooltip="'수정'">
+                    <font-awesome-icon :icon="['fas', 'pen-to-square']" />
+                </button>
+                <button @click="onRemove(value)" style="color: var(--color-danger)" v-tooltip="'삭제'">
+                    <font-awesome-icon :icon="['fas', 'trash']" />
+                </button>
+            </div>
+        </template>
         <template #bottom>
             <div class="c-page">
                 <v-pagination v-show="cTotalPage > 0" lass="page" v-model="pageNo" :length="cTotalPage" :total-visible="5"></v-pagination>
                 <div class="right">
-                    <h3 style="width: max-content">총: {{ cPrdTotalCnt }} 건</h3>
+                    <h3 style="width: max-content">총: {{ cSuplTotalCnt }} 건</h3>
                     <v-select class="select" :items="PAGE_SIZE_LIST" v-model="pageSize" item-value="key" item-title="title" density="comfortable"></v-select>
                 </div>
             </div>
