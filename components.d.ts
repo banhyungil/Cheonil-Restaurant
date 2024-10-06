@@ -22,15 +22,10 @@ declare module 'vue' {
     TabEditor: typeof import('./src/components/TabEditor.vue')['default']
     UnitEditPop: typeof import('./src/components/UnitEditPop.vue')['default']
     VBtn: typeof import('vuetify/components')['VBtn']
-    VCheckbox: typeof import('vuetify/components')['VCheckbox']
-    VChip: typeof import('vuetify/components')['VChip']
     VDataTable: typeof import('vuetify/components')['VDataTable']
     VPagination: typeof import('vuetify/components')['VPagination']
     VSelect: typeof import('vuetify/components')['VSelect']
-    VSelectExt: typeof import('vuetify/components')['VSelectExt']
     VSwitch: typeof import('vuetify/components')['VSwitch']
-    VTextarea: typeof import('vuetify/components')['VTextarea']
-    VTextField: typeof import('vuetify/components')['VTextField']
     VueDatePicker: typeof import('@vuepic/vue-datepicker')['default']
   }
 }

@@ -112,9 +112,8 @@ function validate(order: PartialOrder): order is MyOrderEntity {
 async function onComplete() {
     if (validate(order.value) == false) return
 
-    orderMenues.value.forEach((om) => {
-        order.value.amount = om.price * om.cnt
-    })
+    order.value.amount = cTotalAmount.value
+    debugger
 
     if (router.currentRoute.value.params.seq) {
         // 신규 추가 메뉴는 기존 주문 seq를 삽입
