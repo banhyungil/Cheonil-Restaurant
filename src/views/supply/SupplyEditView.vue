@@ -101,7 +101,8 @@ const isOpenedPop = ref(false)
 const comp = ref<InstanceType<typeof UnitEditPop>>()
 
 function openPopup() {
-    isOpenedPop.value = true
+    router.push('/unitEdit')
+    // isOpenedPop.value = true
     console.log('onClickPrepend')
 }
 </script>
@@ -132,12 +133,6 @@ function openPopup() {
                 <v-btn @click="onCancel" color="warning">취소</v-btn>
             </section>
         </section>
-        <UnitEditPop
-            v-if="isOpenedPop"
-            @close="() => (isOpenedPop = false)"
-            style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); height: fit-content"
-        >
-        </UnitEditPop>
     </section>
 </template>
 

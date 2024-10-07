@@ -51,7 +51,7 @@ const cDtProducts = computed(() =>
 )
 
 function addProduct() {
-    router.push('/supplyEdit')
+    router.push({ path: '/supplyEdit' })
 }
 
 function onUpdate(seq: number) {
