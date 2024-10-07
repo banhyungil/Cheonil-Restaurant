@@ -1,13 +1,8 @@
 <script setup lang="ts">
-import useApiOrder from '@/api/useApiOrder'
 import type { VDataTable } from 'vuetify/components'
 import _ from 'lodash'
-import { addDays, addMonths, format } from 'date-fns'
 import usePagination from '@/composable/usePagination'
-import useSwal, { type SweetAlertOptionsCustom } from '@/composable/useSwal'
-import useApiPayment from '@/api/useApiPayment'
-import { getTotalOrderAmount, getTotalPayAmount } from '@/stores/orderStore'
-import { today } from '@/utils/CommonUtils'
+import useSwal from '@/composable/useSwal'
 
 const router = useRouter()
 const Swal = useSwal()
@@ -18,7 +13,7 @@ const supplies = ref<SupplyEntity[]>([])
 const cSupplyDict = computed(() => _.keyBy(supplies.value, 'seq'))
 const products = ref<ProductEntity[]>([])
 const cProducts = computed(() => {
-    return products.value.map((prd) => ({ ...prd, supply: cSupplyDict.value[prd.splSeq] }))
+    return products.value.map((prd) => ({ ...prd, supply: cSupplyDict.value[prd.suplSeq] }))
 })
 const cPrdTotalCnt = computed(() => products.value.length)
 
@@ -63,7 +58,7 @@ const cDtProducts = computed(() =>
 )
 
 function addProduct() {
-    router.push('/supplyEdit')
+    router.push('/productEdit')
 }
 </script>
 

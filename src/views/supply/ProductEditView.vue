@@ -30,7 +30,7 @@ apiSupply.selectList().then((res) => {
 if (props.seq) {
     apiProduct.select(+props.seq).then((res) => {
         originProduct.value = _.cloneDeep(res)
-        nProduct.value = { ...res, supplyNm: supplies.value.find((spl) => spl.seq == res.splSeq)!.name }
+        nProduct.value = { ...res, supplyNm: supplies.value.find((spl) => spl.seq == res.suplSeq)!.name }
     })
 }
 
