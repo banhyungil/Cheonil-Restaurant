@@ -47,7 +47,7 @@ Client.fromConfig(config)
         const __dirname = dirname(fileURLToPath(import.meta.url))
 
         // export 제거 import 없이 참조하기 위함(전역 타입)
-        const result = res.replace(/export /g, '')
+        const result = res.replace(/export /g, '').replace(/'seq'\?:\s+number/g, 'seq: number')
         fs.writeFileSync(path.join(__dirname, 'src/@types/models.d.ts'), result, 'utf-8')
         // ****test
         // fs.writeFileSync(path.join(__dirname, 'src/@types/test.d.ts'), result, 'utf-8')

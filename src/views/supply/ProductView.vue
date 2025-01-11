@@ -35,9 +35,8 @@ watch(pageNo, () => {
 const headers = ref([
     { title: '순번', key: 'no', sortable: false, align: 'start', width: '60px' },
     { title: '식자재', key: 'splNm', align: 'center' },
-    { title: '제품명', key: 'prdNm', align: 'center' },
-    { title: '단위', key: 'unit', align: 'center' },
-    { title: '단위수량', key: 'unitCnt', align: 'center' },
+    { title: '제품명', key: 'name', align: 'center' },
+    { title: '단위', key: 'units', align: 'center' },
     { title: 'Actions', key: 'actions', align: 'center', sortable: false },
 ]) as Ref<NonNullable<Mutable<VDataTable['$props']['headers']>>>
 const cHeaders = computed(() => {
@@ -48,10 +47,18 @@ const isEdit = ref(false)
 
 const cDtProducts = computed(() =>
     cProducts.value.map((prd, idx) => {
+        const unitsStr = prd.units
+            .map((unit) => {
+                if (unit.unitCntList) return `(${unit.unitCntList.join(', ')})${unit.name}`
+                else return unit.name
+            })
+            .join('\n')
+
         return {
             ...prd,
             no: cOffset.value + idx + 1,
             splNm: prd.supply.name,
+            units: unitsStr,
             actions: prd.seq,
         }
     })
@@ -59,6 +66,14 @@ const cDtProducts = computed(() =>
 
 function addProduct() {
     router.push('/productEdit')
+}
+
+function onUpdate(seq: number) {
+    router.push(`/productEdit/${seq}`)
+}
+
+function onRemove(seq: number) {
+    apiProduct.remove(seq)
 }
 </script>
 
@@ -73,6 +88,16 @@ function addProduct() {
                 <v-btn @click="() => (isEdit = !isEdit)" :color="isEdit ? 'primary' : ''" v-tooltip="'편집'">
                     <font-awesome-icon :icon="['fas', 'pen']" />
                 </v-btn>
+            </div>
+        </template>
+        <template #item.actions="{ value }">
+            <div style="display: flex; justify-content: center; gap: 10px">
+                <button @click="onUpdate(value)" style="color: var(--color-success)" v-tooltip="'수정'">
+                    <font-awesome-icon :icon="['fas', 'pen-to-square']" />
+                </button>
+                <button @click="onRemove(value)" style="color: var(--color-danger)" v-tooltip="'삭제'">
+                    <font-awesome-icon :icon="['fas', 'trash']" />
+                </button>
             </div>
         </template>
         <template #bottom>

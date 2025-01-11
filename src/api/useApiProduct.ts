@@ -20,8 +20,8 @@ export default function useApiProduct() {
         return res.data as ProductEntity
     }
 
-    async function update(seq: number, product: ProductEntity) {
-        const res = await api.patch(`${prefix}/${seq}`, product)
+    async function update(product: ProductEntity) {
+        const res = await api.patch(`${prefix}/${product.seq}`, product)
 
         return res.data as ProductEntity
     }

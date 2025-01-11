@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import useApiPlaceCtg from '@/api/useApiPlaceCtg'
 import useSwal from '@/composable/useSwal'
-import { computed, onMounted, ref, type Ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import _ from 'lodash'
 import { helpers, required } from '@vuelidate/validators'
@@ -11,11 +10,17 @@ const Swal = useSwal()
 const router = useRouter()
 const apiSupply = useApiSupply()
 const apiProduct = useApiProduct()
+const apiMapProductUnit = useApiMapProductUnit()
+const apiUnit = useApiUnit()
 
 const supplies = ref<SupplyEntity[]>([])
+const units = ref<UnitEntity[]>([])
 const originProduct = ref<ProductEntity>()
-type NProduct = ProductEntityCreation & { supplyNm: string }
-const nProduct = ref({} as NProduct)
+const product = ref({} as ProductEntityCreation)
+const prdUnit = ref({} as UnitEntity)
+const prdUnits = ref([] as UnitEntity[])
+const unitCnt = ref(0)
+const cSelSupl = computed(() => supplies.value.find((supl) => supl.seq == product.value.suplSeq))
 
 interface Props {
     // routerParam
@@ -26,20 +31,23 @@ const props = defineProps<Props>()
 apiSupply.selectList().then((res) => {
     supplies.value = res
 })
+apiUnit.selectList().then((res) => {
+    units.value = res
+})
 
 if (props.seq) {
     apiProduct.select(+props.seq).then((res) => {
         originProduct.value = _.cloneDeep(res)
-        nProduct.value = { ...res, supplyNm: supplies.value.find((spl) => spl.seq == res.suplSeq)!.name }
+        product.value = res
     })
 }
 
 const cIsUpdateView = computed(() => (props.seq ? true : false))
-const cIsUpdated = computed(() => _.isEqual(nProduct.value, originProduct.value) == false)
+const cIsUpdated = computed(() => _.isEqual(product.value, originProduct.value) == false && _.isEqual(prdUnits.value, originProduct.value) == false)
 const cText = computed(() => (cIsUpdateView.value ? '수정' : '등록'))
-const REQUIRED_KEYS = ['supplyNm', 'name', 'unit'] as ['supplyNm', 'name', 'unit']
+const REQUIRED_KEYS = ['suplSeq', 'name', 'unit'] as const
 const LABEL_INFO = {
-    supplyNm: '식자재',
+    suplSeq: '식자재',
     name: '제품명',
     unit: '단위',
     unitCnt: '단위수량',
@@ -52,91 +60,97 @@ const reqRules = REQUIRED_KEYS.reduce((result, key) => {
 }, {} as any)
 const rules = {
     ...reqRules,
-} as ValidationArgs<NProduct>
-const v$ = useVuelidate(rules, nProduct, { $autoDirty: true })
+} as ValidationArgs<ProductEntityCreation>
+const cVTarget = computed(() => ({ ...product.value, unit: prdUnits.value }))
+const v$ = useVuelidate(rules, cVTarget, { $autoDirty: true })
 
-const inp = ref() as Ref<HTMLInputElement>
-function validate(val: NProduct, valid: boolean): val is NProduct {
-    return valid
+function assertPrd(val: any): asserts val is ProductEntity {
+    if (product.value.seq == null) throw new Error('not possible')
 }
 async function onSave() {
     if ((await v$.value.$validate()) == false) {
-        Swal.fireCustom({ toast: true, icon: 'error', text: v$.value.$errors[0].$message.toString() })
+        Swal.fireCustom({ toast: true, icon: 'error', title: '', text: v$.value.$errors[0].$message.toString() })
         return
     }
 
     // 검증
     if (cIsUpdateView.value) {
-        // await apiProduct.update(ctg.value as PlaceCategoryEntity)
-        // Swal.fireCustom({ toast: true, messageType: 'update' })
+        assertPrd(product.value)
+        await apiProduct.update(product.value)
+        Swal.fireCustom({ toast: true, messageType: 'update' })
     } else {
-        // await apiPlaceCtg.create(ctg.value)
-        // Swal.fireCustom({ toast: true, messageType: 'save' })
+        await apiProduct.create(product.value)
+        Swal.fireCustom({ toast: true, messageType: 'save' })
     }
 
-    // list.value = await apiPlaceCtg.selectList()
     router.back()
 }
 
-async function onRemove() {
-    // if (ctg.value.seq && (await Swal.fireCustom({ isConfirm: true, messageType: 'remove' }))) {
-    //     await apiPlaceCtg.remove(ctg.value.seq)
-    //     // 카테고리 중 해당 구역 설정되어 있는 경우 수정
-    //     // 매장 중 해당 구역 설정되어 있는 경우 수정
-    //     storeStore.categories.forEach((storeCtg) => {
-    //         if (storeCtg.placeCtgSeq == ctg.value.seq) {
-    //             storeCtg.placeCtgSeq = null
-    //         }
-    //     })
-    //     storeStore.items.forEach((store) => {
-    //         if (store.placeCtgSeq == ctg.value.seq) {
-    //             store.placeCtgSeq = null
-    //         }
-    //     })
-    //     _.remove(list.value, (item) => item.seq == ctg.value.seq)
-    //     Swal.fireCustom({ toast: true, messageType: 'remove' })
-    //     router.back()
-    // }
-}
 function onCancel() {
     router.back()
+}
+
+function addUnit() {
+    // 기존 유닛이 있으면 수량목록만 갱신
+    // 기존 유닛이 없으면 push
+    const tgtUnit = prdUnits.value.find((pu) => pu.name == prdUnit.value.name)
+    if (tgtUnit == null) prdUnits.value.push(prdUnit.value)
+}
+
+function openUnitPop() {
+    router.push('/unitEdit')
 }
 </script>
 <template>
     <section class="place-ctg-view">
         <section class="wrapper g-form">
-            <section class="top">{{ `식자재 ${cText}` }}</section>
+            <section class="top">{{ `제품 ${cText}` }}</section>
             <section class="content">
                 <div class="row">
-                    <span class="label">{{ LABEL_INFO.supplyNm }}</span>
-                    <VSelect :items="supplies" item-value="name" item-title="name" v-model="nProduct.supplyNm" density="compact" :hide-details="true">
-                        <template #prepend-item>
-                            <VBtn color="primary" width="100%"><font-awesome-icon :icon="['fas', 'plus']" /></VBtn>
-                        </template>
-                    </VSelect>
+                    <span class="label">{{ LABEL_INFO.suplSeq }}</span>
+                    <VSelect :items="supplies" item-title="name" item-value="seq" v-model="product.suplSeq" density="compact" :hide-details="true"> </VSelect>
                 </div>
                 <div class="row">
                     <span class="label">{{ LABEL_INFO.name }}</span>
                     <div class="tw-flex tw-w-full tw-items-center">
-                        <VTextField type="text" v-model="nProduct.name" density="compact" :hide-details="true" style="height: 45px"></VTextField>
-                        <VCheckbox :hide-details="true" :ripple="false"></VCheckbox>
+                        <VTextField type="text" v-model="product.name" density="compact" :hide-details="true" style="height: 45px"></VTextField>
                     </div>
                 </div>
-                <div class="row">
-                    <span class="label">{{ LABEL_INFO.unit }}</span>
-                    <VTextField type="text" v-model="nProduct.unit" density="compact" :hide-details="true"></VTextField>
-                </div>
-                <div class="row">
-                    <span class="label">{{ LABEL_INFO.unitCnt }}</span>
-                    <div class="tw-flex tw-w-full tw-items-center">
-                        <VTextField type="number" v-model="nProduct.unitCnt" density="compact" :hide-details="true" style="height: 45px"></VTextField>
-                        <VCheckbox :hide-details="true" density="compact" :ripple="false"></VCheckbox>
+                <div class="c-unit">
+                    <div class="row">
+                        <span class="label">{{ LABEL_INFO.unit }}</span>
+                        <VSelect
+                            :disabled="cSelSupl == null"
+                            :items="units.map((unit) => unit.name)"
+                            item-title="name"
+                            item-value="name"
+                            @update:model-value="(name) => (prdUnit = units.find((u) => u.name == name)!)"
+                            :model-value="prdUnit.name"
+                            density="compact"
+                            :hide-details="true"
+                        >
+                            <template v-slot:prepend-item>
+                                <VBtn @click="openUnitPop" color="primary" class="tw-w-full"><font-awesome-icon :icon="['fas', 'plus']" /></VBtn>
+                                <VDivider class="test tw-mt-2 tw-h-4" style="border: 2px solid black"></VDivider>
+                            </template>
+                        </VSelect>
+                    </div>
+                    <div>
+                        <div class="row" v-if="prdUnit.isUnitCnt">
+                            <span class="label">{{ LABEL_INFO.unitCnt }}</span>
+                            <div class="tw-flex tw-w-full tw-items-center">
+                                <VTextField type="number" v-model="unitCnt" density="compact" :min="0" :hide-details="true" style="height: 45px"> </VTextField>
+                            </div>
+                        </div>
+                        <div class="justify-end tw-flex">
+                            <VBtn @click="addUnit" :disabled="false" color="primary"><font-awesome-icon :icon="['fas', 'plus']" /></VBtn>
+                        </div>
                     </div>
                 </div>
+                <div class="row"></div>
             </section>
             <section class="btt">
                 <v-btn @click="onSave" :disabled="cIsUpdated == false">{{ cText }}</v-btn>
-                <v-btn v-if="cIsUpdateView" @click="onRemove">삭제</v-btn>
                 <v-btn @click="onCancel">취소</v-btn>
             </section>
         </section>
@@ -146,5 +160,14 @@ function onCancel() {
 <style lang="scss" scoped>
 .place-ctg-view {
     @include center-view;
+
+    .c-unit {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        border-top: 1px solid grey;
+        border-bottom: 1px solid grey;
+        padding: 10px 0;
+    }
 }
 </style>

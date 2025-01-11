@@ -69,6 +69,7 @@ declare global {
   const triggerRef: typeof import('vue')['triggerRef']
   const unref: typeof import('vue')['unref']
   const useApi: typeof import('./src/api/useApi')['default']
+  const useApiMapProductUnit: typeof import('./src/api/useApiMapProductUnit')['default']
   const useApiMenu: typeof import('./src/api/useApiMenu')['default']
   const useApiMenuCtg: typeof import('./src/api/useApiMenuCtg')['default']
   const useApiOrder: typeof import('./src/api/useApiOrder')['default']

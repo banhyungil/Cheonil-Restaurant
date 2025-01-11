@@ -12,20 +12,20 @@ const router = useRouter()
 const Swal = useSwal()
 const apiUnit = useApiUnit()
 
-const unit = ref<UnitEntity>({ name: '' })
-const unitList = ref<UnitEntity[]>([])
+const unit = reactive({ name: '' } as UnitEntity)
+const units = ref<UnitEntity[]>([])
 
 apiUnit.selectList().then((res) => {
-    unitList.value = res
+    units.value = res
 })
 
-const REQUIRED_KEYS = ['name'] as ['name']
-const LABEL_INFO = {
+const REQUIRED_KEYS = ['name'] as const
+const LBL = {
     name: '단위',
 }
 const reqRules = REQUIRED_KEYS.reduce((result, key) => {
     result[key] = {
-        required: helpers.withMessage(`${LABEL_INFO[key]}를 입력해주세요.`, required),
+        required: helpers.withMessage(`${LBL[key]}를 입력해주세요.`, required),
     }
     return result
 }, {} as any)
@@ -38,7 +38,7 @@ async function validate() {
     if ((await v$.value.$validate()) == false) {
         Swal.fireCustom({ toast: true, icon: 'error', title: '', text: v$.value.$errors[0].$message.toString() })
         return false
-    } else if (unitList.value.some((u) => u.name == unit.value.name)) {
+    } else if (units.value.some((u) => u.name == unit.name)) {
         Swal.fireCustom({ toast: true, icon: 'error', title: '', text: '이미 등록된 단위 입니다.' })
         return false
     }
@@ -49,14 +49,13 @@ async function onCreate() {
     if ((await validate()) == false) return
 
     // 검증
-    const nUnit = await apiUnit.create(unit.value)
-    unitList.value.push(nUnit)
-    unit.value = { name: '' }
+    const nUnit = await apiUnit.create(unit)
+    units.value.push(nUnit)
 
     Swal.fireCustom({ toast: true, messageType: 'save' })
 }
 
-const cUnitTotalCnt = computed(() => unitList.value.length)
+const cUnitTotalCnt = computed(() => units.value.length)
 const pageSize = ref<number | null>(0)
 const { pageNo, cOffset, cTotalPage, PAGE_SIZE_LIST } = usePagination(cUnitTotalCnt, pageSize)
 pageSize.value = PAGE_SIZE_LIST[0]
@@ -71,20 +70,20 @@ const headers = ref([
 ]) as Ref<NonNullable<Mutable<VDataTable['$props']['headers']>>>
 
 const cDtProducts = computed(() =>
-    unitList.value.map((unit, idx) => {
+    units.value.map((unit, idx) => {
         return {
             ...unit,
             no: cOffset.value + idx + 1,
             unit: (unit.isUnitCnt ? '+' : '') + unit.name,
-            actions: unit.name,
+            actions: unit.seq,
         }
     })
 )
 
-async function onRemove(name: string) {
+async function onRemove(seq: number) {
     if (await Swal.fireCustom({ isConfirm: true, messageType: 'remove' })) {
-        await apiUnit.remove(name)
-        _.remove(unitList.value, (u) => u.name == name)
+        await apiUnit.remove(seq)
+        _.remove(units.value, (u) => u.seq == seq)
 
         Swal.fireCustom({ toast: true, messageType: 'remove' })
     }
@@ -100,7 +99,7 @@ async function onRemove(name: string) {
             <section class="content">
                 <div>
                     <div class="row">
-                        <span class="label">{{ LABEL_INFO.name }}</span>
+                        <span class="label">{{ LBL.name }}</span>
                         <VTextField type="text" v-model="unit.name" density="compact" :hide-details="true" style="height: 45px"></VTextField>
                     </div>
                     <div class="tw-flex tw-items-center tw-justify-end">

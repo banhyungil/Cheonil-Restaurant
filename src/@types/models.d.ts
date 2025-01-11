@@ -36,6 +36,32 @@ interface ExpenseEntity {
     updatedAt?: Date | null
 }
 
+/* 제품/단위 맵핑 */
+interface MapProductUnitEntity {
+    /* 제품 SEQ */
+    prdSeq: number
+
+    /* 단위 SEQ */
+    unitSeq: number
+
+    /* 단위수량 목록 */
+    unitCntList?: number[] | null
+}
+
+type MapProductUnitEntityCreation = PartialK<MapProductUnitEntity, 'prdSeq'>
+
+/* 식자재 단위 */
+interface MapSupplyUnitEntity {
+    /* 단위 */
+    unitNm: string
+
+    /* 식자재 Seq */
+    suplSeq: number
+
+    /* 단위수량 목록 */
+    unitCntList?: string | null
+}
+
 /* 메뉴 */
 interface MenuEntity {
     /* 메뉴 Seq */
@@ -239,12 +265,6 @@ interface ProductEntity {
     /* 식자재 명 */
     name: string
 
-    /* 단위 */
-    unit: string
-
-    /* 단위수량 */
-    unitCnt?: number | null
-
     /* 비고 */
     cmt?: string | null
 
@@ -256,6 +276,9 @@ interface ProductEntity {
 
     /* 수정시간 */
     updatedAt?: Date | null
+
+    /* 단위목록 */
+    units: UnitEntity[]
 }
 
 type ProductEntityCreation = PartialK<ProductEntity, 'seq'>
@@ -334,7 +357,7 @@ interface StoreCategoryEntity {
 /* 매장 지출 로그 */
 interface StoreExpenseLogEntity {
     /* 매장 지출 로그 Seq */
-    seq?: number
+    seq: number
 
     /* 매장 Seq */
     storeSeq: number
@@ -362,33 +385,16 @@ interface SupplyEntity {
 
     /* 수정시간 */
     updatedAt?: Date | null
-
-    /* 단위목록 */
-    units: UnitEntity[]
 }
 
-type SupplyEntityCreation = PartialK<SupplyEntity, 'seq' | 'units'>
-
-/* 식자재 단위 */
-interface SupplyUnitEntity {
-    /* 단위 */
-    unitNm: string
-
-    /* 식자재 Seq */
-    suplSeq: number
-
-    /* 단위수량 목록 */
-    unitCntList?: string | null
-}
+type SupplyEntityCreation = PartialK<SupplyEntity, 'seq'>
 
 /* 단위 */
 interface UnitEntity {
-    /* 단위 */
+    /* 단위 SEQ */
+    seq: number
+    /* 단위명 */
     name: string
-
     /* 단위수량 여부 */
-    isUnitCnt?: number
-
-    /* 단위수량 목록 */
-    unitCntList?: string | null
+    isUnitCnt?: boolean
 }
