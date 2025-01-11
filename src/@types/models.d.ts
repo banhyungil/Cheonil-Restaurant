@@ -46,9 +46,11 @@ interface MapProductUnitEntity {
 
     /* 단위수량 목록 */
     unitCntList?: number[] | null
+
+    unit?: UnitEntity
 }
 
-type MapProductUnitEntityCreation = PartialK<MapProductUnitEntity, 'prdSeq'>
+type MapProductUnitCreationEntity = PartialK<MapProductUnitEntity, 'prdSeq' | 'unitSeq'>
 
 /* 식자재 단위 */
 interface MapSupplyUnitEntity {
@@ -278,7 +280,7 @@ interface ProductEntity {
     updatedAt?: Date | null
 
     /* 단위목록 */
-    units: UnitEntity[]
+    mapUnits: RequiredK<MapProductUnitEntity, 'unit'>[]
 }
 
 type ProductEntityCreation = PartialK<ProductEntity, 'seq'>

@@ -47,10 +47,10 @@ const isEdit = ref(false)
 
 const cDtProducts = computed(() =>
     cProducts.value.map((prd, idx) => {
-        const unitsStr = prd.units
-            .map((unit) => {
-                if (unit.unitCntList) return `(${unit.unitCntList.join(', ')})${unit.name}`
-                else return unit.name
+        const unitsStr = prd.mapUnits
+            .map((mapUnit) => {
+                if (mapUnit.unitCntList) return `(${mapUnit.unitCntList.join(', ')})${mapUnit.unit.name}`
+                else return mapUnit.unit.name
             })
             .join('\n')
 

@@ -135,7 +135,7 @@ const router = createRouter({
 // path에 따라 자신의 layout을 결정한다.
 const layoutRoutePathDict = {
     default: ['/order'],
-    admin: ['/account', '/collection', '/expenseList', '/orderList', '/store', '/menu', '/supply', '/product'],
+    admin: ['/account', '/collection', '/expenseList', '/orderList', '/store', '/menu', '/supply', '/product', '/productEdit'],
 }
 router.getRoutes().forEach((route) => {
     Object.entries(layoutRoutePathDict).forEach(([key, paths]) => {
