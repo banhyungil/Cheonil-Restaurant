@@ -11,6 +11,7 @@ const Route = useRoute()
             <RouterLink to="/collection" activeClass="active">수금</RouterLink>
             <RouterLink to="/expenseList" activeClass="active">지출내역</RouterLink>
             <RouterLink to="/orderList" activeClass="active">주문내역</RouterLink>
+            <RouterLink to="/product" activeClass="active">제품관리</RouterLink>
             <RouterLink to="/supply" activeClass="active">식자재관리</RouterLink>
             <RouterLink to="/menu" activeClass="active">메뉴 등록</RouterLink>
             <RouterLink to="/store" activeClass="active">매장 등록</RouterLink>

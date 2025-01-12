@@ -13,7 +13,7 @@ const apiSupply = useApiSupply()
 const apiUnit = useApiUnit()
 
 const originSupply = ref<SupplyEntity>()
-const supply = ref<SupplyEntityCreation & { unitNms: string[] }>({ name: '', unitNms: [] })
+const supply = reactive({} as SupplyEntity)
 const supplies = ref<SupplyEntity[]>([])
 const units = ref<UnitEntity[]>([])
 
@@ -26,7 +26,7 @@ const props = defineProps<Props>()
 if (props.seq) {
     apiSupply.select(+props.seq).then((res) => {
         originSupply.value = _.cloneDeep(res)
-        supply.value = { ...res, unitNms: res.units.map((u) => u.name) }
+        Object.assign(supply, res)
     })
 }
 
@@ -39,11 +39,10 @@ apiSupply.selectList().then((res) => {
 })
 
 const cIsUpdateView = computed(() => (props.seq ? true : false))
-const cIsUpdated = computed(() => _.isEqual(supply.value, originSupply.value) == false)
+const cIsUpdated = computed(() => _.isEqual(supply, originSupply.value) == false)
 const cText = computed(() => (cIsUpdateView.value ? '수정' : '등록'))
 const LABEL_INFO = {
     name: '명칭',
-    units: '단위',
 }
 const rules = {
     name: {
@@ -56,10 +55,7 @@ async function validate() {
     if ((await v$.value.$validate()) == false) {
         Swal.fireCustom({ toast: true, icon: 'error', title: '', text: v$.value.$errors[0].$message.toString() })
         return false
-    } else if (supply.value.unitNms.length < 1) {
-        Swal.fireCustom({ toast: true, icon: 'error', title: '', text: '단위를 선택해주세요' })
-        return false
-    } else if (cIsUpdateView.value == false && supplies.value.some((supl) => supl.name == supply.value.name)) {
+    } else if (cIsUpdateView.value == false && supplies.value.some((supl) => supl.name == supply.name)) {
         Swal.fireCustom({ toast: true, icon: 'error', title: '', text: '이미 등록된 식자재입니다.' })
         return false
     }
@@ -71,10 +67,10 @@ async function onSave() {
     if ((await validate()) == false) return
 
     if (cIsUpdateView.value) {
-        await apiSupply.update(supply.value, supply.value.unitNms)
+        await apiSupply.update(supply)
         Swal.fireCustom({ toast: true, messageType: 'save' })
     } else {
-        await apiSupply.create({ name: supply.value.name }, supply.value.unitNms)
+        await apiSupply.create(supply)
         Swal.fireCustom({ toast: true, messageType: 'save' })
     }
 
@@ -83,27 +79,6 @@ async function onSave() {
 
 function onCancel() {
     router.back()
-}
-
-// function addUnit() {
-//     if (unit.value) supply.value.units.push(unit.value)
-// }
-
-// function addUnitCnt() {
-//     if (unitCnt.value) {
-//         if (supply.value.unitCntList == null) supply.value.unitCntList = []
-
-//         supply.value.unitCntList.push(unitCnt.value)
-//     }
-// }
-
-const isOpenedPop = ref(false)
-const comp = ref<InstanceType<typeof UnitEditPop>>()
-
-function openPopup() {
-    router.push('/unitEdit')
-    // isOpenedPop.value = true
-    console.log('onClickPrepend')
 }
 </script>
 <template>
@@ -114,18 +89,6 @@ function openPopup() {
                 <div class="row">
                     <span class="label">{{ LABEL_INFO.name }}</span>
                     <VTextField type="text" v-model="supply.name" density="compact" :hide-details="true" style="height: 45px"></VTextField>
-                </div>
-                <div>
-                    <div class="row">
-                        <span class="label">{{ LABEL_INFO.units }}</span>
-                        <div class="tw-flex tw-w-full tw-items-center tw-justify-center">
-                            <VSelect ref="comp" v-model="supply.unitNms" :items="units" item-title="name" chips multiple density="compact" :hide-details="true">
-                            </VSelect>
-                            <VBtn @click="openPopup" color="primary">
-                                <font-awesome-icon :icon="['fas', 'pencil']" />
-                            </VBtn>
-                        </div>
-                    </div>
                 </div>
             </section>
             <section class="btt">

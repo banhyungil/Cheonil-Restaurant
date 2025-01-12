@@ -1,33 +1,28 @@
 <script setup lang="ts">
-import useApiOrder from '@/api/useApiOrder'
 import type { VDataTable } from 'vuetify/components'
 import _ from 'lodash'
-import { addDays, addMonths, format } from 'date-fns'
 import usePagination from '@/composable/usePagination'
-import useSwal, { type SweetAlertOptionsCustom } from '@/composable/useSwal'
-import useApiPayment from '@/api/useApiPayment'
-import { getTotalOrderAmount, getTotalPayAmount } from '@/stores/orderStore'
-import { today } from '@/utils/CommonUtils'
+import useSwal from '@/composable/useSwal'
 
 const router = useRouter()
 const Swal = useSwal()
 const apiSupply = useApiSupply()
-const apiProduct = useApiProduct()
+const apiProductInfo = useApiProductInfo()
 
 const supplies = ref<SupplyEntity[]>([])
 const cSupplyDict = computed(() => _.keyBy(supplies.value, 'seq'))
-const products = ref<ProductEntity[]>([])
-const cProducts = computed(() => {
-    return products.value.map((prd) => ({ ...prd, supply: cSupplyDict.value[prd.splSeq] }))
+const prdInfos = ref<ProductInfoEntity[]>([])
+const cPrdInfos = computed(() => {
+    return prdInfos.value.map((prd) => ({ ...prd, supply: cSupplyDict.value[prd.suplSeq] }))
 })
-const cPrdTotalCnt = computed(() => products.value.length)
+const cPrdTotalCnt = computed(() => prdInfos.value.length)
 
 apiSupply.selectList().then((res) => {
     supplies.value = res
 })
 
-apiProduct.selectList().then((res) => {
-    products.value = res
+apiProductInfo.selectList().then((res) => {
+    prdInfos.value = res
 })
 
 const pageSize = ref<number | null>(0)
@@ -40,9 +35,8 @@ watch(pageNo, () => {
 const headers = ref([
     { title: '순번', key: 'no', sortable: false, align: 'start', width: '60px' },
     { title: '식자재', key: 'splNm', align: 'center' },
-    { title: '제품명', key: 'prdNm', align: 'center' },
-    { title: '단위', key: 'unit', align: 'center' },
-    { title: '단위수량', key: 'unitCnt', align: 'center' },
+    { title: '제품명', key: 'name', align: 'center' },
+    { title: '단위 목록', key: 'unitNms', align: 'center' },
     { title: 'Actions', key: 'actions', align: 'center', sortable: false },
 ]) as Ref<NonNullable<Mutable<VDataTable['$props']['headers']>>>
 const cHeaders = computed(() => {
@@ -52,18 +46,37 @@ const cHeaders = computed(() => {
 const isEdit = ref(false)
 
 const cDtProducts = computed(() =>
-    cProducts.value.map((prd, idx) => {
+    cPrdInfos.value.map((prdInfo, idx) => {
+        const unitNms = prdInfo.products.flatMap((prd) => {
+            const { unit } = prd
+            if (unit.isUnitCnt) return prd.unitCntList == null ? [] : prd.unitCntList?.map((unitCnt) => `${unitCnt}${unit.name}`)
+            else return unit.name
+        })
+
         return {
-            ...prd,
+            ...prdInfo,
             no: cOffset.value + idx + 1,
-            splNm: prd.supply.name,
-            actions: prd.seq,
+            splNm: prdInfo.supply.name,
+            unitNms: unitNms.join(' '),
+            actions: prdInfo.seq,
         }
     })
 )
 
 function addProduct() {
-    router.push('/supplyEdit')
+    router.push('/productEdit')
+}
+
+function onUpdate(seq: number) {
+    router.push(`/productEdit/${seq}`)
+}
+
+async function onRemove(seq: number) {
+    if ((await Swal.fireCustom({ isConfirm: true, messageType: 'remove' })) == false) return
+
+    await apiProductInfo.remove(seq)
+    _.remove(prdInfos.value, (prd) => prd.seq == seq)
+    Swal.fireCustom({ toast: true, messageType: 'remove' })
 }
 </script>
 
@@ -78,6 +91,16 @@ function addProduct() {
                 <v-btn @click="() => (isEdit = !isEdit)" :color="isEdit ? 'primary' : ''" v-tooltip="'편집'">
                     <font-awesome-icon :icon="['fas', 'pen']" />
                 </v-btn>
+            </div>
+        </template>
+        <template #item.actions="{ value }">
+            <div style="display: flex; justify-content: center; gap: 10px">
+                <button @click="onUpdate(value)" style="color: var(--color-success)" v-tooltip="'수정'">
+                    <font-awesome-icon :icon="['fas', 'pen-to-square']" />
+                </button>
+                <button @click="onRemove(value)" style="color: var(--color-danger)" v-tooltip="'삭제'">
+                    <font-awesome-icon :icon="['fas', 'trash']" />
+                </button>
             </div>
         </template>
         <template #bottom>

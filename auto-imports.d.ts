@@ -75,6 +75,7 @@ declare global {
   const useApiPayment: typeof import('./src/api/useApiPayment')['default']
   const useApiPlaceCtg: typeof import('./src/api/useApiPlaceCtg')['default']
   const useApiProduct: typeof import('./src/api/useApiProduct')['default']
+  const useApiProductInfo: typeof import('./src/api/useApiProductInfo')['default']
   const useApiSetting: typeof import('./src/api/useApiSetting')['default']
   const useApiStore: typeof import('./src/api/useApiStore')['default']
   const useApiStoreCtg: typeof import('./src/api/useApiStoreCtg')['default']

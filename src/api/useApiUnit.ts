@@ -14,8 +14,8 @@ export default function useApiUnit() {
         return res.data as UnitEntity
     }
 
-    function remove(name: string) {
-        return api.delete(`${prefix}/${name}`)
+    function remove(seq: number) {
+        return api.delete(`${prefix}/${seq}`)
     }
 
     return { selectList, create, remove }

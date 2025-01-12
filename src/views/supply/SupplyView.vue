@@ -25,7 +25,6 @@ watch(pageNo, () => {
 const headers = ref([
     { title: '순번', key: 'no', sortable: false, align: 'start', width: '60px' },
     { title: '식자재', key: 'name', align: 'center' },
-    { title: '단위', key: 'units', align: 'center' },
     { title: 'Actions', key: 'actions', align: 'center', sortable: false },
 ]) as Ref<NonNullable<Mutable<VDataTable['$props']['headers']>>>
 const cHeaders = computed(() => {
@@ -40,11 +39,6 @@ const cDtProducts = computed(() =>
             ...supply,
             no: cOffset.value + idx + 1,
             splNm: supply.name,
-            units: supply.units
-                ?.map((u) => {
-                    return (u.isUnitCnt ? '+' : '') + u.name
-                })
-                .join(', '),
             actions: supply.seq,
         }
     })

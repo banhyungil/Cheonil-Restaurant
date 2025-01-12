@@ -50,14 +50,26 @@ const router = createRouter({
         },
         {
             path: '/supplyEdit',
-            name: 'supplyEdit',
             component: () => import('../views/supply/SupplyEditView.vue'),
         },
         {
             path: '/supplyEdit/:seq',
-            name: 'supplyEdit',
             props: true,
             component: () => import('../views/supply/SupplyEditView.vue'),
+        },
+        {
+            path: '/product',
+            name: 'product',
+            component: () => import('../views/supply/ProductView.vue'),
+        },
+        {
+            path: '/productEdit/:seq?',
+            props: true,
+            component: () => import('../views/supply/ProductEditView.vue'),
+        },
+        {
+            path: '/unitEdit',
+            component: () => import('../views/UnitEditView.vue'),
         },
         {
             path: '/menu',
@@ -112,12 +124,6 @@ const router = createRouter({
             props: true,
             component: () => import('../views/store/StoreCtgEditView.vue'),
         },
-        {
-            path: '/test',
-            name: 'test',
-            props: true,
-            component: () => import('../components/MenuTab.vue'),
-        },
     ],
 })
 
@@ -125,7 +131,7 @@ const router = createRouter({
 // path에 따라 자신의 layout을 결정한다.
 const layoutRoutePathDict = {
     default: ['/order'],
-    admin: ['/account', '/collection', '/expenseList', '/orderList', '/store', '/menu', '/supply'],
+    admin: ['/account', '/collection', '/expenseList', '/orderList', '/store', '/menu', '/supply', '/product', '/productEdit'],
 }
 router.getRoutes().forEach((route) => {
     Object.entries(layoutRoutePathDict).forEach(([key, paths]) => {
