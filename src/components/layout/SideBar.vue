@@ -1,6 +1,4 @@
-<script setup lang="ts">
-const Route = useRoute()
-</script>
+<script setup lang="ts"></script>
 <template>
     <div class="sidebar">
         <div class="c-home">
