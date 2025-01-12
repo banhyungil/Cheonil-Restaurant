@@ -7,22 +7,22 @@ import useSwal from '@/composable/useSwal'
 const router = useRouter()
 const Swal = useSwal()
 const apiSupply = useApiSupply()
-const apiProduct = useApiProduct()
+const apiProductInfo = useApiProductInfo()
 
 const supplies = ref<SupplyEntity[]>([])
 const cSupplyDict = computed(() => _.keyBy(supplies.value, 'seq'))
-const products = ref<ProductEntity[]>([])
-const cProducts = computed(() => {
-    return products.value.map((prd) => ({ ...prd, supply: cSupplyDict.value[prd.suplSeq] }))
+const prdInfos = ref<ProductInfoEntity[]>([])
+const cPrdInfos = computed(() => {
+    return prdInfos.value.map((prd) => ({ ...prd, supply: cSupplyDict.value[prd.suplSeq] }))
 })
-const cPrdTotalCnt = computed(() => products.value.length)
+const cPrdTotalCnt = computed(() => prdInfos.value.length)
 
 apiSupply.selectList().then((res) => {
     supplies.value = res
 })
 
-apiProduct.selectList().then((res) => {
-    products.value = res
+apiProductInfo.selectList().then((res) => {
+    prdInfos.value = res
 })
 
 const pageSize = ref<number | null>(0)
@@ -36,7 +36,7 @@ const headers = ref([
     { title: '순번', key: 'no', sortable: false, align: 'start', width: '60px' },
     { title: '식자재', key: 'splNm', align: 'center' },
     { title: '제품명', key: 'name', align: 'center' },
-    { title: '단위', key: 'units', align: 'center' },
+    { title: '단위 목록', key: 'unitNms', align: 'center' },
     { title: 'Actions', key: 'actions', align: 'center', sortable: false },
 ]) as Ref<NonNullable<Mutable<VDataTable['$props']['headers']>>>
 const cHeaders = computed(() => {
@@ -46,20 +46,19 @@ const cHeaders = computed(() => {
 const isEdit = ref(false)
 
 const cDtProducts = computed(() =>
-    cProducts.value.map((prd, idx) => {
-        const unitsStr = prd.mapUnits
-            .map((mapUnit) => {
-                if (mapUnit.unitCntList) return `(${mapUnit.unitCntList.join(', ')})${mapUnit.unit.name}`
-                else return mapUnit.unit.name
-            })
-            .join('\n')
+    cPrdInfos.value.map((prdInfo, idx) => {
+        const unitNms = prdInfo.products.flatMap((prd) => {
+            const { unit } = prd
+            if (unit.isUnitCnt) return prd.unitCntList == null ? [] : prd.unitCntList?.map((unitCnt) => `${unitCnt}${unit.name}`)
+            else return unit.name
+        })
 
         return {
-            ...prd,
+            ...prdInfo,
             no: cOffset.value + idx + 1,
-            splNm: prd.supply.name,
-            units: unitsStr,
-            actions: prd.seq,
+            splNm: prdInfo.supply.name,
+            unitNms: unitNms.join(' '),
+            actions: prdInfo.seq,
         }
     })
 )
@@ -72,8 +71,12 @@ function onUpdate(seq: number) {
     router.push(`/productEdit/${seq}`)
 }
 
-function onRemove(seq: number) {
-    apiProduct.remove(seq)
+async function onRemove(seq: number) {
+    if ((await Swal.fireCustom({ isConfirm: true, messageType: 'remove' })) == false) return
+
+    await apiProductInfo.remove(seq)
+    _.remove(prdInfos.value, (prd) => prd.seq == seq)
+    Swal.fireCustom({ toast: true, messageType: 'remove' })
 }
 </script>
 

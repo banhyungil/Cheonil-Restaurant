@@ -11,20 +11,21 @@ import { VChip } from 'vuetify/components'
 const Swal = useSwal()
 const router = useRouter()
 const apiSupply = useApiSupply()
-const apiProduct = useApiProduct()
+const apiProductInfo = useApiProductInfo()
 const apiUnit = useApiUnit()
+const apiProduct = useApiProduct()
 
 const supplies = ref<SupplyEntity[]>([])
 const units = ref<UnitEntity[]>([])
-const originProduct = ref<ProductEntity>()
-const product = ref({} as ProductEntityCreation)
+const originProduct = ref<ProductInfoEntity>()
+const productInfo = ref({} as ProductInfoCreationEntity)
 
 const selUnit = ref<UnitEntity>()
-const unitCnt = ref(1)
+const unitCnt = ref<number | null>(1)
 
-const mapPrdUnits = ref<MapProductUnitCreationEntity[]>([])
+const products = ref<MapProductUnitCreationEntity[]>([])
 
-const cSelSupl = computed(() => supplies.value.find((supl) => supl.seq == product.value.suplSeq))
+const cSelSupl = computed(() => supplies.value.find((supl) => supl.seq == productInfo.value.suplSeq))
 
 interface Props {
     // routerParam
@@ -40,37 +41,49 @@ apiUnit.selectList().then((res) => {
 })
 
 if (props.seq) {
-    apiProduct.select(+props.seq).then((res) => {
+    apiProductInfo.select(+props.seq).then((res) => {
         originProduct.value = _.cloneDeep(res)
-        product.value = res
-        mapPrdUnits.value = product.value.mapUnits
+        productInfo.value = res
+        products.value = productInfo.value.products!
     })
 }
 
 const cIsUpdateView = computed(() => (props.seq ? true : false))
-const cIsUpdated = computed(() => _.isEqual(product.value, originProduct.value) == false && _.isEqual(mapPrdUnits.value, originProduct.value) == false)
+const cIsUpdated = computed(() => _.isEqual(productInfo.value, originProduct.value) == false && _.isEqual(products.value, originProduct.value) == false)
 const cText = computed(() => (cIsUpdateView.value ? '수정' : '등록'))
-const REQUIRED_KEYS = ['suplSeq', 'name', 'unit'] as const
 const LBL = {
     suplSeq: '식자재',
     name: '제품명',
     unit: '단위',
     unitCnt: '단위수량',
 }
-const reqRules = REQUIRED_KEYS.reduce((result, key) => {
-    result[key] = {
-        required: helpers.withMessage(`${LBL[key]}를 선택해주세요.`, required),
-    }
-    return result
-}, {} as any)
 const rules = {
-    ...reqRules,
-} as ValidationArgs<ProductEntityCreation>
-const cVTarget = computed(() => ({ ...product.value, unit: mapPrdUnits.value }))
-const v$ = useVuelidate(rules, cVTarget, { $autoDirty: true })
+    productInfo: {
+        suplSeq: {
+            required: helpers.withMessage(`${LBL.suplSeq}를 선택해주세요.`, required),
+        },
+        name: {
+            required: helpers.withMessage(`${LBL.name}를 선택해주세요.`, required),
+        },
+    },
+    products: { required: helpers.withMessage(`${LBL.unit}를 선택해주세요.`, required) },
+} as ValidationArgs<{ productInfo: ProductInfoCreationEntity; products: ProductEntity[] }>
+const v$ = useVuelidate(
+    rules,
+    {
+        productInfo,
+        products,
+    },
+    { $autoDirty: true }
+)
 
-function assertPrd(val: any): asserts val is ProductEntity {
-    if (product.value.seq == null) throw new Error('not possible')
+function onSuplChanged(seq: number) {
+    const supl = supplies.value.find((sp) => sp.seq == seq)!
+    productInfo.value.name = supl.name
+}
+
+function assertPrd(val: any): asserts val is ProductInfoEntity {
+    if (productInfo.value.seq == null) throw new Error('not possible')
 }
 async function onSave() {
     if ((await v$.value.$validate()) == false) {
@@ -78,13 +91,24 @@ async function onSave() {
         return
     }
 
-    // 검증
     if (cIsUpdateView.value) {
-        assertPrd(product.value)
-        await apiProduct.update(product.value)
+        assertPrd(productInfo.value)
+        await apiProductInfo.update(productInfo.value)
+        // 단위 맵핑 정보가 변경된 경우
+        if (_.isEqual(products.value, originProduct.value?.products) == false) {
+            await apiProduct.deleteProduct(productInfo.value.seq)
+            await apiProduct.createList(products.value as ProductEntity[])
+        }
+
         Swal.fireCustom({ toast: true, messageType: 'update' })
     } else {
-        await apiProduct.create(product.value)
+        // 제품등록
+        const nProduct = await apiProductInfo.create(productInfo.value)
+
+        // 제품단위맵핑 등록
+        products.value.forEach((prd) => (prd.prdInfoSeq = nProduct.seq))
+        await apiProduct.createList(products.value as ProductEntity[])
+
         Swal.fireCustom({ toast: true, messageType: 'save' })
     }
 
@@ -95,21 +119,37 @@ function onCancel() {
     router.back()
 }
 
+function onCntChanged() {
+    if (unitCnt.value && isNaN(unitCnt.value)) unitCnt.value = null
+}
 function addUnit() {
-    if (selUnit.value == null) return
-    // 단위수량이 있다면 단위수량까지 등로고디어있어야함
-    const tgtMpu = mapPrdUnits.value.find((mpu) => mpu.unitSeq == selUnit.value!.seq)
+    if (selUnit.value == null) {
+        Swal.fireCustom({ title: '', text: '단위를 선택해주세요.', icon: 'error', showCancelButton: false })
+        return
+    }
     const { isUnitCnt } = selUnit.value
+    if (isUnitCnt) {
+        if (unitCnt.value == null) {
+            Swal.fireCustom({ title: '', text: '단위 수량을 입력해주세요', icon: 'error', showCancelButton: false })
+            return
+        } else if (isNaN(unitCnt.value!)) {
+            Swal.fireCustom({ title: '', text: '단위 수량을 올바르게 입력해주세요', icon: 'error', showCancelButton: false })
+            return
+        }
+    }
+
+    // 단위수량이 있다면 단위수량까지 등로고디어있어야함
+    const tgtMpu = products.value.find((mpu) => mpu.unitSeq == selUnit.value!.seq)
     if ((isUnitCnt && tgtMpu?.unitCntList?.some((cnt) => cnt == unitCnt.value)) || (isUnitCnt == false && tgtMpu)) {
-        Swal.fireCustom({ toast: true, title: '', text: '이미 등록된 단위입니다.' })
+        Swal.fireCustom({ toast: true, icon: 'error', title: '', text: '이미 등록된 단위입니다.' })
         return
     }
 
     let mpu: MapProductUnitCreationEntity
     if (tgtMpu == null) {
-        mpu = { unitSeq: selUnit.value.seq } as MapProductUnitEntity
+        mpu = { unitSeq: selUnit.value.seq } as ProductEntity
         if (isUnitCnt) mpu.unitCntList = []
-        mapPrdUnits.value.push(mpu)
+        products.value.push(mpu)
     } else {
         mpu = tgtMpu
     }
@@ -123,10 +163,11 @@ function openUnitPop() {
     router.push('/unitEdit')
 }
 
-type UnitInfo = { name: string; unitCnt: number; unit: UnitEntity }
-function getUnitInfos(mpu: MapProductUnitCreationEntity) {
+type UnitInfo = { name: string; unitCnt?: number; unit: UnitEntity }
+function getUnitInfos(mpu: MapProductUnitCreationEntity): UnitInfo[] {
     const unit = units.value.find((unit) => unit.seq == mpu.unitSeq)!
-    if (unit.isUnitCnt) return mpu.unitCntList?.map((unitCnt) => ({ name: `${unitCnt}${unit.name}`, unitNm: unit.name, unitCnt, unit }) as UnitInfo)
+    if (unit.isUnitCnt)
+        return mpu.unitCntList == null ? [] : mpu.unitCntList?.map((unitCnt) => ({ name: `${unitCnt}${unit.name}`, unitNm: unit.name, unitCnt, unit }))
     else return [{ name: unit.name, unit }]
 }
 
@@ -136,11 +177,11 @@ function assertCntList(val: any): asserts val is number[] {
 function onRemoveUnit(unitInfo: UnitInfo, mpu: MapProductUnitCreationEntity) {
     // 단위 수량이 없는 경우
     if (unitInfo.name == unitInfo.unit.name) {
-        _.remove(mapPrdUnits.value, mpu)
+        _.remove(products.value, mpu)
     } else {
         assertCntList(mpu.unitCntList)
         _.remove(mpu.unitCntList, (cnt) => cnt == unitInfo.unitCnt)
-        if (mpu.unitCntList.length == 0) _.remove(mapPrdUnits.value, mpu)
+        if (mpu.unitCntList.length == 0) _.remove(products.value, mpu)
     }
 }
 </script>
@@ -148,16 +189,24 @@ function onRemoveUnit(unitInfo: UnitInfo, mpu: MapProductUnitCreationEntity) {
     <section class="place-ctg-view">
         <section class="wrapper g-form">
             <section class="top">{{ `제품 ${cText}` }}</section>
-            {{ mapPrdUnits }}
             <section class="content">
                 <div class="row">
                     <span class="label">{{ LBL.suplSeq }}</span>
-                    <VSelect :items="supplies" item-title="name" item-value="seq" v-model="product.suplSeq" density="compact" :hide-details="true"> </VSelect>
+                    <VSelect
+                        :items="supplies"
+                        item-title="name"
+                        item-value="seq"
+                        v-model="productInfo.suplSeq"
+                        @update:model-value="onSuplChanged"
+                        density="compact"
+                        :hide-details="true"
+                    >
+                    </VSelect>
                 </div>
                 <div class="row">
                     <span class="label">{{ LBL.name }}</span>
                     <div class="tw-flex tw-w-full tw-items-center">
-                        <VTextField type="text" v-model="product.name" density="compact" :hide-details="true" style="height: 45px"></VTextField>
+                        <VTextField type="text" v-model="productInfo.name" density="compact" :hide-details="true" style="height: 45px"></VTextField>
                     </div>
                 </div>
                 <div class="c-unit">
@@ -173,14 +222,17 @@ function onRemoveUnit(unitInfo: UnitInfo, mpu: MapProductUnitCreationEntity) {
                             density="compact"
                             :hide-details="true"
                         >
-                            <template v-slot:prepend-item>
-                                <VBtn @click="openUnitPop" color="primary" class="tw-w-full"><font-awesome-icon :icon="['fas', 'plus']" /></VBtn>
+                            <template v-slot:append-item>
+                                <VBtn @click="openUnitPop" color="primary" class="tw-w-full"
+                                    ><span class="tw-mr-2">추가</span><font-awesome-icon :icon="['fas', 'plus']"
+                                /></VBtn>
                                 <VDivider class="test tw-mt-2 tw-h-4" style="border: 2px solid black"></VDivider>
                             </template>
                         </VSelect>
                         <VNumberInput
                             v-show="selUnit?.isUnitCnt"
                             v-model="unitCnt"
+                            @update:model-value="onCntChanged"
                             controlVariant="stacked"
                             :min="1"
                             density="compact"
@@ -190,12 +242,12 @@ function onRemoveUnit(unitInfo: UnitInfo, mpu: MapProductUnitCreationEntity) {
                     </div>
                     <div>
                         <div class="justify-end tw-flex">
-                            <VBtn @click="addUnit" :disabled="false" color="primary"><font-awesome-icon :icon="['fas', 'plus']" /></VBtn>
+                            <VBtn @click="addUnit" :disabled="false" color="primary"><span class="tw-mr">단위 추가</span></VBtn>
                         </div>
                     </div>
                 </div>
                 <div class="tw-flex tw-flex-wrap tw-gap-3">
-                    <template v-for="mpu in mapPrdUnits" :key="`${mpu.prdSeq}-${mpu.unitSeq}`">
+                    <template v-for="mpu in products" :key="`${mpu.prdInfoSeq}-${mpu.unitSeq}`">
                         <v-chip
                             v-for="info in getUnitInfos(mpu)"
                             :key="info.name"

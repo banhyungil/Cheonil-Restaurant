@@ -63,11 +63,7 @@ const router = createRouter({
             component: () => import('../views/supply/ProductView.vue'),
         },
         {
-            path: '/productEdit',
-            component: () => import('../views/supply/ProductEditView.vue'),
-        },
-        {
-            path: '/productEdit/:seq',
+            path: '/productEdit/:seq?',
             props: true,
             component: () => import('../views/supply/ProductEditView.vue'),
         },

@@ -37,9 +37,9 @@ interface ExpenseEntity {
 }
 
 /* 제품/단위 맵핑 */
-interface MapProductUnitEntity {
-    /* 제품 SEQ */
-    prdSeq: number
+interface ProductEntity {
+    /* 제품 정보 SEQ */
+    prdInfoSeq: number
 
     /* 단위 SEQ */
     unitSeq: number
@@ -50,7 +50,7 @@ interface MapProductUnitEntity {
     unit?: UnitEntity
 }
 
-type MapProductUnitCreationEntity = PartialK<MapProductUnitEntity, 'prdSeq' | 'unitSeq'>
+type MapProductUnitCreationEntity = PartialK<ProductEntity, 'prdInfoSeq' | 'unitSeq'>
 
 /* 식자재 단위 */
 interface MapSupplyUnitEntity {
@@ -257,7 +257,7 @@ interface PlaceCategoryEntity {
 type PlaceCategoryEntityCreation = PartialK<PlaceCategoryEntity, 'seq'>
 
 /* 제품 */
-interface ProductEntity {
+interface ProductInfoEntity {
     /* 제품 Seq */
     seq: number
 
@@ -279,11 +279,11 @@ interface ProductEntity {
     /* 수정시간 */
     updatedAt?: Date | null
 
-    /* 단위목록 */
-    mapUnits: RequiredK<MapProductUnitEntity, 'unit'>[]
+    /* 제품목록 */
+    products: RequiredK<ProductEntity, 'unit'>[]
 }
 
-type ProductEntityCreation = PartialK<ProductEntity, 'seq'>
+type ProductInfoCreationEntity = PartialK<ProductInfoEntity, 'seq' | 'products'>
 /* 설정 */
 interface SettingEntity {
     /* 설정 Seq */
