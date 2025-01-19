@@ -23,7 +23,7 @@ const productInfo = ref({} as ProductInfoCreationEntity)
 const selUnit = ref<UnitEntity>()
 const unitCnt = ref<number | null>(1)
 
-const products = ref<MapProductUnitCreationEntity[]>([])
+const products = ref<ProductCreationEntity[]>([])
 
 const cSelSupl = computed(() => supplies.value.find((supl) => supl.seq == productInfo.value.suplSeq))
 
@@ -145,17 +145,17 @@ function addUnit() {
         return
     }
 
-    let mpu: MapProductUnitCreationEntity
+    let product: ProductCreationEntity
     if (tgtMpu == null) {
-        mpu = { unitSeq: selUnit.value.seq } as ProductEntity
-        if (isUnitCnt) mpu.unitCntList = []
-        products.value.push(mpu)
+        product = { unitSeq: selUnit.value.seq } as ProductEntity
+        if (isUnitCnt) product.unitCntList = []
+        products.value.push(product)
     } else {
-        mpu = tgtMpu
+        product = tgtMpu
     }
 
     if (isUnitCnt && unitCnt.value) {
-        mpu.unitCntList!.push(unitCnt.value)
+        product.unitCntList!.push(unitCnt.value)
     }
 }
 
@@ -164,7 +164,7 @@ function openUnitPop() {
 }
 
 type UnitInfo = { name: string; unitCnt?: number; unit: UnitEntity }
-function getUnitInfos(mpu: MapProductUnitCreationEntity): UnitInfo[] {
+function getUnitInfos(mpu: ProductCreationEntity): UnitInfo[] {
     const unit = units.value.find((unit) => unit.seq == mpu.unitSeq)!
     if (unit.isUnitCnt)
         return mpu.unitCntList == null ? [] : mpu.unitCntList?.map((unitCnt) => ({ name: `${unitCnt}${unit.name}`, unitNm: unit.name, unitCnt, unit }))
@@ -174,7 +174,7 @@ function getUnitInfos(mpu: MapProductUnitCreationEntity): UnitInfo[] {
 function assertCntList(val: any): asserts val is number[] {
     if (Array.isArray(val) == false) throw new Error('not possible')
 }
-function onRemoveUnit(unitInfo: UnitInfo, mpu: MapProductUnitCreationEntity) {
+function onRemoveUnit(unitInfo: UnitInfo, mpu: ProductCreationEntity) {
     // 단위 수량이 없는 경우
     if (unitInfo.name == unitInfo.unit.name) {
         _.remove(products.value, mpu)
@@ -247,13 +247,13 @@ function onRemoveUnit(unitInfo: UnitInfo, mpu: MapProductUnitCreationEntity) {
                     </div>
                 </div>
                 <div class="tw-flex tw-flex-wrap tw-gap-3">
-                    <template v-for="mpu in products" :key="`${mpu.prdInfoSeq}-${mpu.unitSeq}`">
+                    <template v-for="prd in products" :key="`${prd.prdInfoSeq}-${prd.unitSeq}`">
                         <v-chip
-                            v-for="info in getUnitInfos(mpu)"
+                            v-for="info in getUnitInfos(prd)"
                             :key="info.name"
                             density="compact"
                             closable
-                            @click:close="onRemoveUnit(info, mpu)"
+                            @click:close="onRemoveUnit(info, prd)"
                             style="min-width: fit-content; width: fit-content"
                         >
                             {{ info.name }}

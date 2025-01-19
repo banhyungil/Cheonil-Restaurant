@@ -50,7 +50,7 @@ interface ProductEntity {
     unit?: UnitEntity
 }
 
-type MapProductUnitCreationEntity = PartialK<ProductEntity, 'prdInfoSeq' | 'unitSeq'>
+type ProductCreationEntity = PartialK<ProductEntity, 'prdInfoSeq' | 'unitSeq'>
 
 /* 식자재 단위 */
 interface MapSupplyUnitEntity {

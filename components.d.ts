@@ -22,6 +22,7 @@ declare module 'vue' {
     TabEditor: typeof import('./src/components/TabEditor.vue')['default']
     UnitEditPop: typeof import('./src/components/UnitEditPop.vue')['default']
     VBtn: typeof import('vuetify/components')['VBtn']
+    VCheckbox: typeof import('vuetify/components')['VCheckbox']
     VDataTable: typeof import('vuetify/components')['VDataTable']
     VDivider: typeof import('vuetify/components')['VDivider']
     VPagination: typeof import('vuetify/components')['VPagination']
