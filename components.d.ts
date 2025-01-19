@@ -27,6 +27,8 @@ declare module 'vue' {
     VDivider: typeof import('vuetify/components')['VDivider']
     VPagination: typeof import('vuetify/components')['VPagination']
     VSelect: typeof import('vuetify/components')['VSelect']
+    VSwitch: typeof import('vuetify/components')['VSwitch']
     VTextField: typeof import('vuetify/components')['VTextField']
+    VueDatePicker: typeof import('@vuepic/vue-datepicker')['default']
   }
 }

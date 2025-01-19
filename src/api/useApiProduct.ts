@@ -6,9 +6,9 @@ export default function useApiProduct() {
         return api.post(`${prefix}/batch-create`, mpus)
     }
 
-    async function deleteProduct(prdInfoSeq: number) {
+    async function deleteProductInfo(prdInfoSeq: number) {
         return api.delete(`${prefix}/productInfo/${prdInfoSeq}`)
     }
 
-    return { createList, deleteProduct }
+    return { createList, deleteProductInfo }
 }

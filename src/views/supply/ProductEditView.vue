@@ -96,7 +96,9 @@ async function onSave() {
         await apiProductInfo.update(productInfo.value)
         // 단위 맵핑 정보가 변경된 경우
         if (_.isEqual(products.value, originProduct.value?.products) == false) {
-            await apiProduct.deleteProduct(productInfo.value.seq)
+            products.value.forEach((prd) => (prd.prdInfoSeq = productInfo.value.seq))
+
+            await apiProduct.deleteProductInfo(productInfo.value.seq)
             await apiProduct.createList(products.value as ProductEntity[])
         }
 
@@ -139,19 +141,21 @@ function addUnit() {
     }
 
     // 단위수량이 있다면 단위수량까지 등록되어있어야함
-    const tgtMpu = products.value.find((mpu) => mpu.unitSeq == selUnit.value!.seq)
-    if ((isUnitCnt && tgtMpu?.unitCntList?.some((cnt) => cnt == unitCnt.value)) || (isUnitCnt == false && tgtMpu)) {
+    const tgtPrd = products.value.find((mpu) => mpu.unitSeq == selUnit.value!.seq)
+    if ((isUnitCnt && tgtPrd?.unitCntList?.some((cnt) => cnt == unitCnt.value)) || (isUnitCnt == false && tgtPrd)) {
         Swal.fireCustom({ toast: true, icon: 'error', title: '', text: '이미 등록된 단위입니다.' })
         return
     }
 
     let product: ProductCreationEntity
-    if (tgtMpu == null) {
+    // 신규 등록 단위
+    if (tgtPrd == null) {
         product = { unitSeq: selUnit.value.seq } as ProductEntity
         if (isUnitCnt) product.unitCntList = []
         products.value.push(product)
     } else {
-        product = tgtMpu
+        // 기존에 등록된 단위 수량이 있는 단위
+        product = tgtPrd
     }
 
     if (isUnitCnt && unitCnt.value) {
