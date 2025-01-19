@@ -20,7 +20,7 @@ const units = ref<UnitEntity[]>([])
 const originProduct = ref<ProductInfoEntity>()
 const productInfo = ref({} as ProductInfoCreationEntity)
 
-const selUnit = ref<UnitEntity>()
+const selUnit = ref<UnitEntity | null>()
 const unitCnt = ref<number | null>(1)
 
 const products = ref<ProductCreationEntity[]>([])
@@ -138,7 +138,7 @@ function addUnit() {
         }
     }
 
-    // 단위수량이 있다면 단위수량까지 등로고디어있어야함
+    // 단위수량이 있다면 단위수량까지 등록되어있어야함
     const tgtMpu = products.value.find((mpu) => mpu.unitSeq == selUnit.value!.seq)
     if ((isUnitCnt && tgtMpu?.unitCntList?.some((cnt) => cnt == unitCnt.value)) || (isUnitCnt == false && tgtMpu)) {
         Swal.fireCustom({ toast: true, icon: 'error', title: '', text: '이미 등록된 단위입니다.' })
@@ -157,6 +157,8 @@ function addUnit() {
     if (isUnitCnt && unitCnt.value) {
         product.unitCntList!.push(unitCnt.value)
     }
+
+    if (selUnit.value.isUnitCnt == false) selUnit.value = null
 }
 
 function openUnitPop() {
@@ -242,7 +244,7 @@ function onRemoveUnit(unitInfo: UnitInfo, mpu: ProductCreationEntity) {
                     </div>
                     <div>
                         <div class="justify-end tw-flex">
-                            <VBtn @click="addUnit" :disabled="false" color="primary"><span class="tw-mr">단위 추가</span></VBtn>
+                            <VBtn @click="addUnit" :disabled="selUnit == null" color="primary"><span class="tw-mr">단위 추가</span></VBtn>
                         </div>
                     </div>
                 </div>
