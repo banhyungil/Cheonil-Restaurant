@@ -25,11 +25,6 @@
     width: 10vw;
     box-shadow: var(--box-shadow-section);
 
-    & > * {
-        position: sticky;
-        top: 0;
-    }
-
     .c-home {
         display: flex;
         font-size: 22px;
@@ -47,8 +42,12 @@
         height: calc(100vh - 80px);
 
         & > a {
+            display: flex;
+            justify-content: center;
+            align-items: center;
             width: 120px;
-            padding: 20px 10px;
+            height: 70px;
+            max-height: 100%;
             box-shadow: var(--box-shadow);
             text-align: center;
 
