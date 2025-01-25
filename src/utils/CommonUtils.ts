@@ -62,6 +62,10 @@ export function orderWithList<T, K extends keyof T>(origins: Partial<T>[], targe
     return ordered
 }
 
+export const getUuid = (isEltId: boolean) => {
+    return (isEltId ? 'a' : '') + uuidv4()
+}
+
 /**
  * 시간 정보를 제외한 현재 날짜만 반환
  */
@@ -79,4 +83,10 @@ export function getDayOfEnd(date: Date) {
 export function isMatchInitials(srchText: string, targetText: string) {
     if (srchText == '') return true
     else return getInitials(targetText).includes(getInitials(srchText))
+}
+
+export const limitNum = (val: number, min: number, max: number, isCirculation: boolean = false) => {
+    if (val < min) return isCirculation ? max : min
+    else if (val > max) return isCirculation ? min : max
+    else return val
 }

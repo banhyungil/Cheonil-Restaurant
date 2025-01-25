@@ -7,10 +7,14 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    BEditToggleInput: typeof import('./src/components/base/BEditToggleInput.vue')['default']
     BInputCho: typeof import('./src/components/base/BInputCho.vue')['default']
     BInputNumFormat: typeof import('./src/components/base/BInputNumFormat.vue')['default']
     BottomBar: typeof import('./src/components/layout/BottomBar.vue')['default']
     BTab: typeof import('./src/components/base/BTab.vue')['default']
+    BTable: typeof import('./src/components/base/BTable.vue')['default']
+    BTreeView: typeof import('./src/components/base/BTreeView.vue')['default']
+    BTreeViewItem: typeof import('./src/components/base/BTreeViewItem.vue')['default']
     BValidator: typeof import('./src/components/base/BValidator.vue')['default']
     BVueDatePicker: typeof import('./src/components/base/BVueDatePicker.vue')['default']
     MenuTab: typeof import('./src/components/MenuTab.vue')['default']

@@ -19,6 +19,12 @@ export default defineConfig({
                 {
                     uuid: ['v4', 'Uuid'],
                 },
+                {
+                    '@vueuse/core': [
+                        // named imports
+                        'useElementHover', // import { useMouse } from '@vueuse/core',
+                    ],
+                },
                 // example type import
                 {
                     from: 'vue',
@@ -27,7 +33,7 @@ export default defineConfig({
                 },
             ],
 
-            dirs: ['./src/stores', './src/api'],
+            dirs: ['./src/stores', './src/composable', './src/api'],
             dts: true,
         }),
         Components({
