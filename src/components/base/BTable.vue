@@ -359,7 +359,7 @@ defineExpose({ getSelectedItems, getCheckedItems, uuid, rollback })
                 />
             </div>
         </div>
-        <div class="flex justify-center items-center text-xl text-slate-500" v-if="cOrderedItems.length == 0">No Data</div>
+        <div class="tw-flex tw-items-center tw-justify-center tw-text-xl tw-text-slate-500" v-if="cOrderedItems.length == 0">No Data</div>
         <div ref="bodyElt" class="body" role="grid" :style="{ gridTemplateColumns: cGridBodyTemplateColumns }">
             <template v-for="(item, rowIdx) in cOrderedItems" :key="item[itemKey as keyof T]">
                 <div
@@ -388,7 +388,7 @@ defineExpose({ getSelectedItems, getCheckedItems, uuid, rollback })
                                 @change="onCheck"
                                 tabindex="1"
                             />
-                            <GRadioButton
+                            <BRadioButton
                                 v-else-if="key == '_check' && inputType == 'radio'"
                                 @vue:mounted="
                                     (e: any) => {

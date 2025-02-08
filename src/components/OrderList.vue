@@ -509,6 +509,7 @@ const isLoading = ref(false)
 
             &:disabled {
                 color: grey;
+
                 &:hover {
                     opacity: 1;
                 }
@@ -527,9 +528,11 @@ const isLoading = ref(false)
             &.unpaid {
                 color: var(--color-danger);
             }
+
             &.cash {
                 color: var(--color-success);
             }
+
             &.card {
                 color: var(--color-point);
             }
@@ -541,6 +544,7 @@ const isLoading = ref(false)
             gap: 4px;
             padding: 6px 0;
 
+            /* stylelint-disable no-descending-specificity */
             button {
                 min-width: 0;
                 width: fit-content;
@@ -577,7 +581,7 @@ const isLoading = ref(false)
 
         .right {
             position: absolute;
-            right: 0px;
+            right: 0;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -589,6 +593,7 @@ const isLoading = ref(false)
                 align-items: center;
             }
         }
+
         .select {
             display: flex;
             align-items: center;
