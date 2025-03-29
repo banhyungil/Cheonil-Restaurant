@@ -3,7 +3,6 @@
 import { addDays, addSeconds, toDate } from "date-fns";
 import {v4 as uuidv4} from 'uuid'
 import _ from "lodash";
-import {v4 as uuidv4} from 'uuid'
 
 // 초성(19개)
 const CHO_HANGUL = [
