@@ -104,10 +104,10 @@ async function onSave() {
 
         Swal.fireCustom({ toast: true, messageType: 'update' })
     } else {
-        // 제품등록
+        // 제품정보등록
         const nProduct = await apiProductInfo.create(productInfo.value)
 
-        // 제품단위맵핑 등록
+        // 제품 등록
         products.value.forEach((prd) => (prd.prdInfoSeq = nProduct.seq))
         await apiProduct.createList(products.value as ProductEntity[])
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { VDataTable } from 'vuetify/components'
-import usePagination from '@/composable/usePagination'
+import { PAGE_SIZE_LIST } from '@/composable/usePagination'
 import useSwal from '@/composable/useSwal'
 import _ from 'lodash'
 
@@ -15,9 +15,8 @@ apiSupply.selectList().then((res) => {
     supplies.value = res
 })
 
-const pageSize = ref<number | null>(0)
-const { pageNo, cOffset, cTotalPage, PAGE_SIZE_LIST } = usePagination(cSuplTotalCnt, pageSize)
-pageSize.value = PAGE_SIZE_LIST[0]
+const pageSize = ref<number>(PAGE_SIZE_LIST[0])
+const { pageNo, cOffset, cTotalPage } = usePagination(cSuplTotalCnt, pageSize)
 watch(pageNo, () => {
     window.scrollTo(0, 0)
 })

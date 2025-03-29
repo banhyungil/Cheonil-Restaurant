@@ -49,7 +49,7 @@ export default function useApi() {
             Swal.fireCustom({
                 toast: true,
                 icon: 'error',
-                title: error,
+                title: error?.response?.data?.message ?? error,
                 timer: 10000,
             })
         }

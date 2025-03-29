@@ -3,15 +3,18 @@ import type { VDataTable } from 'vuetify/components'
 import _ from 'lodash'
 import usePagination from '@/composable/usePagination'
 import useSwal from '@/composable/useSwal'
+import type { ProductInfoExt } from '@/api/useApiProductInfo'
+import { PAGE_SIZE_LIST } from '@/composable/usePagination'
 
 const router = useRouter()
 const Swal = useSwal()
+const apiProduct = useApiProduct()
 const apiSupply = useApiSupply()
 const apiProductInfo = useApiProductInfo()
 
 const supplies = ref<SupplyEntity[]>([])
 const cSupplyDict = computed(() => _.keyBy(supplies.value, 'seq'))
-const prdInfos = ref<ProductInfoEntity[]>([])
+const prdInfos = ref<ProductInfoExt[]>([])
 const cPrdInfos = computed(() => {
     return prdInfos.value.map((prd) => ({ ...prd, supply: cSupplyDict.value[prd.suplSeq] }))
 })
@@ -21,13 +24,12 @@ apiSupply.selectList().then((res) => {
     supplies.value = res
 })
 
-apiProductInfo.selectList().then((res) => {
+apiProductInfo.selectList({ expand: 'products' }).then((res) => {
     prdInfos.value = res
 })
 
-const pageSize = ref<number | null>(0)
-const { pageNo, cOffset, cTotalPage, PAGE_SIZE_LIST } = usePagination(cPrdTotalCnt, pageSize)
-pageSize.value = PAGE_SIZE_LIST[0]
+const pageSize = ref<number>(PAGE_SIZE_LIST[0])
+const { pageNo, cOffset, cTotalPage } = usePagination(cPrdTotalCnt, pageSize)
 watch(pageNo, () => {
     window.scrollTo(0, 0)
 })
@@ -45,8 +47,8 @@ const cHeaders = computed(() => {
 
 const isEdit = ref(false)
 
-const cDtProducts = computed(() =>
-    cPrdInfos.value.map((prdInfo, idx) => {
+const cDtProducts = computed(() => {
+    const result = cPrdInfos.value.map((prdInfo, idx) => {
         const unitNms = prdInfo.products.flatMap((prd) => {
             const { unit } = prd
             if (unit.isUnitCnt) return prd.unitCntList == null ? [] : prd.unitCntList?.map((unitCnt) => `${unitCnt}${unit.name}`)
@@ -61,7 +63,10 @@ const cDtProducts = computed(() =>
             actions: prdInfo.seq,
         }
     })
-)
+    console.log('cDtProducts', result)
+
+    return result
+})
 
 function addProduct() {
     router.push('/productEdit')
@@ -81,9 +86,6 @@ async function onRemove(seq: number) {
 </script>
 
 <template>
-    <!--
-    disable paging: items-per-page="0"
-    -->
     <v-data-table class="order-list" :headers="cHeaders" :items="cDtProducts" item-value="seq" :items-per-page="0" :hide-default-footer="true">
         <template #top>
             <div class="tw-flex tw-justify-end">

@@ -11,17 +11,8 @@ interface ExpenseEntity {
     /* 매장 Seq */
     storeSeq: number
 
-    /* 제품 Seq */
-    prdSeq: number
-
-    /* 가격 */
-    price: number
-
     /* 금액 */
     amount: number
-
-    /* 수량 */
-    cnt: number
 
     /* 지출일 */
     expenseAt: Date
@@ -36,6 +27,8 @@ interface ExpenseEntity {
     updatedAt?: Date | null
 }
 
+type ExpenseEntityCreation = PartialK<ExpenseEntity, 'seq'>
+
 /* 제품/단위 맵핑 */
 interface ProductEntity {
     /* 제품 정보 SEQ */
@@ -48,6 +41,11 @@ interface ProductEntity {
     unitCntList?: number[] | null
 
     unit?: UnitEntity
+
+    /* 제품정보 */
+    prdInfo: ProductInfoEntity
+    /* 단위 */
+    unit: UnitEntity
 }
 
 type ProductCreationEntity = PartialK<ProductEntity, 'prdInfoSeq' | 'unitSeq'>
@@ -399,4 +397,8 @@ interface UnitEntity {
     name: string
     /* 단위수량 여부 */
     isUnitCnt?: boolean
+}
+
+interface QueryParam {
+    expand: string
 }

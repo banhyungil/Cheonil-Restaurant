@@ -6,7 +6,7 @@ import _ from 'lodash'
 import { helpers, required } from '@vuelidate/validators'
 import { useVuelidate, type ValidationArgs } from '@vuelidate/core'
 import type { VDataTable } from 'vuetify/components'
-import usePagination from '@/composable/usePagination'
+import { PAGE_SIZE_LIST } from '@/composable/usePagination'
 
 const router = useRouter()
 const Swal = useSwal()
@@ -56,9 +56,8 @@ async function onCreate() {
 }
 
 const cUnitTotalCnt = computed(() => units.value.length)
-const pageSize = ref<number | null>(0)
-const { pageNo, cOffset, cTotalPage, PAGE_SIZE_LIST } = usePagination(cUnitTotalCnt, pageSize)
-pageSize.value = PAGE_SIZE_LIST[0]
+const pageSize = ref<number>(PAGE_SIZE_LIST[0])
+const { pageNo, cOffset, cTotalPage } = usePagination(cUnitTotalCnt, pageSize)
 watch(pageNo, () => {
     window.scrollTo(0, 0)
 })

@@ -214,7 +214,7 @@ function init() {
     </div>
 </template>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .order-view {
     display: flex;
     height: 100%;
@@ -232,6 +232,8 @@ function init() {
         .ctgs {
         }
         .grid {
+            gap: 20px;
+            grid-template-columns: repeat(4, minmax(170px, 1fr));
         }
     }
     .right {

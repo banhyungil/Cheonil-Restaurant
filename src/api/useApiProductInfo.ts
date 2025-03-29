@@ -1,11 +1,15 @@
+export type ProductInfoExt = ProductInfoEntity & { products: ProductEntity & { unit: UnitEntity }[] }
+
 export default function useApiProductInfo() {
     const api = useApi()
-    const prefix = '/productInfo'
+    const prefix = '/productInfos'
 
-    async function selectList() {
-        const res = await api.get(prefix)
+    async function selectList(): Promise<ProductInfoEntity[]>
+    async function selectList(query: QueryParam): Promise<ProductInfoExt[]>
+    async function selectList(query?: QueryParam) {
+        const res = await api.get(prefix, { params: query })
 
-        return res.data as ProductInfoEntity[]
+        return res.data
     }
 
     async function select(seq: number) {

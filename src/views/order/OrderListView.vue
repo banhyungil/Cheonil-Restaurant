@@ -8,7 +8,7 @@ import { addDays } from 'date-fns'
 const apiOrder = useApiOrder()
 const orders = ref<Order[]>([])
 const totalOrderCnt = ref(0)
-const pageSize = ref<number | null>(PAGE_SIZE_LIST[0])
+const pageSize = ref<number>(PAGE_SIZE_LIST[0])
 
 const filter = ref({
     orderAtRange: [addDays(today(), -6), today()],

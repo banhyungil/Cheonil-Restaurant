@@ -1,12 +1,12 @@
-import type { ModelRef, Ref } from 'vue'
+import type { MaybeRef } from 'vue'
 
-export const PAGE_SIZE_LIST = [10, 30, 50, 100, 200, null]
-export default function usePagination(totalCnt: Ref<number>, pageSize: Ref<number | null> | ModelRef<number | null>) {
-    const PAGE_GRP_SIZE = 5
+export const PAGE_SIZE_LIST = [10, 30, 50, 100, 200]
+
+export default function usePagination(totalCnt: MaybeRef<number>, pageSize: MaybeRef<number>) {
     const pageNo = ref(1)
     const cTotalPage = computed(() => {
-        if (pageSize.value == null || pageSize.value < 1) return 0
-        else return Math.ceil(totalCnt.value / pageSize.value)
+        if (unref(pageSize) == null || unref(pageSize) < 1) return 0
+        else return Math.ceil(unref(totalCnt) / unref(pageSize))
     })
 
     watch(
@@ -19,8 +19,8 @@ export default function usePagination(totalCnt: Ref<number>, pageSize: Ref<numbe
     )
 
     const cOffset = computed(() => {
-        if (pageSize.value == null || pageSize.value < 1) return 0
-        else return (pageNo.value - 1) * pageSize.value
+        if (unref(pageSize) == null || unref(pageSize) < 1) return 0
+        else return (pageNo.value - 1) * unref(pageSize)
     })
-    return { pageNo, cOffset, cTotalPage, PAGE_GRP_SIZE, PAGE_SIZE_LIST }
+    return { pageNo, cOffset, cTotalPage }
 }

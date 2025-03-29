@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import useApiOrder from '@/api/useApiOrder'
 import type { Filter } from '@/components/OrderList.vue'
-import usePagination, { PAGE_SIZE_LIST } from '@/composable/usePagination'
+import { PAGE_SIZE_LIST } from '@/composable/usePagination'
 import { getDayOfEnd, today } from '@/utils/CommonUtils'
 
 const apiOrder = useApiOrder()

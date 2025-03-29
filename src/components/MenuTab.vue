@@ -229,7 +229,7 @@ defineExpose({ selCtg })
             </ul>
             <section class="grid">
                 <TransitionGroup name="list">
-                    <button v-for="item in cFilteredItems" :key="item.seq" @click="onClickItem(item)" class="item">
+                    <div v-for="item in cFilteredItems" :key="item.seq" @click="onClickItem(item)" class="item">
                         <button @click.stop="onClickFavorite(item)" class="favorite" :disabled="!isEdit">
                             <font-awesome-icon v-if="favorites.includes(item.seq)" :icon="['fas', 'star']" style="color: #ffd43b" />
                             <font-awesome-icon v-else-if="isEdit" :icon="['far', 'star']" />
@@ -237,7 +237,7 @@ defineExpose({ selCtg })
                         <span>
                             {{ item['name'] ?? '' }}
                         </span>
-                    </button>
+                    </div>
                 </TransitionGroup>
 
                 <Transition name="slide">
