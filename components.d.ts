@@ -7,10 +7,14 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    BCheckbox: typeof import('./src/components/base/BCheckbox.vue')['default']
     BEditToggleInput: typeof import('./src/components/base/BEditToggleInput.vue')['default']
     BInputCho: typeof import('./src/components/base/BInputCho.vue')['default']
     BInputNumFormat: typeof import('./src/components/base/BInputNumFormat.vue')['default']
     BottomBar: typeof import('./src/components/layout/BottomBar.vue')['default']
+    BPagination: typeof import('./src/components/base/BPagination.vue')['default']
+    BRadioButton: typeof import('./src/components/base/BRadioButton.vue')['default']
+    BSelect: typeof import('./src/components/base/BSelect.vue')['default']
     BTab: typeof import('./src/components/base/BTab.vue')['default']
     BTable: typeof import('./src/components/base/BTable.vue')['default']
     BTablePaging: typeof import('./src/components/base/BTablePaging.vue')['default']

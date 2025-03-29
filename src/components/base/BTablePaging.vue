@@ -25,7 +25,7 @@ const emit = defineEmits<BTableEmtis<T>>()
 defineSlots<BTableSlots<T>>()
 const selIds = defineModel('selIds', { type: Array, default: [] })
 
-const pageSize = ref(10)
+const pageSize = defineModel('pageSize', { default: PAGE_SIZE_LIST[0], required: false })
 
 /** 선택 카테고리 개소 목록 페이징 */
 const { pageNo, cOffset } = usePagination(
@@ -36,7 +36,6 @@ const { pageNo, cOffset } = usePagination(
 const cPgItems = computed(() => props.items.slice(cOffset.value, pageNo.value * pageSize.value))
 
 const cItems = computed(() => (props.disablePaging === true ? props.items : cPgItems.value))
-const cPgSizes = computed(() => props.pgSizes ?? PAGE_SIZE_LIST)
 const cColInfos = computed(() => {
     if (props.showNo) return [{ key: 'no', title: 'NO', colSize: '60px' }, ...props.colInfos]
     else return props.colInfos

@@ -5,11 +5,11 @@
 
 /* 지출 */
 interface ExpenseEntity {
-    /* 지출 Seq */
+    /* 지출 SEQ */
     seq: number
 
-    /* 매장 Seq */
-    storeSeq: number
+    /* 지출 카테고리 SEQ */
+    ctgSeq: number
 
     /* 금액 */
     amount: number
@@ -48,18 +48,44 @@ interface ProductEntity {
     unit: UnitEntity
 }
 
-type ProductCreationEntity = PartialK<ProductEntity, 'prdInfoSeq' | 'unitSeq'>
+/* 지출 카네고리 */
+interface ExpenseCategoryEntity {
+    /* 지출 카테고리 SEQ */
+    seq: number
 
-/* 식자재 단위 */
-interface MapSupplyUnitEntity {
-    /* 단위 */
-    unitNm: string
+    /* 카테고리명 */
+    path: string
 
-    /* 식자재 Seq */
-    suplSeq: number
+    /* 깊이 */
+    depth: number
 
-    /* 단위수량 목록 */
-    unitCntList?: string | null
+    /* 추가 정보 */
+    options?: string | null
+}
+
+/* 지출 제퓸 */
+interface ExpenseProductEntity {
+    /* 지출 Seq */
+    expsSeq: number
+
+    /* 제품 SEQ */
+    prdSeq: number
+
+    /* 수량 */
+    cnt: number
+
+    /* 가격 */
+    price: number
+
+    /* 단위수량 */
+    unitCnt?: number | null
+
+    /* 비고 */
+    cmt?: string | null
+}
+
+interface ExpenseProductExt extends ExpenseProductEntity {
+    product: ProductExt
 }
 
 /* 메뉴 */
@@ -255,6 +281,28 @@ interface PlaceCategoryEntity {
 type PlaceCategoryEntityCreation = PartialK<PlaceCategoryEntity, 'seq'>
 
 /* 제품 */
+interface ProductEntity {
+    /* SEQ */
+    seq: number
+
+    /* 제품 SEQ */
+    prdInfoSeq: number
+
+    /* 단위 SEQ */
+    unitSeq: number
+
+    /* 단위수량 목록 */
+    unitCntList?: number[] | null
+}
+
+type ProductCreationEntity = PartialK<ProductEntity, 'prdInfoSeq' | 'unitSeq'>
+
+interface ProductExt extends ProductEntity {
+    unit: UnitEntity
+    prdInfo: ProductInfoEntity
+}
+
+/* 제품 정보 */
 interface ProductInfoEntity {
     /* 제품 Seq */
     seq: number
@@ -278,7 +326,7 @@ interface ProductInfoEntity {
     updatedAt?: Date | null
 
     /* 제품목록 */
-    products: RequiredK<ProductEntity, 'unit'>[]
+    products: RequiredK<ProductExt, 'unit'>[]
 }
 
 type ProductInfoCreationEntity = PartialK<ProductInfoEntity, 'seq' | 'products'>
@@ -393,10 +441,12 @@ type SupplyEntityCreation = PartialK<SupplyEntity, 'seq'>
 interface UnitEntity {
     /* 단위 SEQ */
     seq: number
+
     /* 단위명 */
     name: string
+
     /* 단위수량 여부 */
-    isUnitCnt?: boolean
+    isUnitCnt: boolean
 }
 
 interface QueryParam {
