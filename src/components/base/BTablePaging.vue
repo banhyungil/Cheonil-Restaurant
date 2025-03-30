@@ -72,20 +72,25 @@ function changeChecked(v: any) {
                 <slot :name="slot" v-bind="{ ...(scope as any) }" />
             </template>
         </BTable>
-        <section v-if="disablePaging == false" class="c-footer flex flex-wrap items-center col-span-12 intro-y sm:flex-row sm:flex-nowrap my-5">
-            <Pagination
-                class="paging w-full sm:w-auto sm:mr-auto"
+        <section
+            v-if="disablePaging == false"
+            class="c-footer tw-intro-y tw-sm:flex-nowrap tw-col-span-12 tw-my-5 tw-flex tw-w-full tw-flex-wrap tw-items-center"
+        >
+            <VPagination
+                class="paging tw-sm:w-auto tw-sm:mr-auto tw-flex tw-flex-1 tw-justify-center"
                 v-model="pageNo"
                 :pageSize="pageSize"
                 :pageGrpSize="5"
                 :totalSize="items.length"
                 :next="showPgNext"
             >
-            </Pagination>
-            <FormLabel htmlFor="regular-form-1" class="mx-5 mb-0">총 {{ items.length }} 건</FormLabel>
-            <FormSelect v-if="pgSizeSelection" v-model="pageSize" class="w-20 mt-3 !box sm:mt-0">
-                <option v-for="pgSize in PAGE_SIZE_LIST" :key="pgSize" :value="pgSize">{{ pgSize }}</option>
-            </FormSelect>
+            </VPagination>
+            <div class="tw-flex tw-justify-end">
+                <label htmlFor="regular-form-1" class="mx-5 mb-0">총 {{ items.length }} 건</label>
+                <select v-if="pgSizeSelection" v-model="pageSize" class="!box tw-sm:mt-0 tw-w-20" style="border: 2px solid grey">
+                    <option v-for="pgSize in PAGE_SIZE_LIST" :key="pgSize" :value="pgSize">{{ pgSize }}</option>
+                </select>
+            </div>
         </section>
     </div>
 </template>

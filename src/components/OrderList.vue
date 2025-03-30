@@ -60,8 +60,8 @@ const filter = defineModel<Filter>('filter', {
     },
 })
 
-const pageSize = defineModel<number | null>('pageSize', {
-    default: null,
+const pageSize = defineModel<number>('pageSize', {
+    default: 10,
 })
 const cPageList = computed(() => {
     return props.pageSizeList?.map((pgSize) => {

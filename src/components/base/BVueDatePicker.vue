@@ -1,6 +1,6 @@
 <template>
     <VueDatePicker v-bind="{ ...$props, ...$attrs }" locale="ko-KR">
-        <template v-for="(_, name) in $slots" v-slot="props">
+        <template v-for="name in slotEntries" v-slot="props">
             <slot :name="name" v-bind="props ?? {}"></slot>
         </template>
     </VueDatePicker>
@@ -19,6 +19,8 @@ import { defineProps } from 'vue'
 
 // 래퍼 컴포넌트의 props 정의 (기존 타입 확장)
 defineProps<VueDatePickerProps>()
+const slots = useSlots()
+const slotEntries = Object.entries(slots) as [string, any][]
 </script>
 
 <style scoped></style>

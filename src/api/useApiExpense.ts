@@ -1,23 +1,20 @@
 import useApi from './useApi'
 
+interface ExpenseEntityExt extends ExpenseEntity {}
 // url
 // post
 export default function useApiExpense() {
     const api = useApi()
-    const prefix = '/exepnse'
+    const prefix = '/expenses'
 
     const selectList = async () => {
-        const res = await api.get(prefix, {
-            data: '',
-        })
+        const res = await api.get(prefix)
 
         return res.data as ExpenseEntity[]
     }
 
     const select = async (seq: number) => {
-        const res = await api.get(`${prefix}/${seq}`, {
-            data: '',
-        })
+        const res = await api.get(`${prefix}/${seq}`)
 
         return res.data as ExpenseEntity
     }

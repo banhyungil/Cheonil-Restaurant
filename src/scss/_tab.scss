@@ -32,30 +32,6 @@
   height: 100%;
   overflow: hidden;
 
-  &.edit {
-    .ctgs {
-      button {
-        margin: 1px;
-
-        &.item{
-          outline: 1.4px dashed grey;
-        }
-        
-      }
-    }
-
-    .grid {
-      button {
-        margin: 1px;
-
-        &.item {
-          outline: 1.6px dashed darkgrey;
-        }
-        
-      }
-    }
-  }
-
   .ctgs {
     display: flex;
     align-items: center;
@@ -81,6 +57,30 @@
 
       &.add {
         height: 40px;
+      }
+    }
+  }
+
+  &.edit {
+    .ctgs {
+      button {
+        margin: 1px;
+
+        &.item{
+          outline: 1.4px dashed grey;
+        }
+        
+      }
+    }
+
+    .grid {
+      button {
+        margin: 1px;
+
+        &.item {
+          outline: 1.6px dashed darkgrey;
+        }
+        
       }
     }
   }
