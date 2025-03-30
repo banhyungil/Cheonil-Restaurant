@@ -53,10 +53,10 @@ const v$ = useVuelidate(rules, supply, { $autoDirty: true })
 
 async function validate() {
     if ((await v$.value.$validate()) == false) {
-        Swal.fireCustom({ toast: true, icon: 'error', title: '', text: v$.value.$errors[0].$message.toString() })
+        Swal.fireCustom({ toast: true, messageType: 'error', title: '', text: v$.value.$errors[0].$message.toString() })
         return false
     } else if (cIsUpdateView.value == false && supplies.value.some((supl) => supl.name == supply.name)) {
-        Swal.fireCustom({ toast: true, icon: 'error', title: '', text: '이미 등록된 식자재입니다.' })
+        Swal.fireCustom({ toast: true, messageType: 'error', title: '', text: '이미 등록된 식자재입니다.' })
         return false
     }
 

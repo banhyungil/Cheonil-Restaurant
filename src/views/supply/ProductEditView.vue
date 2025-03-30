@@ -126,16 +126,16 @@ function onCntChanged() {
 }
 function addUnit() {
     if (selUnit.value == null) {
-        Swal.fireCustom({ title: '', text: '단위를 선택해주세요.', icon: 'error', showCancelButton: false })
+        Swal.fireCustom({ title: '', text: '단위를 선택해주세요.', messageType: 'error', showCancelButton: false })
         return
     }
     const { isUnitCnt } = selUnit.value
     if (isUnitCnt) {
         if (unitCnt.value == null) {
-            Swal.fireCustom({ title: '', text: '단위 수량을 입력해주세요', icon: 'error', showCancelButton: false })
+            Swal.fireCustom({ title: '', text: '단위 수량을 입력해주세요', messageType: 'error', showCancelButton: false })
             return
         } else if (isNaN(unitCnt.value!)) {
-            Swal.fireCustom({ title: '', text: '단위 수량을 올바르게 입력해주세요', icon: 'error', showCancelButton: false })
+            Swal.fireCustom({ title: '', text: '단위 수량을 올바르게 입력해주세요', messageType: 'error', showCancelButton: false })
             return
         }
     }
