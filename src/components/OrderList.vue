@@ -56,7 +56,7 @@ export interface Filter {
 const filter = defineModel<Filter>('filter', {
     default: {
         storeName: '',
-        orderAtRange: [addDays(today(), -7), today()],
+        orderAtRange: [today(), today()],
     },
 })
 

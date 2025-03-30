@@ -11,7 +11,7 @@ const totalOrderCnt = ref(0)
 const pageSize = ref<number>(PAGE_SIZE_LIST[0])
 
 const filter = ref({
-    orderAtRange: [addDays(today(), -6), today()],
+    orderAtRange: [today(), today()],
 }) as Ref<Filter>
 
 const { pageNo, cOffset } = usePagination(totalOrderCnt, pageSize)
