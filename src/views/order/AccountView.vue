@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import useApiOrder from '@/api/useApiOrder'
-import type OrderList from '@/components/OrderList.vue'
 import { today } from '@/utils/CommonUtils'
 import { addDays, format } from 'date-fns'
 import { Dropdown } from 'floating-vue'

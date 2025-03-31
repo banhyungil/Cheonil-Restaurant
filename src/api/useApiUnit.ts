@@ -14,9 +14,15 @@ export default function useApiUnit() {
         return res.data as UnitEntity
     }
 
+    async function update(unit: UnitEntity) {
+        const res = await api.patch(`${prefix}/${unit.seq}`, unit)
+
+        return res.data as UnitEntity
+    }
+
     function remove(seq: number) {
         return api.delete(`${prefix}/${seq}`)
     }
 
-    return { selectList, create, remove }
+    return { selectList, create, update, remove }
 }

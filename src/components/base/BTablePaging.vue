@@ -76,7 +76,7 @@ function changeChecked(v: any) {
             v-if="disablePaging == false"
             class="c-footer tw-intro-y tw-sm:flex-nowrap tw-col-span-12 tw-my-5 tw-flex tw-w-full tw-flex-wrap tw-items-center"
         >
-            <VPagination
+            <BPagination
                 class="paging tw-sm:w-auto tw-sm:mr-auto tw-flex tw-flex-1 tw-justify-center"
                 v-model="pageNo"
                 :pageSize="pageSize"
@@ -84,7 +84,7 @@ function changeChecked(v: any) {
                 :totalSize="items.length"
                 :next="showPgNext"
             >
-            </VPagination>
+            </BPagination>
             <div class="tw-flex tw-justify-end">
                 <label htmlFor="regular-form-1" class="mx-5 mb-0">총 {{ items.length }} 건</label>
                 <select v-if="pgSizeSelection" v-model="pageSize" class="!box tw-sm:mt-0 tw-w-20" style="border: 2px solid grey">

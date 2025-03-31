@@ -2,8 +2,9 @@ export default function useApiProduct() {
     const api = useApi()
     const prefix = '/products'
 
-    async function selectList() {
-        const res = await api.get(`${prefix}`)
+    type Expands = 'prdInfo' | 'unit'
+    async function selectList(query?: { expands: Expands[] }) {
+        const res = await api.get(`${prefix}`, { params: { expand: query?.expands.join(',') } })
         return res.data as ProductEntity[]
     }
 

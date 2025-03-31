@@ -46,7 +46,6 @@ export default function useSwal(options?: SweetAlertOptions) {
     const fireCustom = (options?: SweetAlertOptionsCustom) => {
         const swal = options?.toast ? nToast : nSwal
         const messageType = options?.messageType ?? 'save'
-        debugger
 
         const { icon, title, timer } = (() => {
             let word: string
@@ -86,7 +85,7 @@ export default function useSwal(options?: SweetAlertOptions) {
             return swal.fire({
                 title,
                 icon,
-                timer,
+                timer: options?.toast ? timer : undefined,
                 ...options,
             })
         }

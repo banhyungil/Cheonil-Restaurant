@@ -35,7 +35,7 @@ declare module 'vue' {
     VDataTable: typeof import('vuetify/components')['VDataTable']
     VDivider: typeof import('vuetify/components')['VDivider']
     VListItem: typeof import('vuetify/components')['VListItem']
-    VPagination: typeof import('./src/components/base/VPagination.vue')['default']
+    VPagination: typeof import('vuetify/components')['VPagination']
     VSelect: typeof import('vuetify/components')['VSelect']
     VSwitch: typeof import('vuetify/components')['VSwitch']
     VTextarea: typeof import('vuetify/components')['VTextarea']

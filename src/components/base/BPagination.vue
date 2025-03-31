@@ -33,26 +33,36 @@ watch(
 </script>
 
 <template>
-    <nav>
-        <ul class="tw-sm:w-auto tw-sm:mr-auto tw-mr-0 tw-flex tw-w-full">
-            <a v-if="grpNext" @click="$emit('update:modelValue', (cGrpNo - 1) * pageGrpSize)" :disabled="cGrpNo <= 1">
-                <font-awesome-icon :icon="['fas', 'chevrons-left']" />
-            </a>
-            <a v-if="next" @click="$emit('update:modelValue', pageNo - 1)" :disabled="pageNo <= 1">
-                <font-awesome-icon :icon="['fas', 'chevron-left']" />
-            </a>
-            <slot>
-                <a v-if="cPgList.length == 0">0</a>
-                <a v-for="pgNo in cPgList" :key="pgNo" :active="pgNo === pageNo" @click="() => $emit('update:modelValue', pgNo)">
-                    {{ pgNo }}
-                </a>
-            </slot>
-            <a v-if="next" @click="$emit('update:modelValue', pageNo + 1)" :class="{ disabled: pageNo >= cTotalPage }">
-                <font-awesome-icon :icon="['fas', 'chevron-right']" />
-            </a>
-            <a v-if="grpNext" @click="$emit('update:modelValue', cGrpNo * pageGrpSize + 1)" :class="{ disabled: cGrpNo * pageGrpSize >= cTotalPage }">
-                <font-awesome-icon :icon="['fas', 'chevrons-right']" />
-            </a>
-        </ul>
-    </nav>
+    <ul class="pagination tw-sm:w-auto tw-sm:mr-auto tw-mr-0 tw-flex tw-items-center">
+        <button v-if="grpNext" @click="$emit('update:modelValue', (cGrpNo - 1) * pageGrpSize)" :disabled="cGrpNo <= 1">
+            <font-awesome-icon :icon="['fas', 'chevrons-left']" />
+        </button>
+        <button v-if="next" @click="$emit('update:modelValue', pageNo - 1)" :disabled="pageNo <= 1">
+            <font-awesome-icon :icon="['fas', 'chevron-left']" />
+        </button>
+        <slot>
+            <button v-for="pgNo in cPgList" :key="pgNo" :active="pgNo === pageNo" @click="() => $emit('update:modelValue', pgNo)">
+                {{ pgNo }}
+            </button>
+            <span v-if="cPgList.length == 0">1</span>
+        </slot>
+        <button v-if="next" @click="$emit('update:modelValue', pageNo + 1)" :class="{ disabled: pageNo >= cTotalPage }">
+            <font-awesome-icon :icon="['fas', 'chevron-right']" />
+        </button>
+        <button v-if="grpNext" @click="$emit('update:modelValue', cGrpNo * pageGrpSize + 1)" :class="{ disabled: cGrpNo * pageGrpSize >= cTotalPage }">
+            <font-awesome-icon :icon="['fas', 'chevrons-right']" />
+        </button>
+    </ul>
 </template>
+<style lang="scss" scoped>
+.pagination {
+    & > button {
+        padding: 4px 6px;
+
+        &:hover {
+            background-color: var(--color-point);
+            color: #fff;
+        }
+    }
+}
+</style>

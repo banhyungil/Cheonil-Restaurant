@@ -11,6 +11,8 @@ import { PAGE_SIZE_LIST } from '@/composable/usePagination'
 const router = useRouter()
 const Swal = useSwal()
 const apiUnit = useApiUnit()
+const apiProduct = useApiProduct()
+const products = ref<ProductEntity[]>([])
 
 const unit = reactive({ name: '' } as UnitEntity)
 const units = ref<UnitEntity[]>([])
@@ -18,6 +20,11 @@ const units = ref<UnitEntity[]>([])
 apiUnit.selectList().then((res) => {
     units.value = res
 })
+apiProduct.selectList({ expands: ['prdInfo'] }).then((res) => {
+    products.value = res
+})
+
+const cIsUpdate = computed(() => !!unit.seq)
 
 const REQUIRED_KEYS = ['name'] as const
 const LBL = {
@@ -34,11 +41,14 @@ const rules = {
 } as ValidationArgs<UnitEntity>
 const v$ = useVuelidate(rules, unit, { $autoDirty: true })
 
-async function validate() {
+async function validate(action: 'C' | 'U') {
     if ((await v$.value.$validate()) == false) {
         Swal.fireCustom({ toast: true, messageType: 'error', title: '', text: v$.value.$errors[0].$message.toString() })
         return false
-    } else if (units.value.some((u) => u.name == unit.name)) {
+    } else if (
+        (action == 'C' && units.value.some((u) => u.name == unit.name)) ||
+        (action == 'U' && units.value.some((u) => u.seq != unit.seq && u.name == unit.name))
+    ) {
         Swal.fireCustom({ toast: true, messageType: 'error', title: '', text: '이미 등록된 단위 입니다.' })
         return false
     }
@@ -46,13 +56,35 @@ async function validate() {
     return true
 }
 async function onCreate() {
-    if ((await validate()) == false) return
+    if ((await validate('C')) == false) return
 
     // 검증
     const nUnit = await apiUnit.create(unit)
     units.value.push(nUnit)
 
     Swal.fireCustom({ toast: true, messageType: 'save' })
+}
+
+async function onUpdateSave() {
+    if ((await validate('U')) == false) return
+
+    // 검증
+    await apiUnit.update(unit)
+    const uUnit = units.value.find((u) => u.seq == unit.seq)
+    if (uUnit) Object.assign(uUnit, unit)
+
+    Swal.fireCustom({ toast: true, messageType: 'save' })
+}
+
+function onUpdate(seq: number) {
+    Object.assign(
+        unit,
+        units.value.find((unit) => unit.seq == seq)
+    )
+}
+
+function onCancelUpdate() {
+    Object.assign(unit, { seq: null, name: '', isUnitCnt: null })
 }
 
 const cUnitTotalCnt = computed(() => units.value.length)
@@ -80,6 +112,11 @@ const cDtProducts = computed(() =>
 )
 
 async function onRemove(seq: number) {
+    if (products.value.some((prd) => prd.unitSeq == seq)) {
+        Swal.fireCustom({ messageType: 'error', title: '관련 제품이 존재합니다.', text: _.uniq(products.value.map((prd) => prd.prdInfo.name)).join(', ') })
+        return
+    }
+
     if (await Swal.fireCustom({ isConfirm: true, messageType: 'remove' })) {
         await apiUnit.remove(seq)
         _.remove(units.value, (u) => u.seq == seq)
@@ -108,11 +145,18 @@ async function onRemove(seq: number) {
                 </div>
             </section>
             <section class="btt" style="border-top: 0; border-bottom: 1px solid grey">
-                <v-btn @click="onCreate">등록</v-btn>
+                <template v-if="cIsUpdate">
+                    <v-btn @click="onUpdateSave" style="background-color: var(--color-success)">수정</v-btn>
+                    <v-btn @click="onCancelUpdate" style="width: max-content; background-color: var(--color-danger)">수정취소</v-btn>
+                </template>
+                <v-btn v-else @click="onCreate">등록</v-btn>
             </section>
             <v-data-table class="order-list scroll" :headers="headers" :items="cDtProducts" item-value="seq" :items-per-page="0" :hide-default-footer="true">
                 <template #item.actions="{ value }">
                     <div style="display: flex; justify-content: center; gap: 10px">
+                        <button @click="onUpdate(value)" style="color: var(--color-success)" v-tooltip="'수정'">
+                            <font-awesome-icon :icon="['fas', 'pen-to-square']" />
+                        </button>
                         <button @click="onRemove(value)" style="color: var(--color-danger)" v-tooltip="'삭제'">
                             <font-awesome-icon :icon="['fas', 'trash']" />
                         </button>

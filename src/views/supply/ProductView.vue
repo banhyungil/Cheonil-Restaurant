@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { VDataTable } from 'vuetify/components'
+import { VPagination, type VDataTable } from 'vuetify/components'
 import _ from 'lodash'
 import usePagination from '@/composable/usePagination'
 import useSwal from '@/composable/useSwal'
@@ -107,7 +107,7 @@ async function onRemove(seq: number) {
         </template>
         <template #bottom>
             <div class="c-page">
-                <v-pagination v-show="cTotalPage > 0" lass="page" v-model="pageNo" :length="cTotalPage" :total-visible="5"></v-pagination>
+                <VPagination v-show="cTotalPage > 0" lass="page" v-model="pageNo" :length="cTotalPage" :total-visible="5"></VPagination>
                 <div class="right">
                     <h3 style="width: max-content">총: {{ cPrdTotalCnt }} 건</h3>
                     <v-select class="select" :items="PAGE_SIZE_LIST" v-model="pageSize" item-value="key" item-title="title" density="comfortable"></v-select>
