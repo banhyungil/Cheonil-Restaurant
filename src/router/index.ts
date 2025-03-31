@@ -135,24 +135,15 @@ const router = createRouter({
 
 // layout 설정
 // path에 따라 자신의 layout을 결정한다.
-const layoutRoutePathDict = {
-    default: ['/order'],
-    admin: ['/account', '/collection', '/expenseList', '/orderList', '/store', '/menu', '/supply', '/product', '/productEdit'],
+const layoutRoutePathInfo = {
+    admins: ['/account', '/collection', '/expenseList', '/orderList', '/store', '/menu', '/supply', '/supplyEdit', '/product', '/productEdit', '/unitEdit'],
 }
-router.getRoutes().forEach((route) => {
-    Object.entries(layoutRoutePathDict).forEach(([key, paths]) => {
-        // layout에 등록된 path 또는 동적 라우팅에 포함되는 경우 추가해준다.
-        if (paths.includes(route.path) || paths.map((path) => `${path}/:seq`).includes(route.path)) {
-            route.meta.layout = key
-        }
-    })
-})
 
 router.beforeEach((to, from) => {
     const layoutStore = useLayoutStore()
 
-    if (to.meta.layout == 'default') layoutStore.set('default')
-    else if (to.meta.layout == 'admin') layoutStore.set('admin')
+    if (layoutRoutePathInfo.admins.includes(to.path)) layoutStore.set('admin')
+    else layoutStore.set('default')
 })
 
 export default router
