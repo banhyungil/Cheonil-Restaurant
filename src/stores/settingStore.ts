@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { orderWithList } from '@/utils/CommonUtils'
+import { orderWithList } from '@/utils/common'
 
 export const useSettingStore = defineStore(
     'setting',

@@ -1,165 +1,62 @@
-<script setup lang="ts" generic="C extends object, T extends object">
-// import { computed, ref } from 'vue'
-// import useApiMenu from '@/api/useApiMenu'
-// import { getInitials } from '@/utils/CommonUtils'
-// import { useRouter } from 'vue-router'
-// import BInputCho from './BInputCho.vue'
-// import { useEventListener } from '@vueuse/core'
-// import _ from 'lodash'
-// import { VueDraggableNext } from 'vue-draggable-next'
-// import useSwal from '@/composable/useSwal'
-// import useFilterCho from '@/composable/useFilterCho'
+<script setup lang="ts" generic="T extends Record<string, unknown>">
+import { assert } from '@/utils/common'
+import { VueDraggableNext } from 'vue-draggable-next'
 
-// // props
-// // ctgs, ctgKey, items, itemKey
-// // emit
-// // toggleEdit, clickCtg, addCtg, clickItem, addItem, changeOrder
-// // v-model
-// // srchText, isEdit, selCtg (dummy)
-// // expose
-// // inpSrch (포커스 용도)
-// interface Props {
-//   ctgs: C[]
-//   ctgKey: keyof C
-//   items: T[]
-//   itemKey: keyof T
-// }
-// const props = defineProps<Props>()
+interface Props {
+    /** 전체 버튼 표시 여부 */
+    tabKey: ValidObjectKey<T>
+    tabName: string
+    showAll?: boolean
+    draggable?: boolean
+}
 
-// defineEmits<{
-//   (e: 'toggleEdit', value: boolean): void
-//   (e: 'clickCtg', ctg: C): void
-//   (e: 'addCtg', ctg: C): void
-//   (e: 'clickItem', item: T): void
-//   (e: 'addItem', item: T): void
-//   (e: 'changeCtgOrder', ctgs: C[]): void
-// }>()
+//ANCHOR - Props, Models, Emits
+withDefaults(defineProps<Props>(), {
+    draggable: false,
+    showAll: false,
+})
+const tabs = defineModel<T[]>({ required: true })
 
-// const menuStore = useMenuStore()
-// const settingStore = useSettingStore()
-// const apiSetting = useApiSetting()
-// const swal = useSwal()
+defineEmits<{
+    clickTab: [item: T | 'ALL']
+}>()
 
-// type SelMenuCtg = MenuCategoryEntity | null
-// const selCtg = ref<SelMenuCtg>(null)
+const items = ref([
+    { seq: 1, name: 'ban', age: 2 },
+    { seq: 2, name: 'ban2', age: 3 },
+])
+const dict = ref({ 1: { isOnline: true } })
 
-// const apiMenu = useApiMenu()
-// const apiMenuCtg = useApiMenuCtg()
-// const router = useRouter()
+// get + key 함수를 이용하는건?
 
-// const inpSrch = ref({} as InstanceType<typeof BInputCho>)
-
-// watch(
-//   () => props.focusSrch,
-//   () => {
-//     if (props.focusSrch) nextTick().then(() => inpSrch.value.$el.focus())
-//   }
-// )
-
-// const srchText = defineModel('srchText', {
-//   default: '',
-// })
-
-// // 메뉴 조회
-// apiMenu.selectList().then((list) => {
-//   menuStore.items = _.orderBy(list, ['name'])
-
-//   // temp 메뉴 즐겨찾기 나올때 까지는 정식 먼저 나오도록
-//   const tgtMenuIdx = menuStore.items.findIndex((menu) => menu.name == '정식')
-//   if (tgtMenuIdx >= 0) {
-//     const tgtMenu = menuStore.items.splice(tgtMenuIdx, 1)[0]
-//     menuStore.items.splice(0, 0, tgtMenu)
-//   }
-// })
-
-// // 메뉴 카테고리 조회
-// apiMenuCtg.selectList().then((list) => {
-//   menuStore.categories = list
-// })
-
-// const isEdit = ref(false)
-// function onToggleEdit() {
-//   isEdit.value = !isEdit.value
-// }
-
-// const cFilteredItems = computed(() => {
-//   // 카테고리 필터링
-//   const items = (() => {
-//     if (selCtg.value == null) {
-//       return menuStore.items
-//     } else {
-//       return menuStore.items?.filter((item) => item.ctgSeq == (selCtg.value as MenuCategoryEntity).seq)
-//     }
-//   })() as MenuEntity[]
-
-//   // 검색 필터링
-//   if (srchText.value == '') {
-//     return items
-//   } else {
-//     const srchInitials = getInitials(srchText.value)
-
-//     return items.filter((item) => {
-//       const nameInititals = getInitials(item.name)
-
-//       return nameInititals.includes(srchInitials)
-//     })
-//   }
-// })
-
-// function onClickCategory(ctg: SelMenuCtg) {
-//   selCtg.value = ctg
-
-//   if (isEdit.value && ctg && typeof ctg == 'object') {
-//     selCtg.value = null
-//     router.push({ path: `/menuCtgEdit/${ctg.seq}` })
-//   }
-// }
-
-// function onAddCategory() {
-//   router.push({ path: '/menuCtgEdit' })
-// }
-
-// function onClickItem(item: MenuEntity) {
-//   if (isEdit.value) {
-//     router.push({ path: `/menuEdit/${item.seq}` })
-//   } else {
-//     emit('selectItem', item)
-//     nextTick().then(() => inpSrch.value.$el.focus())
-//   }
-// }
-
-// function isCategory(selCtg: SelMenuCtg): selCtg is MenuCategoryEntity {
-//   return (selCtg as MenuCategoryEntity) != null
-// }
-
-// function onAddItem() {
-//   if (isCategory(selCtg.value)) router.push({ path: '/menuEdit', query: { ctgSeq: selCtg.value.seq } })
-//   else router.push({ path: '/menuEdit' })
-// }
-
-// useEventListener(document, 'keyup', (e) => {
-//   if (e.key == 'Escape') {
-//     if (isEdit.value) {
-//       isEdit.value = false
-//     }
-//   }
-// })
-
-// const isCtgUpdated = ref(false)
-// watch(isEdit, async () => {
-//   if (isCtgUpdated.value) {
-//     const ctgOrders = menuStore.categories.map((ctg, idx) => ({ seq: ctg.seq, order: idx }))
-
-//     if (_.isEqual(ctgOrders, settingStore.setting.config.ctgOrders) == false) {
-//       settingStore.setting.config.ctgOrders = ctgOrders
-//       await apiSetting.update(settingStore.setting)
-
-//       swal.fireCustom({ toast: true, title: '', icon: 'success', text: '카테고리 순서가 변경되었습니다' })
-//     }
-//   }
-// })
+// 선택된 아이템은 어떻게 처리하나? 상위 컴포넌트랑 어떻게 통신할까
+// 선택이란것을 v-model로 구현할까 아니면 내부에서 처리할까
+// 선택된것은 상위에서도 알 필요가 있을 것같다.
+// props로하냐 v-model로 하냐 그것이 문제다
+// props는 데이터가 변경이 안되는 경우이다.
+// v-model로 하면 데이터가 변경되는 경우이다.
+// v-model로 하면 원본이 변경되지 않아야하는 법
 </script>
 
-<template></template>
+<template>
+    <section class="btab">
+        <section class="tabs">
+            <button @click="() => $emit('clickTab', 'ALL')" class="tab tab-all">
+                <span>{{ '전체' }}</span>
+            </button>
+            <VueDraggableNext v-model="tabs" :animation="500" :disabled="!draggable">
+                <template v-for="tab in tabs" :key="assert<PropertyKey>(tab[tabKey])">
+                    <slot name="tab" :value="tab">
+                        <button class="tab" @click="() => $emit('clickTab', tab)"></button>
+                    </slot>
+                </template>
+            </VueDraggableNext>
+            <slot name="postTab"> </slot>
+        </section>
+        <section class="list">
+            <slot name="list"></slot>
+        </section>
+    </section>
+</template>
 
 <style lang="scss"></style>

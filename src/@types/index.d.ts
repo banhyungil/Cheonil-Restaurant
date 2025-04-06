@@ -503,3 +503,15 @@ type Mutable<T> = {
 }
 
 type Override<T, K> = Omit<T, keyof K> & K
+
+/**
+ * Mapped Type + Indexed Access Type
+ * 1. Mapped Type과 조건부 타입을 활용해 K를 선별하는 과정, 조건에 맞는 KEY값을 선별하여 객체타입을 추출
+ * 2. 해당 객체 타입을 [keyof T]로 접근하여 key 목록을 union type으로 추출
+ * * indexed Access Type 예제
+ * * * type MyType = { name: string; age: number }
+ * * * type MyTypeName = MyType['name'] 👉 string
+ */
+type ValidObjectKey<T> = {
+    [K in keyof T]: T[K] extends PropertyKey ? K : never
+}[keyof T]

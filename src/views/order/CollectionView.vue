@@ -2,7 +2,7 @@
 import useApiOrder from '@/api/useApiOrder'
 import type { Filter } from '@/components/OrderList.vue'
 import { PAGE_SIZE_LIST } from '@/composable/usePagination'
-import { getDayOfEnd, today } from '@/utils/CommonUtils'
+import { getDayOfEnd, today } from '@/utils/common'
 
 const apiOrder = useApiOrder()
 const orders = ref<Order[]>([])

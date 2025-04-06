@@ -1,5 +1,5 @@
-import AdminLayout from '@/layout/AdminLayout.vue'
-import DefaultLayout from '@/layout/DefaultLayout.vue'
+import AdminLayout from '@/layouts/AdminLayout.vue'
+import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 

@@ -1,7 +1,8 @@
-<script setup lang="ts" generic="T extends object">
+<script setup lang="ts" generic="T extends Object">
 // Extends BTable
 import { type BTableProps, type BTableSlots, type BTableEmtis } from './BTable.vue'
 import { PAGE_SIZE_LIST } from '@/composable/usePagination'
+import _ from 'lodash'
 
 interface Props extends BTableProps<T> {
     /** 페이지 크기 목록, selectBox에 표시된다 */
@@ -31,6 +32,25 @@ const pageSize = defineModel('pageSize', { default: PAGE_SIZE_LIST[0], required:
 const { pageNo, cOffset } = usePagination(
     computed(() => props.items.length),
     pageSize
+)
+
+// 선택 id에 변화에 따라 페이지를 바꾸는 작업 필요
+// 외부에서 selIds를 설정할떄 해당 페이지로 이동시킨다.
+watch(
+    () => selIds.value.sort().join(','),
+    () => {
+        if (selIds.value.length < 1) return
+
+        const lastId = selIds.value[selIds.value.length - 1]
+        const idx = props.items.findIndex((item) => item[props.itemKey] == lastId)
+        const pgNo = Math.floor(idx / pageSize.value) + 1
+        if (pageNo.value != pgNo) pageNo.value = Math.floor(idx / pageSize.value) + 1
+
+        nextTick().then(() => {
+            document.querySelector(`.id-${_.last(selIds.value)}`)?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' })
+        })
+    },
+    { deep: true }
 )
 
 const cPgItems = computed(() => props.items.slice(cOffset.value, pageNo.value * pageSize.value))

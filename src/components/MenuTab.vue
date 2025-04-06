@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import useApiMenu from '@/api/useApiMenu'
-import { getInitials, orderWithList } from '@/utils/CommonUtils'
+import { getInitials, orderWithList } from '@/utils/common'
 import { useRouter } from 'vue-router'
 import BInputCho from './base/BInputCho.vue'
 import { useEventListener } from '@vueuse/core'
@@ -208,7 +208,7 @@ defineExpose({ selCtg })
                 <button @click="onClickCategory(null)" :class="{ on: selCtg == null }">
                     <span>{{ '전체' }}</span>
                 </button>
-                <!-- see: https://www.npmjs.com/package/vue-draggable-next?activeTab=readme#with-transition-group -->
+                <!-- see: https://www.npmjs.com/package/vue-dAdminLayoutraggable-next?activeTab=readme#with-transition-group -->
                 <VueDraggableNext v-model="menuStore.categories" @change="() => (isCtgUpdated = true)" :animation="500" :disabled="!isEdit">
                     <button
                         class="item"

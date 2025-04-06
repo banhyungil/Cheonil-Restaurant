@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { today } from '@/utils/CommonUtils'
+import { today } from '@/utils/common'
 
 const router = useRouter()
 const apiExpense = useApiExpense()

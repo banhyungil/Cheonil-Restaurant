@@ -1,10 +1,8 @@
 import useApi from './useApi'
-import { assertionExist } from '@/utils/CommonUtils'
 
 export default function useApiMenuCtg() {
     const api = useApi()
     const prefix = '/menuCategory'
-    const settingStore = useSettingStore()
 
     const selectList = async () => {
         const res = await api.get(prefix)

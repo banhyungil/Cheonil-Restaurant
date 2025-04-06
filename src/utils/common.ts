@@ -91,3 +91,7 @@ export const limitNum = (val: number, min: number, max: number, isCirculation: b
     else if (val > max) return isCirculation ? min : max
     else return val
 }
+
+export function assert<T>(val: any) {
+    return val as T
+}

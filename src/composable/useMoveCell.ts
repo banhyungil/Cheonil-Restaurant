@@ -1,4 +1,4 @@
-import { limitNum } from '@/utils/CommonUtils'
+import { limitNum } from '@/utils/common'
 import { useActiveElement } from '@vueuse/core'
 import type { MaybeRefOrGetter } from 'vue'
 

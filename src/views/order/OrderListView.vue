@@ -2,7 +2,7 @@
 import useApiOrder from '@/api/useApiOrder'
 import type { Filter } from '@/components/OrderList.vue'
 import usePagination, { PAGE_SIZE_LIST } from '@/composable/usePagination'
-import { getDayOfEnd, today } from '@/utils/CommonUtils'
+import { getDayOfEnd, today } from '@/utils/common'
 import { addDays } from 'date-fns'
 
 const apiOrder = useApiOrder()

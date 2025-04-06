@@ -1,12 +1,13 @@
-<script generic="T extends object" lang="ts" setup>
+<script generic="T extends Object & { no: number }" lang="ts" setup>
+import useOrderBy from '@/composable/useOrderBy'
 import _ from 'lodash'
+import { assert, getUuid } from '@/utils/common'
 import type { CSSProperties } from 'vue'
 import { useElementSize } from '@vueuse/core'
 import useDictionary from '@/composable/useDictionary'
-import { getUuid } from '@/utils/CommonUtils'
 
-export interface BTableColInfo {
-    key: string
+export interface BTableColInfo<T extends Object> {
+    key: keyof T
     title: string
     /** grid body에 적용됨. header는 body 넓이로 결정됨 */
     colSize?: string
@@ -16,14 +17,14 @@ export interface BTableColInfo {
     sortable?: boolean
 }
 
-export interface CellInfo<T> {
+export interface CellInfo<T extends Object> {
     originItem: T
     item: T
     originValue: any
     value: any
     rowIdx: number
     colIdx: number
-    colKey: string
+    colKey: keyof T
     cellElt: HTMLElement
 }
 
@@ -35,19 +36,19 @@ export interface BTableChange<T> {
     rollback: () => void
 }
 
-export type BTableSlots<T> = { [slotName: string]: (props: CellInfo<T>) => any }
-export type BTableEmtis<T> = {
-    (e: 'changeSelected', value: T, selected: boolean): void
-    (e: 'changeChecked', value: T[]): void
-    (e: 'changeCell', value: CellInfo<T>): void
-    (e: 'pressF2'): void
-    (e: 'change', options: BTableChange<T>): void
+export type BTableSlots<T extends Object> = { [slotName: string]: (props: CellInfo<T>) => any }
+export type BTableEmtis<T extends Object> = {
+    changeSelected: [value: T, selected: boolean]
+    changeChecked: [value: T[]]
+    changeCell: [value: CellInfo<T>]
+    pressF2: []
+    change: [options: BTableChange<T>]
 }
 
-export interface BTableProps<T> {
+export interface BTableProps<T extends Object> {
     items: T[]
-    itemKey: keyof T
-    colInfos: BTableColInfo[]
+    itemKey: ValidObjectKey<T>
+    colInfos: BTableColInfo<T>[]
     /** 정렬 유형 */
     sortType?: 'single' | 'multy'
     /** 선택 유형 */
@@ -115,14 +116,14 @@ const DEFT_COLSTYLE: CSSProperties = {
     justifyContent: 'center',
 }
 const cColInfos = computed(() => {
-    const colInfos: BTableColInfo[] = props.colInfos.map((colInfo) => {
+    const colInfos: BTableColInfo<T>[] = props.colInfos.map((colInfo) => {
         return {
             ...colInfo,
             colStyle: { ...DEFT_COLSTYLE, ...colInfo.colStyle, justifyContent: colInfo.inputType ? 'left' : DEFT_COLSTYLE.justifyContent },
             colSize: colInfo['colSize'] ?? 'minmax(max-content, 1fr)',
             // 정렬 가능한 key는 항목에 존재하는 key만 가능
             // true인 경우는 항목에 key가 존재하는지 확인해야함
-            sortable: colInfo['sortable'] === false ? false : validKey(itemKeys.value ?? {}, colInfo.key),
+            sortable: colInfo['sortable'] === false ? false : itemKeys.value.includes(colInfo.key.toString()),
         }
     })
     if (props.checkedType) {
@@ -133,10 +134,10 @@ const cColInfos = computed(() => {
             colStyle: DEFT_COLSTYLE,
             sortable: false,
             inputType: props.checkedType,
-        } as BTableColInfo
+        } as BTableColInfo<T>
         colInfos.splice(0, 0, colInfo)
     }
-    console.log('colInfos.length', colInfos.length)
+    // console.log('colInfos.length', colInfos.length)
 
     return colInfos
 })
@@ -160,17 +161,16 @@ const cCellFirstBElts = computed(() => cellElts.value.filter((elt) => elt.classL
 // header 크기를 body와 동일한 크기로 맞춤
 const gridHeaderTemplateColumns = ref('')
 watch(
-    [() => props.colInfos.length, width, () => props.items.map((item) => item[props.itemKey])],
+    [() => props.colInfos.length, width, () => props.items.map((item) => item[props.itemKey]).join(',')],
     async () => {
-        console.time('gridHeaderTemplateColumns')
+        // 렌더링이 된후에 갱신하기 위해 nextTick을 사용
+        await nextTick()
         cellElts.value = Array.from(contElt.value?.querySelectorAll('.btable-col') ?? []) as HTMLElement[]
-        // 모든 그리드셀이 업데이트 된후에 그리드 최종 넓이가 결정됨됨
+        // 모든 그리드셀이 업데이트 된후에 그리드 최종 넓이가 결정됨
         const widthList = cCellFirstBElts.value.map((elt) => {
             return elt.getBoundingClientRect().width
         })
         gridHeaderTemplateColumns.value = widthList.length == 0 ? cGridBodyTemplateColumns.value : widthList.map((num) => `${num}px`).join(' ')
-
-        console.timeEnd('gridHeaderTemplateColumns')
     },
     // grid 렌더링이 갱신 된후에 처리
     { flush: 'post' }
@@ -236,9 +236,8 @@ function onSort(colKey: string, colSortable?: boolean) {
 
 const cSelectedItems = computed(() => props.items.filter((it) => dItemExt.value[it[props.itemKey]].selected))
 
-function selectRow(rowIdx: number) {
+function selectRow(item: T) {
     if (props.selectType == null) return
-    const item = props.items[rowIdx]
 
     const selected = !dItemExt.value[item[props.itemKey]].selected
     if (selected && props.selectType != 'multy') {
@@ -345,7 +344,7 @@ defineExpose({ getSelectedItems, getCheckedItems, uuid, rollback })
                 class="btable-col h"
                 :class="{ sortable: cGrdSortable && sortable }"
                 :style="colStyle"
-                @click="onSort(key, sortable)"
+                @click="onSort(assert(key), sortable)"
                 @keyup="onKeyupCell"
                 role="gridcell"
                 :tabindex="sortable || key == '_check' ? '0' : ''"
@@ -366,9 +365,15 @@ defineExpose({ getSelectedItems, getCheckedItems, uuid, rollback })
                     v-for="({ key, inputType, editable, colStyle }, colIdx) in cColInfos"
                     :key="`${item[itemKey as keyof T]}colIdx${colIdx}`"
                     class="btable-col b"
-                    :class="[key, selectType ? { selected: selIds.includes(item[itemKey as keyof T]) } : null, rowClass(item), `row-${rowIdx}`]"
+                    :class="[
+                        `id-${item[itemKey as keyof T]}`,
+                        key,
+                        selectType ? { selected: selIds.includes(item[itemKey as keyof T]) } : null,
+                        rowClass(item),
+                        `row-${rowIdx}`,
+                    ]"
                     :style="{ ...colStyle, animationDelay: `${(1 / items.length) * ((rowIdx * cColInfos.length) / cColInfos.length)}s` }"
-                    @click="selectRow(rowIdx)"
+                    @click="selectRow(item)"
                     @focus="onFocusCell($event, rowIdx, colIdx)"
                     @keyup="onKeyupCell"
                     role="gridcell"

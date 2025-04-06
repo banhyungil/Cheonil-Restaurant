@@ -7,7 +7,7 @@ import usePagination from '@/composable/usePagination'
 import useSwal, { type SweetAlertOptionsCustom } from '@/composable/useSwal'
 import useApiPayment from '@/api/useApiPayment'
 import { getTotalOrderAmount, getTotalPayAmount } from '@/stores/orderStore'
-import { today } from '@/utils/CommonUtils'
+import { today } from '@/utils/common'
 
 const Swal = useSwal()
 const apiOrder = useApiOrder()

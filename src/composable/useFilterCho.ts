@@ -1,4 +1,4 @@
-import { getInitials } from '@/utils/CommonUtils'
+import { getInitials } from '@/utils/common'
 import { type MaybeRef, type Ref } from 'vue'
 
 export default function useFilterCho<T>(items: MaybeRef<T[]>, srchKeys: (keyof T)[], srchText: Ref<string>) {

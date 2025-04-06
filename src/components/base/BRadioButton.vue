@@ -9,7 +9,7 @@
 </template>
 
 <script setup lang="ts">
-import { getUuid } from '@/utils/CommonUtils'
+import { getUuid } from '@/utils/common'
 
 interface Props {
     value?: any

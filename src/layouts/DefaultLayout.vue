@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import BottomBar from '@/components/layout/BottomBar.vue'
+import BottomBar from '@/layouts/components/BottomBar.vue'
 </script>
 
 <template>

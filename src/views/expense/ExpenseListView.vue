@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { BTableColInfo } from '@/components/base/BTable.vue'
-import { today } from '@/utils/CommonUtils'
+import { today } from '@/utils/common'
 import { addDays, addMonths } from 'date-fns'
 
 const router = useRouter()
