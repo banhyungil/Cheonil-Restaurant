@@ -46,6 +46,7 @@ export default defineConfig({
                     else if (name.includes('VSelectExt')) return 'vue-select'
                 },
             ], // vuetify 컴포넌트 등록시 resolver 사용
+            dirs: ['./src/components', './src/containers', './src/modals'],
         }),
     ],
     resolve: {

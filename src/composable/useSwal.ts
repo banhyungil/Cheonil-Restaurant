@@ -43,7 +43,7 @@ export default function useSwal(options?: SweetAlertOptions) {
         },
     })
 
-    const fireCustom = (options?: SweetAlertOptionsCustom) => {
+    function fireCustom(options?: SweetAlertOptionsCustom) {
         const swal = options?.toast ? nToast : nSwal
         const messageType = options?.messageType ?? 'save'
 

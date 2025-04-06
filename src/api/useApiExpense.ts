@@ -19,13 +19,13 @@ export default function useApiExpense() {
         return res.data as ExpenseEntity
     }
 
-    const create = async (menu: ExpenseEntityCreation) => {
-        const res = await api.post(prefix, menu)
+    const create = async (expense: ExpenseEntityCreation) => {
+        const res = await api.post(prefix, expense)
         return res.data as ExpenseEntity
     }
 
-    const update = async (menu: MenuEntity) => {
-        const res = await api.patch(`${prefix}/${menu.seq}`, menu)
+    const update = async (expense: ExpenseEntity) => {
+        const res = await api.patch(`${prefix}/${expense.seq}`, expense)
         return res.data as ExpenseEntity
     }
 
