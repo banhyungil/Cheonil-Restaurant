@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import useSwal from '@/composable/useSwal'
+import useSwal from '@/composables/useSwal'
 import { ref, type Ref } from 'vue'
 import { useRouter } from 'vue-router'
 import _ from 'lodash'
 import { helpers, required } from '@vuelidate/validators'
 import { useVuelidate, type ValidationArgs } from '@vuelidate/core'
 import type { VDataTable } from 'vuetify/components'
-import { PAGE_SIZE_LIST } from '@/composable/usePagination'
+import { PAGE_SIZE_LIST } from '@/composables/usePagination'
 
 const router = useRouter()
 const Swal = useSwal()

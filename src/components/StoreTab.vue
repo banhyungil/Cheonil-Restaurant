@@ -8,7 +8,7 @@ import { getInitials, orderWithList } from '@/utils/common'
 import BInputCho from './base/BInputCho.vue'
 import { useEventListener } from '@vueuse/core'
 import _ from 'lodash'
-import useSwal from '@/composable/useSwal'
+import useSwal from '@/composables/useSwal'
 import { VueDraggableNext } from 'vue-draggable-next'
 
 const storeStore = useStoreStore()

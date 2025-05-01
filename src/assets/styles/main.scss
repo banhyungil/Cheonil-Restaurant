@@ -1,0 +1,12 @@
+/* stylelint-disable */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+/* stylelint-enable */
+@use './base/animations' as *;
+@use './base/base' as *;
+@use './base/reset' as *;
+@use './base/var' as *;
+@use './components/g-form' as *;
+@use './components/tab' as *;
+

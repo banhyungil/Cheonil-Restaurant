@@ -1,7 +1,7 @@
 <script setup lang="ts" generic="T extends Object">
 // Extends BTable
 import { type BTableProps, type BTableSlots, type BTableEmtis } from './BTable.vue'
-import { PAGE_SIZE_LIST } from '@/composable/usePagination'
+import { PAGE_SIZE_LIST } from '@/composables/usePagination'
 import _ from 'lodash'
 
 interface Props extends BTableProps<T> {

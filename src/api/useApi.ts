@@ -1,4 +1,4 @@
-import useSwal from '@/composable/useSwal'
+import useSwal from '@/composables/useSwal'
 import axios, { type AxiosResponse } from 'axios'
 
 export const Op: OpTypesCustom = {

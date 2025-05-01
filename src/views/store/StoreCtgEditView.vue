@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import useApiStoreCtg from '@/api/useApiStoreCtg'
-import useSwal from '@/composable/useSwal'
+import useSwal from '@/composables/useSwal'
 import { useStoreStore } from '@/stores/storeStore'
 import { computed, ref, type Ref } from 'vue'
 import { useRouter } from 'vue-router'

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import useSwal from '@/composable/useSwal'
+import useSwal from '@/composables/useSwal'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import _ from 'lodash'

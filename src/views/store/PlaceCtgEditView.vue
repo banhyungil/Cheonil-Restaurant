@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import useApiPlaceCtg from '@/api/useApiPlaceCtg'
-import useSwal from '@/composable/useSwal'
+import useSwal from '@/composables/useSwal'
 import { computed, onMounted, ref, type Ref } from 'vue'
 import { useRouter } from 'vue-router'
 import _ from 'lodash'

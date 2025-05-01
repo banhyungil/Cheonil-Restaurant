@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { VDataTable } from 'vuetify/components'
-import { PAGE_SIZE_LIST } from '@/composable/usePagination'
-import useSwal from '@/composable/useSwal'
+import { PAGE_SIZE_LIST } from '@/composables/usePagination'
+import useSwal from '@/composables/useSwal'
 import _ from 'lodash'
 
 const router = useRouter()

@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import _ from 'lodash'
-import useSwal from '@/composable/useSwal'
+import useSwal from '@/composables/useSwal'
 import { useMenuStore } from '@/stores/menuStore'
 import useApiMenu from '@/api/useApiMenu'
 import BInputNumFormat from '@/components/base/BInputNumFormat.vue'

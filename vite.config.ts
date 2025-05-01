@@ -62,9 +62,7 @@ export default defineConfig({
     css: {
         preprocessorOptions: {
             scss: {
-                additionalData: `
-            @import "@/scss/main.scss";
-        `,
+                additionalData: `@use "@/styles/abstracts/_mixin.scss" as *;`,
             },
         },
     },

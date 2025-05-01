@@ -4,7 +4,7 @@ import { VueDraggableNext } from 'vue-draggable-next'
 
 interface Props {
     /** 전체 버튼 표시 여부 */
-    tabKey: ValidObjectKey<T>
+    tabKey: ValuePropKeys<T>
     tabName: string
     showAll?: boolean
     draggable?: boolean

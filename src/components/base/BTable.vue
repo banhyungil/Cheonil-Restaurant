@@ -1,12 +1,12 @@
-<script generic="T extends Object & { no: number }" lang="ts" setup>
-import useOrderBy from '@/composable/useOrderBy'
+<script generic="T extends object & { no?: number }" lang="ts" setup>
 import _ from 'lodash'
 import { assert, getUuid } from '@/utils/common'
 import type { CSSProperties } from 'vue'
 import { useElementSize } from '@vueuse/core'
-import useDictionary from '@/composable/useDictionary'
+import useDictionary from '@/composables/useDictionary'
 
-export interface BTableColInfo<T extends Object> {
+//ANCHOR - Types
+export interface BTableColInfo<T extends object> {
     key: keyof T
     title: string
     /** grid body에 적용됨. header는 body 넓이로 결정됨 */
@@ -17,7 +17,7 @@ export interface BTableColInfo<T extends Object> {
     sortable?: boolean
 }
 
-export interface CellInfo<T extends Object> {
+export interface CellInfo<T extends object> {
     originItem: T
     item: T
     originValue: any
@@ -36,8 +36,8 @@ export interface BTableChange<T> {
     rollback: () => void
 }
 
-export type BTableSlots<T extends Object> = { [slotName: string]: (props: CellInfo<T>) => any }
-export type BTableEmtis<T extends Object> = {
+export type BTableSlots<T extends object> = { [slotName: string]: (props: CellInfo<T>) => any }
+export type BTableEmtis<T extends object> = {
     changeSelected: [value: T, selected: boolean]
     changeChecked: [value: T[]]
     changeCell: [value: CellInfo<T>]
@@ -45,9 +45,9 @@ export type BTableEmtis<T extends Object> = {
     change: [options: BTableChange<T>]
 }
 
-export interface BTableProps<T extends Object> {
+export interface BTableProps<T extends object> {
     items: T[]
-    itemKey: ValidObjectKey<T>
+    itemKey: ValuePropKeys<T>
     colInfos: BTableColInfo<T>[]
     /** 정렬 유형 */
     sortType?: 'single' | 'multy'
@@ -63,13 +63,19 @@ export interface BTableProps<T extends Object> {
     rowClass?: (item: T) => any
 }
 
+//ANCHOR - Props
 const props = withDefaults(defineProps<BTableProps<T>>(), {
     sortType: 'single',
     theme: 'basic',
     disableCheckbox: false,
     rowClass: () => '',
 })
+//ANCHOR - Emits
+const emit = defineEmits<BTableEmtis<T>>()
+//ANCHOR - Slots
+defineSlots<BTableSlots<T>>()
 
+//ANCHOR - Start
 const itemKeys = ref<string[]>([])
 watch(
     () => (props.items.length > 0 ? Object.keys(props.items[0]) : []),
@@ -80,14 +86,31 @@ watch(
     }
 )
 
-// header가 최소한 보이게 설정할려면 어떻게할까
-// header max-content를 설정한 넓이를 알아야함
-// max-content 넓이와 그리드넓이를 비교해서 max-content가 큰 경우 max-content넓이로 결정해야한다.
-// 그러나 body 그렇게 설정하는 경우 그다음 갱신이 제대로 안될 수 있다.
+/**
+ * colinfos 내부 데이터로 관리
+ * Header Body에 넓이 정보를 동일하게 적용하기 위해서
+ * Body Grid Style 대로 적용하는 것을 원칙으로 하나 Header 최소 넓이는 max-content로 설정
+ * * Header 넓이가 더 큰 경우는 ColSize를 Header 넓이로 설정
+ * */
+const inColinfos = ref(_.cloneDeep(props.colInfos)) as Ref<BTableColInfo<T>[]>
+watch(
+    () => props.colInfos.map((ci) => ci.key).join(','),
+    () => {
+        inColinfos.value = _.cloneDeep(props.colInfos)
+    },
+    { flush: 'pre' }
+)
+watch(
+    [() => props.colInfos.map((ci) => ci.colSize).join(','), () => props.items.map((item) => item[props.itemKey]).join(',')],
+    () => {
+        inColinfos.value.forEach((ci, idx) => (ci.colSize = props.colInfos[idx].colSize))
+        // console.log('watch colInfos', inColinfos.value)
+    },
+    { flush: 'pre' }
+)
 
 const contElt = ref<HTMLElement>()
 const INIT_DISABLED = props.selectType != null
-const emit = defineEmits<BTableEmtis<T>>()
 
 const { dict: dItemExt } = useDictionary({
     items: computed(() => props.items),
@@ -116,10 +139,10 @@ const DEFT_COLSTYLE: CSSProperties = {
     justifyContent: 'center',
 }
 const cColInfos = computed(() => {
-    const colInfos: BTableColInfo<T>[] = props.colInfos.map((colInfo) => {
+    const colInfos: BTableColInfo<T>[] = inColinfos.value.map((colInfo) => {
         return {
             ...colInfo,
-            colStyle: { ...DEFT_COLSTYLE, ...colInfo.colStyle, justifyContent: colInfo.inputType ? 'left' : DEFT_COLSTYLE.justifyContent },
+            colStyle: { ...DEFT_COLSTYLE, justifyContent: colInfo.inputType ? 'left' : DEFT_COLSTYLE.justifyContent, ...colInfo.colStyle },
             colSize: colInfo['colSize'] ?? 'minmax(max-content, 1fr)',
             // 정렬 가능한 key는 항목에 존재하는 key만 가능
             // true인 경우는 항목에 key가 존재하는지 확인해야함
@@ -156,24 +179,50 @@ const cellElts = ref([]) as Ref<HTMLElement[]>
 const bodyElt = ref() as Ref<HTMLElement>
 const { width } = useElementSize(bodyElt)
 
+/** body 첫번째 행 요소 목록  */
 const cCellFirstBElts = computed(() => cellElts.value.filter((elt) => elt.classList.contains('b') && elt.classList.contains('row-0')))
+/** 헤더 요소 목록 */
+const cCellHElts = computed(() => cellElts.value.filter((elt) => elt.classList.contains('h')))
+
+const cBWidthList = computed(() => {
+    return cCellFirstBElts.value.map((elt) => {
+        return elt.getBoundingClientRect().width
+    })
+})
+const cHWidthList = computed(() => {
+    return cCellHElts.value.map((elt) => {
+        return elt.getBoundingClientRect().width
+    })
+})
 
 // header 크기를 body와 동일한 크기로 맞춤
 const gridHeaderTemplateColumns = ref('')
+
 watch(
-    [() => props.colInfos.length, width, () => props.items.map((item) => item[props.itemKey]).join(',')],
+    () => props.items.map((item) => item[props.itemKey]).join(','),
     async () => {
-        // 렌더링이 된후에 갱신하기 위해 nextTick을 사용
         await nextTick()
         cellElts.value = Array.from(contElt.value?.querySelectorAll('.btable-col') ?? []) as HTMLElement[]
-        // 모든 그리드셀이 업데이트 된후에 그리드 최종 넓이가 결정됨
-        const widthList = cCellFirstBElts.value.map((elt) => {
-            return elt.getBoundingClientRect().width
+        gridHeaderTemplateColumns.value =
+            cBWidthList.value.length == 0 ? cGridBodyTemplateColumns.value : cBWidthList.value.map((num) => `minmax(max-content, ${num}px)`).join(' ')
+
+        // console.log('gridHeaderTemplateColumns', gridHeaderTemplateColumns.value)
+
+        // header body가 다 렌더링된 이후에 처리
+        // * 값설정 후 렌더링을 기다리기 위해 nextTick 사용
+        await nextTick()
+        cHWidthList.value.forEach((hWidth, idx) => {
+            const bWidth = cBWidthList.value[idx]
+            // Body가 Header보다 작은 경우 Header 넓이를 Body 넓이로 설정
+            if (bWidth < hWidth) {
+                const tgt = inColinfos.value.find((ci) => ci.key == cColInfos.value[idx].key)
+                if (tgt) tgt.colSize = `${hWidth}px`
+                // console.log(`bWidth: ${bWidth}`, `hWidth: ${hWidth}`, `elt: ${cCellHElts.value[idx].classList}`)
+                // console.log('inColinfos', inColinfos.value)
+            }
         })
-        gridHeaderTemplateColumns.value = widthList.length == 0 ? cGridBodyTemplateColumns.value : widthList.map((num) => `${num}px`).join(' ')
     },
-    // grid 렌더링이 갱신 된후에 처리
-    { flush: 'post' }
+    { immediate: true, flush: 'post' }
 )
 
 const cGridBodyTemplateColumns = computed(() => {
@@ -234,21 +283,24 @@ function onSort(colKey: string, colSortable?: boolean) {
     toggle(colKey as string, cMultiSortable.value)
 }
 
-const cSelectedItems = computed(() => props.items.filter((it) => dItemExt.value[it[props.itemKey]].selected))
+/** assert 단축 */
+const AST = (val: any) => assert<PropertyKey>(val)
+
+const cSelectedItems = computed(() => props.items.filter((it) => dItemExt.value[AST(it[props.itemKey])].selected))
 
 function selectRow(item: T) {
     if (props.selectType == null) return
 
-    const selected = !dItemExt.value[item[props.itemKey]].selected
+    const selected = !dItemExt.value[AST(item[props.itemKey])].selected
     if (selected && props.selectType != 'multy') {
         // 기존 선택 된 것은 해제 해준다.
-        props.items.forEach((item) => {
-            const ext = dItemExt.value[item[props.itemKey]]
+        props.items.forEach((it) => {
+            const ext = dItemExt.value[AST(it[props.itemKey])]
             if (ext.selected) ext.selected = false
         })
     }
 
-    dItemExt.value[item[props.itemKey]].selected = selected
+    dItemExt.value[AST(item[props.itemKey])].selected = selected
     selIds.value = cSelectedItems.value.map((item) => item[props.itemKey])
     console.log('selIds', selIds)
     emit('changeSelected', item, selected)
@@ -342,7 +394,7 @@ defineExpose({ getSelectedItems, getCheckedItems, uuid, rollback })
                 :key="key"
                 :data-cellidx="idx"
                 class="btable-col h"
-                :class="{ sortable: cGrdSortable && sortable }"
+                :class="[{ sortable: cGrdSortable && sortable }, key]"
                 :style="colStyle"
                 @click="onSort(assert(key), sortable)"
                 @keyup="onKeyupCell"
@@ -358,17 +410,17 @@ defineExpose({ getSelectedItems, getCheckedItems, uuid, rollback })
                 />
             </div>
         </div>
-        <div class="tw-flex tw-items-center tw-justify-center tw-text-xl tw-text-slate-500" v-if="cOrderedItems.length == 0">No Data</div>
+        <div class="flex justify-center items-center text-xl text-slate-500" v-if="cOrderedItems.length == 0">No Data</div>
         <div ref="bodyElt" class="body" role="grid" :style="{ gridTemplateColumns: cGridBodyTemplateColumns }">
-            <template v-for="(item, rowIdx) in cOrderedItems" :key="item[itemKey as keyof T]">
+            <template v-for="(item, rowIdx) in cOrderedItems" :key="item[assert<keyof T>(itemKey)]">
                 <div
                     v-for="({ key, inputType, editable, colStyle }, colIdx) in cColInfos"
-                    :key="`${item[itemKey as keyof T]}colIdx${colIdx}`"
+                    :key="`${item[assert<keyof T>(itemKey)]}colIdx${colIdx}`"
                     class="btable-col b"
                     :class="[
-                        `id-${item[itemKey as keyof T]}`,
+                        `id-${item[assert<keyof T>(itemKey)]}`,
                         key,
-                        selectType ? { selected: selIds.includes(item[itemKey as keyof T]) } : null,
+                        selectType ? { selected: selIds.includes(item[assert<keyof T>(itemKey)]) } : null,
                         rowClass(item),
                         `row-${rowIdx}`,
                     ]"
@@ -383,7 +435,7 @@ defineExpose({ getSelectedItems, getCheckedItems, uuid, rollback })
                         1.editable input
                         - onClickInp, onEnterInp event 등록하면 기본 셀 내 input 과 동일하게 동작 
                     -->
-                    <slot :name="key" v-bind="{ ...getCellInfo(rowIdx, colIdx) }">
+                    <slot :name="assert<string>(key)" v-bind="{ ...getCellInfo(rowIdx, colIdx) }">
                         <template v-if="inputType">
                             <BCheckbox
                                 v-if="key == '_check' && inputType == 'checkbox'"
@@ -415,7 +467,7 @@ defineExpose({ getSelectedItems, getCheckedItems, uuid, rollback })
                                     class="eti"
                                     :type="inputType"
                                     :init-value="item[key]"
-                                    @focusout="(val) => onValueChanged(item, key as keyof T, val)"
+                                    @focusout="(val: any) => onValueChanged(item, key as keyof T, val)"
                                     @keyup.enter="onEnterInp(rowIdx, colIdx)"
                                 />
                             </template>
@@ -428,7 +480,7 @@ defineExpose({ getSelectedItems, getCheckedItems, uuid, rollback })
                             />
                             <input v-else :type="inputType" :value="validKey(item, key) ? item[key] : null" />
                         </template>
-                        <span v-else>{{ validKey(item, key) ? item[key] : '' }}</span>
+                        <span class="text-center" v-else>{{ validKey(item, key) ? item[key] : '' }}</span>
                     </slot>
                 </div>
             </template>

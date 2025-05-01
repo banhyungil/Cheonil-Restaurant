@@ -7,7 +7,7 @@ import BInputCho from './base/BInputCho.vue'
 import { useEventListener } from '@vueuse/core'
 import _ from 'lodash'
 import { VueDraggableNext } from 'vue-draggable-next'
-import useSwal from '@/composable/useSwal'
+import useSwal from '@/composables/useSwal'
 
 const menuStore = useMenuStore()
 const settingStore = useSettingStore()

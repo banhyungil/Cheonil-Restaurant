@@ -3,7 +3,7 @@ import useApiOrder from '@/api/useApiOrder'
 import { ref } from 'vue'
 import { format, differenceInSeconds, toDate, differenceInMinutes } from 'date-fns'
 import { useNow, useStorage } from '@vueuse/core'
-import useSwal from '@/composable/useSwal'
+import useSwal from '@/composables/useSwal'
 import { useRouter } from 'vue-router'
 import _ from 'lodash'
 import { Dropdown } from 'floating-vue'
@@ -370,7 +370,7 @@ function toggleDisplayKitchen() {
             &.new {
                 .store {
                     background-color: var(--color-success);
-                    animation: aniBlink 2s infinite;
+                    animation: ani-blink 2s infinite;
                 }
             }
 

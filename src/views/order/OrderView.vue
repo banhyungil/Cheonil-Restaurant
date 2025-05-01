@@ -4,7 +4,7 @@ import { computed, ref, watch } from 'vue'
 import _ from 'lodash'
 import useApiOrder from '@/api/useApiOrder'
 import { useEventListener, useWindowSize } from '@vueuse/core'
-import useSwal from '@/composable/useSwal'
+import useSwal from '@/composables/useSwal'
 import { useRouter } from 'vue-router'
 import type MenuTab from '@/components/MenuTab.vue'
 

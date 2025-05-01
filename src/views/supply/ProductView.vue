@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { VPagination, type VDataTable } from 'vuetify/components'
 import _ from 'lodash'
-import usePagination from '@/composable/usePagination'
-import useSwal from '@/composable/useSwal'
+import usePagination from '@/composables/usePagination'
+import useSwal from '@/composables/useSwal'
 import type { ProductInfoExt } from '@/api/useApiProductInfo'
-import { PAGE_SIZE_LIST } from '@/composable/usePagination'
+import { PAGE_SIZE_LIST } from '@/composables/usePagination'
 
 const router = useRouter()
 const Swal = useSwal()
