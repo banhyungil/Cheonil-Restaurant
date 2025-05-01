@@ -1,46 +1,38 @@
-# Cheonil-Restaurant
+src/
+├── assets/
+│   └── styles/
+│       ├── abstracts/     # 함수, 변수, 믹스인 등 (실제 CSS 없음)
+│       │   ├── _variables.scss
+│       │   ├── _mixins.scss
+│       │   └── _functions.scss
+│       ├── base/          # reset, typography 등 글로벌 스타일
+│       │   ├── _reset.scss
+│       │   ├── _typography.scss
+│       │   └── _base.scss
+│       ├── components/    # 공통 UI 컴포넌트 스타일
+│       │   └── _button.scss
+│       ├── layout/        # 레이아웃 관련 (grid, header, footer)
+│       │   ├── _grid.scss
+│       │   ├── _header.scss
+│       │   └── _footer.scss
+│       ├── pages/         # 페이지 단위 스타일
+│       │   ├── _home.scss
+│       │   └── _about.scss
+│       ├── themes/        # 테마 (다크, 라이트 등)
+│       │   └── _default.scss
+│       ├── vendors/       # 외부 라이브러리 수정 (optional)
+│       └── main.scss      # 실제 import 집약, Vite entry point
+│
+├── components/
+│   └── base/              # 공통 컴포넌트
+│   └── layout/            # 레이아웃에 포함되는 컴포넌트 (Sidebar, Header 등)
+│   └── {busniss}/
+├── containers/            # API관련처리
+├── layouts/               # layout 컴포넌트
+├── modals/                # Popup형태 컴포넌트
 
-This template should help get you started developing with Vue 3 in Vite.
 
-## Recommended IDE Setup
-
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
-
-## Type Support for `.vue` Imports in TS
-
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin) to make the TypeScript language service aware of `.vue` types.
-
-If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has also implemented a [Take Over Mode](https://github.com/johnsoncodehk/volar/discussions/471#discussioncomment-1361669) that is more performant. You can enable it by the following steps:
-
-1. Disable the built-in TypeScript Extension
-    1) Run `Extensions: Show Built-in Extensions` from VSCode's command palette
-    2) Find `TypeScript and JavaScript Language Features`, right click and select `Disable (Workspace)`
-2. Reload the VSCode window by running `Developer: Reload Window` from the command palette.
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vitejs.dev/config/).
-
-## Project Setup
-
-```sh
-npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
-
-### Type-Check, Compile and Minify for Production
-
-```sh
-npm run build
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
-```
+src/
+├── components/
+│   └── base/
+│   └── {busniss}/
