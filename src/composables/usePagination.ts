@@ -1,6 +1,7 @@
 import type { MaybeRef } from 'vue'
 
 export const PAGE_SIZE_LIST = [10, 30, 50, 100, 200]
+export const PAGE_GRP_SIZE = 5
 
 export default function usePagination(totalCnt: MaybeRef<number>, pageSize: MaybeRef<number>) {
     const pageNo = ref(1)

@@ -1,6 +1,7 @@
 <script generic="T extends object & { no?: number }" lang="ts" setup>
+import { useOrderBy } from '@/composables/useOrderBy'
 import _ from 'lodash'
-import { assert, getUuid } from '@/utils/common'
+import { assert, getKeys, getUuid } from '@/utils/common'
 import type { CSSProperties } from 'vue'
 import { useElementSize } from '@vueuse/core'
 import useDictionary from '@/composables/useDictionary'
@@ -61,6 +62,8 @@ export interface BTableProps<T extends object> {
     disableCheckbox?: boolean
     /** 행별 클래스 부여 */
     rowClass?: (item: T) => any
+    /** boolean 값 포맷터 */
+    booleanFormatter?: (val: boolean) => string
 }
 
 //ANCHOR - Props
@@ -69,6 +72,7 @@ const props = withDefaults(defineProps<BTableProps<T>>(), {
     theme: 'basic',
     disableCheckbox: false,
     rowClass: () => '',
+    booleanFormatter: (val: boolean) => (val ? 'O' : 'X'),
 })
 //ANCHOR - Emits
 const emit = defineEmits<BTableEmtis<T>>()
@@ -109,11 +113,23 @@ watch(
     { flush: 'pre' }
 )
 
+const cItems = computed(() => {
+    return props.items.map((item) => {
+        const itemFormat = getKeys(item).reduce((acc, key) => {
+            if (typeof item[key] == 'boolean') {
+                acc[key] = props.booleanFormatter(item[key]) as any
+            }
+            return acc
+        }, {} as T)
+        return { ...item, ...itemFormat }
+    })
+})
+
 const contElt = ref<HTMLElement>()
 const INIT_DISABLED = props.selectType != null
 
 const { dict: dItemExt } = useDictionary({
-    items: computed(() => props.items),
+    items: cItems,
     itemKey: props.itemKey,
     initFn: (_) => ({ selected: false }),
 })
@@ -197,9 +213,7 @@ const cHWidthList = computed(() => {
 
 // header 크기를 body와 동일한 크기로 맞춤
 const gridHeaderTemplateColumns = ref('')
-
-watch(
-    () => props.items.map((item) => item[props.itemKey]).join(','),
+const syncBodyHeaderSize = _.throttle(
     async () => {
         await nextTick()
         cellElts.value = Array.from(contElt.value?.querySelectorAll('.btable-col') ?? []) as HTMLElement[]
@@ -222,8 +236,10 @@ watch(
             }
         })
     },
-    { immediate: true, flush: 'post' }
+    200,
+    { trailing: true }
 )
+watch([() => props.items.map((item) => item[props.itemKey]).join(','), width], syncBodyHeaderSize, { immediate: true, flush: 'post' })
 
 const cGridBodyTemplateColumns = computed(() => {
     return cColInfos.value.map((colInfo) => colInfo['colSize']).join(' ')
@@ -276,7 +292,7 @@ const { getCellIdx } = useMoveCell({ rowCnt: cRowCnt, colCnt: cColCnt, elts: cOr
 const cGrdSortable = computed(() => props.sortType != null)
 const cMultiSortable = computed(() => props.sortType == 'multy')
 
-const { toggle, cOrderDict, cOrdered: cOrderedItems } = useOrderBy({ items: computed(() => props.items) })
+const { toggle, cOrderDict, cOrdered: cOrderedItems } = useOrderBy({ items: cItems })
 
 function onSort(colKey: string, colSortable?: boolean) {
     if (props.sortType == null || colSortable == false) return
@@ -410,7 +426,7 @@ defineExpose({ getSelectedItems, getCheckedItems, uuid, rollback })
                 />
             </div>
         </div>
-        <div class="flex justify-center items-center text-xl text-slate-500" v-if="cOrderedItems.length == 0">No Data</div>
+        <div class="flex items-center justify-center text-xl text-slate-500" v-if="cOrderedItems.length == 0">No Data</div>
         <div ref="bodyElt" class="body" role="grid" :style="{ gridTemplateColumns: cGridBodyTemplateColumns }">
             <template v-for="(item, rowIdx) in cOrderedItems" :key="item[assert<keyof T>(itemKey)]">
                 <div

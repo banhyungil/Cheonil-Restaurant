@@ -95,3 +95,7 @@ export const limitNum = (val: number, min: number, max: number, isCirculation: b
 export function assert<T>(val: any) {
     return val as T
 }
+
+export function getKeys<T extends object>(obj: T): (keyof T)[] {
+    return Object.keys(obj) as (keyof T)[]
+}

@@ -1,12 +1,14 @@
-<script setup lang="ts" generic="T extends Object">
+<script setup lang="ts" generic="T extends object">
 // Extends BTable
 import { type BTableProps, type BTableSlots, type BTableEmtis } from './BTable.vue'
 import { PAGE_SIZE_LIST } from '@/composables/usePagination'
 import _ from 'lodash'
 
+//ANCHOR - Props, Models, Emits, Slots
 interface Props extends BTableProps<T> {
     /** 페이지 크기 목록, selectBox에 표시된다 */
     pgSizes?: number[]
+    pgGrpSize?: number
     /** 페이지 크기 선택가능 여부 */
     pgSizeSelection?: boolean
     /** 다음 페이지 버튼 표시 여부 */
@@ -21,17 +23,33 @@ const props = withDefaults(defineProps<Props>(), {
     pgSizeSelection: true,
     showPgNext: true,
     disablePaging: false,
+    pgGrpSize: 5,
 })
-const emit = defineEmits<BTableEmtis<T>>()
-defineSlots<BTableSlots<T>>()
-const selIds = defineModel('selIds', { type: Array, default: [] })
 
+const selIds = defineModel('selIds', { type: Array, default: [] })
 const pageSize = defineModel('pageSize', { default: PAGE_SIZE_LIST[0], required: false })
+
+type Emits = BTableEmtis<T> & {
+    changedPage: [offset: number, pageSize: number]
+}
+
+const emit = defineEmits<Emits>()
+defineSlots<BTableSlots<T>>()
+
+//ANCHOR - Start
 
 /** 선택 카테고리 개소 목록 페이징 */
 const { pageNo, cOffset } = usePagination(
     computed(() => props.items.length),
     pageSize
+)
+
+watch(
+    () => pageNo.value,
+    () => {
+        emit('changedPage', cOffset.value, pageSize.value)
+    },
+    { immediate: true }
 )
 
 // 선택 id에 변화에 따라 페이지를 바꾸는 작업 필요
@@ -54,6 +72,7 @@ watch(
 )
 
 const cPgItems = computed(() => props.items.slice(cOffset.value, pageNo.value * pageSize.value))
+const cPgSizes = computed(() => props.pgSizes ?? PAGE_SIZE_LIST)
 
 const cItems = computed(() => (props.disablePaging === true ? props.items : cPgItems.value))
 const cColInfos = computed(() => {
@@ -77,11 +96,12 @@ function changeChecked(v: any) {
         <BTable
             v-bind="{ ...($props as any) }"
             :items="cItems"
-            :col-infos="cColInfos"
+            :colInfos="cColInfos"
             @change-cell="changeCell"
             @change-selected="changeSelected"
             @change-checked="changeChecked"
             v-model:sel-ids="selIds"
+            :booleanFormatter="booleanFormatter"
             class="btable"
         >
             <!-- no 컬럼이 추가되는 경우 rendering 됨 -->
@@ -92,30 +112,28 @@ function changeChecked(v: any) {
                 <slot :name="slot" v-bind="{ ...(scope as any) }" />
             </template>
         </BTable>
-        <section
-            v-if="disablePaging == false"
-            class="c-footer tw-intro-y tw-sm:flex-nowrap tw-col-span-12 tw-my-5 tw-flex tw-w-full tw-flex-wrap tw-items-center"
-        >
-            <BPagination
-                class="paging tw-sm:w-auto tw-sm:mr-auto tw-flex tw-flex-1 tw-justify-center"
+        <section v-if="disablePaging == false" class="c-footer intro-y col-span-12 my-5 flex flex-wrap items-center sm:flex-row">
+            <Pagination
+                class="paging w-full sm:mr-auto sm:w-auto"
                 v-model="pageNo"
                 :pageSize="pageSize"
-                :pageGrpSize="5"
+                :pageGrpSize="pgGrpSize"
                 :totalSize="items.length"
                 :next="showPgNext"
             >
-            </BPagination>
-            <div class="tw-flex tw-justify-end">
-                <label htmlFor="regular-form-1" class="mx-5 mb-0">총 {{ items.length }} 건</label>
-                <select v-if="pgSizeSelection" v-model="pageSize" class="!box tw-sm:mt-0 tw-w-20" style="border: 2px solid grey">
-                    <option v-for="pgSize in PAGE_SIZE_LIST" :key="pgSize" :value="pgSize">{{ pgSize }}</option>
-                </select>
+            </Pagination>
+            <div>
+                <FormLabel htmlFor="regular-form-1" class="mx-5 mb-0">총 {{ items.length }} 건</FormLabel>
+                <FormSelect v-if="pgSizeSelection" v-model="pageSize" class="!box mt-3 w-20 sm:mt-0">
+                    <option v-for="size in cPgSizes" :key="size" :value="size">{{ size }}</option>
+                </FormSelect>
             </div>
         </section>
     </div>
 </template>
 <style lang="scss" scoped>
 .btable-paging {
+    position: relative;
     display: flex;
     flex-direction: column;
     overflow: hidden;

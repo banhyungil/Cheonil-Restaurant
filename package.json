@@ -23,6 +23,7 @@
     "@fortawesome/pro-solid-svg-icons": "^6.5.2",
     "@fortawesome/pro-thin-svg-icons": "^6.5.2",
     "@fortawesome/vue-fontawesome": "^3.0.5",
+    "@headlessui/vue": "^1.7.23",
     "@rmp135/sql-ts": "^2.1.0",
     "@types/lodash": "^4.14.202",
     "@types/qs": "^6.9.15",

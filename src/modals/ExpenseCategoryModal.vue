@@ -6,7 +6,7 @@ import { helpers, required } from '@vuelidate/validators'
 import { useVuelidate, type ValidationArgs } from '@vuelidate/core'
 import type { VDataTable } from 'vuetify/components'
 import { PAGE_SIZE_LIST } from '@/composables/usePagination'
-import BModal from '@/components/base/BModal.vue'
+import BModal from '@/base-components/BModal.vue'
 
 //ANCHOR - Props
 interface Props {

@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import Tree from '@/utils/tree'
 import { assert } from '@/utils/common'
+import { syncRef } from '@vueuse/core'
 
 //ANCHOR - Types
 export type DataSourceNode<T extends object> = T & {
@@ -33,6 +34,8 @@ interface Props<T extends object> {
     cbxType?: 'NORMAL' | 'EXPAND' | 'TOGGLE'
     selectable?: boolean
     multiSelectable?: boolean
+    /** 선택 항목 재선택시 토글 가능 여부 */
+    activeSelectToggle?: boolean
     initFn?: (item: DataSourceNode<T>) => DataSourceNodeExt
 }
 
@@ -43,18 +46,25 @@ const props = withDefaults(defineProps<Props<T>>(), {
     cbxVisible: true,
     cbxType: 'NORMAL',
     selectable: true,
+    activeSelectToggle: true,
     multiSelectable: false,
     initFn: () => ({}),
 })
 
 //ANCHOR - Models
-const dExt = defineModel<DataSourceItemExtDict>('dExt', { default: {} })
+// Sync Ref 사용 이유
+// defineModel로만 정의시에 외부에서 ref 객체가 주입되지 않은 경우는 반응형 동작하지 않음
+// 그래서 내부에 ref를 정의하고, model과 동기화 시킴
+const _dExt = defineModel<DataSourceItemExtDict>('dExt', { default: () => ({}) })
+const dExt = ref<DataSourceItemExtDict>(_dExt.value)
+
+syncRef(dExt, _dExt)
 
 //ANCHOR - Emits
 const emit = defineEmits<{
     changedChecked: [tgtNode: DataSourceNode<T>, checkedNodes: DataSourceNode<T>[], uncheckedNodes: DataSourceNode<T>[]]
-    changedSelected: [value: DataSourceNode<T>, selected?: DataSourceNodeExt['selected']]
-    changedExpanded: [value: DataSourceNode<T>, expanded?: DataSourceNodeExt['expanded']]
+    changedSelected: [value: DataSourceNode<T>, selected: boolean]
+    changedExpanded: [value: DataSourceNode<T>, expanded?: boolean]
 }>()
 
 //ANCHOR - Start
@@ -101,7 +111,7 @@ function onChangedChecked(tgtDsItem: DataSourceNode<T>) {
         'changedChecked',
         tgtDsItem,
         cFlatNodes.value.filter((node) => dExt.value[getKey(node)].checked),
-        cFlatNodes.value.filter((node) => !dExt.value[getKey(node)].checked),
+        cFlatNodes.value.filter((node) => !dExt.value[getKey(node)].checked)
     )
 }
 
@@ -135,8 +145,8 @@ function onChangedSelected(tgtDsItem: DataSourceNode<T>, selected: boolean) {
             @changedExpanded="onChangedExpanded"
             @changedSelected="onChangedSelected"
         >
-            <template #item="{ item, itemText }">
-                <slot name="item" :item="item" :itemText="itemText">
+            <template #item="{ item, itemText, expand }">
+                <slot name="item" :item="item" :itemText="itemText" :expand="expand">
                     <span>{{ itemText }}</span>
                 </slot>
             </template>
@@ -149,7 +159,6 @@ function onChangedSelected(tgtDsItem: DataSourceNode<T>, selected: boolean) {
 
 <style lang="scss" scoped>
 .btree {
-    // background-color: var(--dark-1);
-    // color: white;
+    // empty
 }
 </style>

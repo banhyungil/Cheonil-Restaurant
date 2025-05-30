@@ -1,34 +1,14 @@
-<template>
-    <label
-        class="gcbx"
-        :class="[cClass, { checked: copyModelValue === true || (Array.isArray(copyModelValue) && copyModelValue.includes(value)), disabled }]"
-        tabindex="0"
-        :for="uuid"
-    >
-        <input ref="inpElt" :id="uuid" type="checkbox" v-model="copyModelValue" @change="onChange" :value="value" :disabled="disabled" />
-        <slot>
-            <template v-if="type == 'NORMAL'">
-                <div v-if="Array.isArray(copyModelValue) ? copyModelValue.includes(value) === true : copyModelValue === true" class="check"></div>
-                <font-awesome-icon v-if="copyModelValue === null" :icon="['fas', 'square']" class="m-state" />
-            </template>
-            <FontAwesomeIcon v-else-if="type == 'EXPAND'" :icon="copyModelValue ? ['fas', 'caret-down'] : ['fas', 'caret-right']" class="icon" />
-            <div v-else-if="type == 'TOGGLE'" class="btn"></div>
-        </slot>
-    </label>
-</template>
-
 <script lang="ts" setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { v4 as uuidv4 } from 'uuid'
+import _ from 'lodash'
 
-const cClass = computed(() => {
-    return props.type.toLowerCase()
+defineOptions({
+    inheritAttrs: false,
 })
 
-const inpElt = ref<HTMLInputElement>()
-
+//ANCHOR - Props
 interface Props {
-    modelValue: any
     value?: any
     type?: 'NORMAL' | 'EXPAND' | 'TOGGLE'
     disabled?: boolean
@@ -37,31 +17,69 @@ const props = withDefaults(defineProps<Props>(), {
     type: 'NORMAL',
     disabled: false,
 })
+//ANCHOR - Models
+const checked = defineModel<boolean[] | boolean | null>({ default: false })
 
-const emit = defineEmits(['update:modelValue', 'change'])
+//ANCHOR - Emits
+const emit = defineEmits(['change'])
+
+//ANCHOR - Start
+const inpElt = ref<HTMLInputElement>()
+// General Styles
+const generalClass = [
+    'transition duration-200 border shadow-sm flex-center mx-0 my-2 rounded-md font-medium cursor-pointer', // Default
+    'focus:ring-4 focus:ring-primary focus:ring-opacity-20', // On focus
+    'focus-visible:outline-none', // On focus visible
+    'dark:focus:ring-slate-700 dark:focus:ring-opacity-50', // Dark mode
+    '[&:hover:not(:disabled)]:bg-opacity-90 [&:hover:not(:disabled)]:border-opacity-90', // On hover and not disabled
+    '[&:not(button)]:text-center', // Not a button element
+    'disabled:opacity-70 disabled:cursor-not-allowed', // Disabled
+]
+
+const attrs = useAttrs()
+
+const cClass = computed(() => {
+    return [props.type.toLowerCase(), ...generalClass, _.pick(attrs, 'class')]
+})
 
 const uuid = 'a' + uuidv4()
-
-const copyModelValue = computed({
-    get() {
-        return props.modelValue
-    },
-    set(checked) {
-        emit('update:modelValue', checked)
-    },
-})
 
 const onChange = (e: Event) => {
     emit('change', e)
 }
 </script>
 
-<style lang="scss" scoped>
-.gcbx {
-    display: inline-block;
-    margin: 0 2px;
-    cursor: pointer;
+<template>
+    <label
+        class="bcheckbox"
+        :class="[generalClass, cClass, { checked: checked === true || (Array.isArray(checked) && checked.includes(value)), disabled }]"
+        :style="_.pick(attrs, 'style')"
+        tabindex="0"
+        :for="uuid"
+    >
+        <input
+            ref="inpElt"
+            :id="uuid"
+            type="checkbox"
+            v-model="checked"
+            @change="onChange"
+            :value="value"
+            :disabled="disabled"
+            v-bind="_.omit(attrs, ['class', 'style'])"
+        />
+        <slot>
+            <template v-if="type == 'NORMAL'">
+                <div v-if="Array.isArray(checked) ? checked.includes(value) === true : checked === true" class="check"></div>
+                <font-awesome-icon v-if="checked === null" :icon="['fas', 'square']" class="m-state" />
+            </template>
+            <FontAwesomeIcon v-else-if="type == 'EXPAND'" :icon="checked ? ['fas', 'caret-down'] : ['fas', 'caret-right']" class="icon" />
+            <div v-else-if="type == 'TOGGLE'" class="btn"></div>
+        </slot>
+    </label>
+</template>
 
+<style lang="scss" scoped>
+.bcheckbox {
     input[type='checkbox'] {
         margin: 0;
         display: none;
@@ -70,7 +88,7 @@ const onChange = (e: Event) => {
     &.normal {
         width: 16px;
         height: 16px;
-        border: 2px solid #8f8f8f;
+        border: 2px solid #a1aabe;
         border-radius: 4px;
         display: inline-block;
         position: relative;
@@ -80,21 +98,12 @@ const onChange = (e: Event) => {
             border: none;
         }
 
-        &:focus {
-            --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
-            --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(4px + var(--tw-ring-offset-width)) var(--tw-ring-color);
-
-            outline: 2px solid transparent;
-            outline-offset: 2px;
-            box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
-        }
-
-        .gcbx {
+        .bcheckbox {
             display: inline-block;
             margin: 0 2px;
         }
 
-        .gcbx input[type='checkbox'] {
+        .bcheckbox input[type='checkbox'] {
             margin: 0;
             display: none;
         }
@@ -140,6 +149,8 @@ const onChange = (e: Event) => {
     }
 
     &.expand {
+        @apply border-none;
+
         & > .icon {
             font-size: 14px;
             cursor: pointer;
@@ -148,44 +159,48 @@ const onChange = (e: Event) => {
                 opacity: 0.7;
             }
         }
-
-        & > input[type='checkbox']:checked ~ .icon {
-            color: rgb(var(--color-primary));
-        }
     }
 
     &.toggle {
+        border: none;
+
         .btn {
-            width: 26px;
-            height: 14px;
+            @apply bg-white;
             border-radius: 13px;
-            background-color: #7c7c7c;
+            padding: 12px 21px;
+
             cursor: pointer;
             position: relative;
 
             &::after {
                 content: '';
-                width: 14px;
-                height: 14px;
-                border-radius: 7.5px;
+
+                @apply bg-slate-400 shadow-lg;
+
+                width: 20px;
+                height: 20px;
+                border-radius: 10px;
 
                 // background-color: #c8c8c8;
                 display: block;
                 position: absolute;
-                top: 0;
-                left: 0;
+                top: 50%;
+                left: 3px;
+                transform: translateY(-50%);
                 transition: left 0.2s;
                 z-index: 1;
             }
         }
 
         input:checked + .btn {
-            background-color: #997065;
+            // @apply bg-secondary;
+            @apply bg-primary border-primary;
         }
 
         input:checked + .btn::after {
-            background-color: rgb(var(--color-primary));
-            left: 13px;
+            @apply bg-slate-200;
+            left: 18px;
+            top: 46%;
             transition: left 0.2s;
         }
     }

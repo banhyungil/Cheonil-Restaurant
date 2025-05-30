@@ -1,9 +1,10 @@
+import { computed, ref } from 'vue'
 import _ from 'lodash'
 
 interface Options<T> {
     items: Ref<T[]>
 }
-export default function useOrderBy<T extends object>(options: Options<T>) {
+export function useOrderBy<T extends object>(options: Options<T>) {
     const { items } = options
     /** 토글시 나머지 연산 사용을 위해 숫자 사용 */
     const orderDict = ref({}) as Ref<{ [k: string]: 0 | 1 | 2 }>

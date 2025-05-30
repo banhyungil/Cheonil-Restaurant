@@ -17,6 +17,8 @@ interface Props {
     cbxType?: 'NORMAL' | 'EXPAND' | 'TOGGLE'
     selectable?: boolean
     multiSelectable?: boolean
+    /** 선택 항목 재선택시 토글 가능 여부 */
+    activeSelectToggle?: boolean
 }
 const props = withDefaults(defineProps<Props>(), {
     depthMargin: 10,
@@ -25,6 +27,7 @@ const props = withDefaults(defineProps<Props>(), {
     cbxType: 'NORMAL',
     selectable: true,
     multiSelectable: false,
+    activeSelectToggle: true,
 })
 //ANCHOR - Models
 const dExt = defineModel<DataSourceItemExtDict>('dExt', { required: true })
@@ -38,7 +41,7 @@ const emit = defineEmits<{
 
 //ANCHOR - Slots
 defineSlots<{
-    item(props: { item: DataSourceNode<T>; itemText: string }): any
+    item(props: { item: DataSourceNode<T>; itemText: string; expand: () => void }): any
     append(props: { item: DataSourceNode<T> }): any
 }>()
 
@@ -71,6 +74,7 @@ const cChecked = computed({
     },
 })
 
+/** 재귀 자식 체크 */
 function recursiveCCheck(dsNode: DataSourceNode<T>, dExt: DataSourceItemExtDict, checked?: boolean | null) {
     dsNode?.children?.forEach((cdsNode) => {
         dExt[getKey(cdsNode)].checked = checked
@@ -79,6 +83,7 @@ function recursiveCCheck(dsNode: DataSourceNode<T>, dExt: DataSourceItemExtDict,
     })
 }
 
+/** 재귀 부모 체크 */
 function recursivePCheck(dsNode: DataSourceNode<T>, dExt: DataSourceItemExtDict, childChecked?: boolean | null) {
     if (childChecked) {
         if (dsNode?.children?.every((cdsNode) => dExt[getKey(cdsNode)].checked)) dExt[getKey(dsNode)].checked = true
@@ -107,7 +112,10 @@ function onChangedChecked() {
 function onSelectRow(dsNode: DataSourceNode<T>) {
     const ext = dExt.value[getKey(dsNode)]
     // toggle
-    const selected = !ext.selected
+    const selected = (() => {
+        if (props.activeSelectToggle) return !ext.selected
+        else return true
+    })()
 
     if (selected && !props.multiSelectable) {
         // 기존 선택 된 것은 해제 해준다.
@@ -117,6 +125,10 @@ function onSelectRow(dsNode: DataSourceNode<T>) {
 
     ext.selected = selected
     emit('changedSelected', dsNode, selected)
+}
+
+function expand() {
+    cExpanded.value = !cExpanded.value
 }
 </script>
 
@@ -129,29 +141,31 @@ function onSelectRow(dsNode: DataSourceNode<T>) {
     -->
     <div class="btree-item" v-if="dExt[getKey(dsNode)].visible">
         <section class="row" :class="{ sel: selectable, on: dExt[getKey(dsNode)].selected, disabled: dExt[getKey(dsNode)].disabled }">
-            <section class="expand">
-                <BCheckbox v-if="cExpandVisible" v-model="cExpanded" type="EXPAND"></BCheckbox>
-            </section>
-            <section class="content" @click="onSelectRow(dsNode)">
-                <BCheckbox
-                    v-if="cbxVisible && cCbxVisibleItem && cbxType == 'NORMAL'"
-                    v-model="cChecked"
-                    @change="onChangedChecked"
-                    :type="cbxType"
-                    :disabled="dExt[getKey(dsNode)].cbxDisabled"
-                />
-                <slot name="item" :item="dsNode" :itemText="assert(dsNode[nodeTextKey]) ?? getKey(dsNode)"> </slot>
-                <section class="flex">
-                    <slot name="append" :item="dsNode"> </slot>
+            <section class="left">
+                <section class="expand" :class="{ exist: cExpandVisible }">
+                    <BCheckbox v-if="cExpandVisible" v-model="cExpanded" type="EXPAND"></BCheckbox>
+                </section>
+                <BButton class="content" @click="onSelectRow(dsNode)">
                     <BCheckbox
-                        v-if="cbxVisible && cCbxVisibleItem && cbxType == 'TOGGLE'"
+                        v-if="cbxVisible && cCbxVisibleItem && cbxType == 'NORMAL'"
                         v-model="cChecked"
                         @change="onChangedChecked"
                         :type="cbxType"
                         :disabled="dExt[getKey(dsNode)].cbxDisabled"
                     />
-                </section>
+                    <slot name="item" :item="dsNode" :itemText="assert(dsNode[nodeTextKey]) ?? getKey(dsNode)" :expand="expand"></slot>
+                    <section class="flex">
+                        <BCheckbox
+                            v-if="cbxVisible && cCbxVisibleItem && cbxType == 'TOGGLE'"
+                            v-model="cChecked"
+                            @change="onChangedChecked"
+                            :type="cbxType"
+                            :disabled="dExt[getKey(dsNode)].cbxDisabled"
+                        />
+                    </section>
+                </BButton>
             </section>
+            <div class="right append ml-2"><slot name="append" :item="dsNode"> </slot></div>
         </section>
         <TransitionGroup name="vue-slide">
             <BTreeItem
@@ -177,8 +191,8 @@ function onSelectRow(dsNode: DataSourceNode<T>) {
                 @changedExpanded="(dsNode, expanded) => $emit('changedExpanded', dsNode, expanded)"
                 v-model:dExt="dExt"
             >
-                <template #item="{ item, itemText }">
-                    <slot name="item" :item="item" :itemText="itemText"></slot>
+                <template #item="{ item, itemText, expand }">
+                    <slot name="item" :item="item" :itemText="itemText" :expand="expand"></slot>
                 </template>
                 <template #append="{ item }">
                     <slot name="append" :item="item"></slot>
@@ -188,56 +202,73 @@ function onSelectRow(dsNode: DataSourceNode<T>) {
     </div>
 </template>
 <style lang="scss" scoped>
+@use '@/assets/styles/abstracts/mixins.scss';
+
 .btree-item {
-    @include vue-slide(translateX, -20px, 0.15s);
+    @include mixins.vue-slide(translateX, -20px, 0.15s);
+    @apply flex flex-col;
 
     & > .row {
         display: flex;
-        align-items: center;
+        justify-content: space-between;
         margin: 4px 8px;
 
-        &.disabled > .content {
-            pointer-events: none;
-            opacity: 0.7;
-            background-color: #84838359;
-            cursor: none;
-        }
+        & > .left {
+            @apply flex h-full flex-1;
 
-        &.sel {
             & > * {
-                cursor: pointer;
+                @apply flex items-center justify-center;
             }
 
-            & > .content:hover {
+            & > .expand {
+                @apply w-6 rounded-md;
+
+                cursor: initial;
+
+                .bcheckbox {
+                    @apply m-0 h-full w-full;
+                }
+
+                &.exist:hover {
+                    @apply bg-primary text-secondary opacity-70;
+                }
+            }
+
+            & > .content {
+                @apply flex h-full items-center rounded-md border-none p-0;
+
+                width: max-content;
+
+                .text {
+                    display: inline-block;
+                    padding: 10px;
+                }
+            }
+        }
+
+        &.disabled > .left {
+            & > .content {
+                pointer-events: none;
                 opacity: 0.7;
-                color: #fff;
-                background-color: rgb(var(--color-primary));
-            }
-
-            &.on > .content {
-                color: #fff;
-                background-color: rgb(var(--color-primary));
+                background-color: #84838359;
+                cursor: none;
             }
         }
 
-        & > .expand {
-            width: 12px;
+        &.sel > .left {
+            & > .content {
+                cursor: pointer;
 
-            & > * {
-                height: 100%;
+                @apply focus:ring-4 focus:ring-primary/50;
             }
         }
 
-        & > .content {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            width: max-content;
+        &.sel.on > .left > .content {
+            @apply bg-primary text-secondary hover:bg-primary/60 active:bg-primary/80;
+        }
 
-            .text {
-                display: inline-block;
-                padding: 10px;
-            }
+        & > .right.append {
+            @apply flex items-center justify-center;
         }
     }
 }
