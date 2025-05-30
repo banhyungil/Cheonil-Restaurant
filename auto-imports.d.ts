@@ -91,6 +91,7 @@ declare global {
   const useCssModule: typeof import('vue')['useCssModule']
   const useCssVars: typeof import('vue')['useCssVars']
   const useDictionary: typeof import('./src/composables/useDictionary')['default']
+  const useDirty: typeof import('./src/composables/useDirty')['useDirty']
   const useElementHover: typeof import('@vueuse/core')['useElementHover']
   const useFilterCho: typeof import('./src/composables/useFilterCho')['default']
   const useLayoutStore: typeof import('./src/stores/layoutStore')['useLayoutStore']
