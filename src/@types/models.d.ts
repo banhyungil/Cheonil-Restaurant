@@ -29,6 +29,15 @@ interface ExpenseEntity {
 
 type ExpenseEntityCreation = PartialK<ExpenseEntity, 'seq'>
 
+interface ExpenseCategoryEntity {
+    /** 지출 카테고리 SEQ */
+    seq: number
+    /** 지출 카테고리 명 */
+    name: string
+    /** 추가정보 */
+    options?: object
+}
+
 /* 제품/단위 맵핑 */
 interface ProductEntity {
     /* 제품 정보 SEQ */

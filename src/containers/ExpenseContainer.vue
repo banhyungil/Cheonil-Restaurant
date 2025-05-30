@@ -1,10 +1,11 @@
 <script setup lang="ts">
+import _ from 'lodash'
 interface Props {
     type: 'LIST' | 'EDIT'
     seq?: number
 }
 const props = defineProps<Props>()
-defineEmits<{
+const emit = defineEmits<{
     cancel: []
     toEditView: [seq?: number]
     create: []
@@ -13,8 +14,10 @@ defineEmits<{
 
 const Swal = useSwal()
 const apiExpense = useApiExpense()
+const apiExpenseCategory = useApiExpenseCategory()
 const expenses = ref<ExpenseEntity[]>([])
 const uExpense = ref<ExpenseEntity>()
+const expenseCategories = ref<ExpenseCategoryEntity[]>([])
 
 watch(
     () => props.seq,
@@ -25,6 +28,9 @@ watch(
 
 apiExpense.selectList().then((res) => {
     expenses.value = res
+})
+apiExpenseCategory.selectList().then((res) => {
+    expenseCategories.value = res
 })
 
 async function onCreate(expense: ExpenseEntity) {
@@ -42,6 +48,20 @@ async function onUpdate(expense: ExpenseEntity) {
 async function onRemove(seq: number) {
     await apiExpense.remove(seq)
 }
+
+async function onCreateExpenseCategory(expenseCategory: ExpenseCategoryEntity) {
+    const nItem = await apiExpenseCategory.create(expenseCategory)
+    expenseCategories.value.push(nItem)
+}
+async function onUpdateExpenseCategory(expenseCategory: ExpenseCategoryEntity) {
+    const uItem = await apiExpenseCategory.update(expenseCategory)
+    const tgt = expenseCategories.value.find((ec) => ec.seq == uItem.seq)
+    if (tgt) Object.assign(tgt, uItem)
+}
+async function onRemoveExpenseCategory(seq: number) {
+    await apiExpenseCategory.remove(seq)
+    _.remove(expenseCategories.value, (ec) => ec.seq == seq)
+}
 </script>
 
 <template>
@@ -53,7 +73,18 @@ async function onRemove(seq: number) {
             @update="(seq) => $emit('toEditView', seq)"
             @remove="onRemove"
         ></ExpenseList>
-        <ExpenseEdit v-else-if="type == 'EDIT'" :expenses="expenses" :uExpense="uExpense" @create="onCreate" @update="onUpdate" @cancel="$emit('cancel')" />
+        <ExpenseEdit
+            v-else-if="type == 'EDIT'"
+            :expenses="expenses"
+            :expenseCategories="expenseCategories"
+            :uExpense="uExpense"
+            @create="onCreate"
+            @update="onUpdate"
+            @cancel="$emit('cancel')"
+            @createExpenseCategory="onCreateExpenseCategory"
+            @updateExpenseCategory="onUpdateExpenseCategory"
+            @removeExpenseCategory="onRemoveExpenseCategory"
+        />
     </section>
 </template>
 

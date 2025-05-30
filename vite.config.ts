@@ -33,7 +33,7 @@ export default defineConfig({
                 },
             ],
 
-            dirs: ['./src/stores', './src/composable', './src/api'],
+            dirs: ['./src/stores', './src/composables', './src/api'],
             dts: true,
         }),
         Components({
@@ -62,7 +62,7 @@ export default defineConfig({
     css: {
         preprocessorOptions: {
             scss: {
-                additionalData: `@use "@/styles/abstracts/_mixin.scss" as *;`,
+                additionalData: `@use "@/assets/styles/abstracts/mixin" as *;`,
             },
         },
     },

@@ -72,6 +72,7 @@ declare global {
   const unref: typeof import('vue')['unref']
   const useApi: typeof import('./src/api/useApi')['default']
   const useApiExpense: typeof import('./src/api/useApiExpense')['default']
+  const useApiExpenseCategory: typeof import('./src/api/useApiExpenseCategory')['default']
   const useApiMenu: typeof import('./src/api/useApiMenu')['default']
   const useApiMenuCtg: typeof import('./src/api/useApiMenuCtg')['default']
   const useApiOrder: typeof import('./src/api/useApiOrder')['default']

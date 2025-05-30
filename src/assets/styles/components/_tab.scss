@@ -1,4 +1,4 @@
-@import './mixin';
+@use "../abstracts/mixin";
 
 .c-tab {
   display: flex;
@@ -124,7 +124,7 @@
         }
       }
 
-      @include hover; 
+      @include mixin.hover; 
       
       &.add {
         // width: 50%;

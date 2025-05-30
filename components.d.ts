@@ -7,11 +7,13 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    BButton: typeof import('./src/components/base/BButton.vue')['default']
     BCheckbox: typeof import('./src/components/base/BCheckbox.vue')['default']
     BEditToggleInput: typeof import('./src/components/base/BEditToggleInput.vue')['default']
     BInputCho: typeof import('./src/components/base/BInputCho.vue')['default']
     BInputNumFormat: typeof import('./src/components/base/BInputNumFormat.vue')['default']
     BLoading: typeof import('./src/components/base/BLoading.vue')['default']
+    BModal: typeof import('./src/components/base/BModal.vue')['default']
     BottomBar: typeof import('./src/layouts/components/BottomBar.vue')['default']
     BPagination: typeof import('./src/components/base/BPagination.vue')['default']
     BRadioButton: typeof import('./src/components/base/BRadioButton.vue')['default']
@@ -23,6 +25,7 @@ declare module 'vue' {
     BTreeItem: typeof import('./src/components/base/BTreeItem.vue')['default']
     BValidator: typeof import('./src/components/base/BValidator.vue')['default']
     BVueDatePicker: typeof import('./src/components/base/BVueDatePicker.vue')['default']
+    ExpenseCategoryModal: typeof import('./src/modals/ExpenseCategoryModal.vue')['default']
     ExpenseContainer: typeof import('./src/containers/ExpenseContainer.vue')['default']
     ExpenseEdit: typeof import('./src/components/expense/ExpenseEdit.vue')['default']
     ExpenseList: typeof import('./src/components/expense/ExpenseList.vue')['default']

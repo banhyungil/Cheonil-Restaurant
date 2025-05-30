@@ -4,7 +4,7 @@ import { today } from '@/utils/common'
 const router = useRouter()
 
 interface Props {
-    seq?: number
+    seq?: number | string
 }
 defineProps<Props>()
 
@@ -14,7 +14,7 @@ function backRoute() {
 </script>
 <template>
     <section class="expense-edit">
-        <ExpenseContainer type="EDIT" :seq="seq" @cancel="backRoute" @create="backRoute" @update="backRoute"></ExpenseContainer>
+        <ExpenseContainer type="EDIT" :seq="seq != null ? +seq : undefined" @cancel="backRoute" @create="backRoute" @update="backRoute"></ExpenseContainer>
     </section>
 </template>
 

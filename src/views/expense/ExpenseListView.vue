@@ -9,7 +9,7 @@ function toEditView(seq?: number) {
 
 <template>
     <section class="expense-view">
-        <ExpenseContainer type="LIST" @toEditPage="toEditView"></ExpenseContainer>
+        <ExpenseContainer type="LIST" @toEditView="toEditView"></ExpenseContainer>
     </section>
 </template>
 
