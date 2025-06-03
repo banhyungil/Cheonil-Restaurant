@@ -154,7 +154,7 @@ function init() {
                 <v-btn class="store-name" :color="selStore ? 'primary' : undefined" @click="unSelectStore">
                     {{ selStore?.name ?? '미지정' }}
                 </v-btn>
-                <button class="chi tw-absolute tw-right-2 tw-w-10" style="border: 1px solid #bababa" @click="init">
+                <button class="chi absolute right-2 w-10" style="border: 1px solid #bababa" @click="init">
                     <font-awesome-icon :icon="['fas', 'rotate-left']" />
                 </button>
             </section>
@@ -228,21 +228,27 @@ function init() {
         border: 1px solid #000;
 
         .top {
+            // empty
         }
+
         .ctgs {
+            // empty
         }
+
         .grid {
             gap: 20px;
             grid-template-columns: repeat(4, minmax(170px, 1fr));
         }
     }
+
     .right {
         display: grid;
         grid-template-rows: minmax(60px, 10vh) 1fr minmax(60px, 10vh);
         width: calc(100% - 60vw);
         height: 100%;
         border: 1px solid #000;
-        @apply tw-shadow-xl;
+
+        @apply shadow-xl;
 
         .top {
             position: relative;
@@ -273,6 +279,7 @@ function init() {
                 height: 100%;
                 overflow-y: auto;
                 padding: 0 2px;
+
                 // scrollbar 생길 때 border를 만나면 box가 일그러져 보여 일단 안보이게 처리
                 // scrollbar-width: none;
 
@@ -293,6 +300,7 @@ function init() {
                             width: 100%;
                             display: flex;
                             justify-content: space-around;
+
                             .name {
                                 font-weight: bold;
                             }
@@ -316,18 +324,21 @@ function init() {
                             }
                         }
                     }
+
                     .sub {
                         display: flex;
                         justify-content: end;
                     }
                 }
             }
+
             .c-total {
                 display: flex;
                 justify-content: end;
                 font-weight: bold;
             }
         }
+
         .btt {
             display: flex;
             align-items: center;
@@ -337,7 +348,6 @@ function init() {
                 width: 55%;
                 height: 55%;
                 padding: 10px;
-
                 font-weight: bold;
 
                 &:hover {
@@ -345,6 +355,7 @@ function init() {
                     color: #fff;
                 }
             }
+
             button.update {
                 &:hover {
                     background-color: var(--color-success);
@@ -354,11 +365,12 @@ function init() {
         }
     }
 }
+
 input {
     background-color: #fff;
 }
 
-@media screen and (max-width: 1024px) {
+@media screen and (width <= 1024px) {
     .order-view {
         .right {
             .content {

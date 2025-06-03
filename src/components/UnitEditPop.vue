@@ -101,7 +101,7 @@ async function onRemove(seq: number) {
                         <span class="label">{{ LBL.name }}</span>
                         <VTextField type="text" v-model="unit.name" density="compact" :hide-details="true" style="height: 45px"></VTextField>
                     </div>
-                    <div class="tw-flex tw-items-center tw-justify-end">
+                    <div class="flex items-center justify-end">
                         <span>단위수량 유무</span>
                         <VCheckbox v-model="unit.isUnitCnt" density="compact" :hide-details="true"></VCheckbox>
                     </div>
@@ -121,7 +121,7 @@ async function onRemove(seq: number) {
                 <template #bottom>
                     <div class="c-page">
                         <v-pagination v-show="cTotalPage > 0" lass="page" v-model="pageNo" :length="cTotalPage" :total-visible="5"></v-pagination>
-                        <div class="tw-flex tw-justify-between">
+                        <div class="flex justify-between">
                             <h3 style="width: max-content">총: {{ cUnitTotalCnt }} 건</h3>
                             <div style="width: 100px">
                                 <v-select

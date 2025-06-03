@@ -33,7 +33,7 @@ watch(
 </script>
 
 <template>
-    <ul class="pagination tw-sm:w-auto tw-sm:mr-auto tw-mr-0 tw-flex tw-items-center">
+    <ul class="pagination sm:w-auto sm:mr-auto mr-0 flex items-center">
         <button v-if="grpNext" @click="$emit('update:modelValue', (cGrpNo - 1) * pageGrpSize)" :disabled="cGrpNo <= 1">
             <font-awesome-icon :icon="['fas', 'chevrons-left']" />
         </button>

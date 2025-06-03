@@ -51,7 +51,7 @@ function onClickThisMonth() {
 
 <template>
     <section class="account-view">
-        <section class="top tw-flex tw-justify-between">
+        <section class="top flex justify-between">
             <section class="left">
                 <div class="form-item">
                     <label>지출일자</label>
@@ -67,13 +67,13 @@ function onClickThisMonth() {
                         locale="ko-KR"
                     >
                         <template #action-extra>
-                            <div class="justify-center tw-flex tw-gap-1">
-                                <button class="chi primary tw-w-8" @click="onAddDay(-1)">
+                            <div class="justify-center flex gap-1">
+                                <button class="chi primary w-8" @click="onAddDay(-1)">
                                     <font-awesome-icon :icon="['fas', 'minus']" />
                                 </button>
                                 <button class="chi primary" @click="onClickToday()">당일</button>
                                 <button class="chi primary" @click="onClickThisMonth()">당월</button>
-                                <button class="chi primary tw-w-8" @click="onAddDay(1)" :disabled="expenseAtRange[1] >= today()">
+                                <button class="chi primary w-8" @click="onAddDay(1)" :disabled="expenseAtRange[1] >= today()">
                                     <font-awesome-icon :icon="['fas', 'plus']" />
                                 </button>
                             </div>

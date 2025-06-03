@@ -147,7 +147,7 @@ function toggleDisplayKitchen() {
 
 <template>
     <div class="order-state-view" :class="{ kitchen: isDisplaykitchen }">
-        <div class="tw-flex tw-justify-end">
+        <div class="flex justify-end">
             <v-btn @click="toggleDisplayKitchen" :color="isDisplaykitchen ? 'primary' : ''" class="kitchen" style="height: 24px"> 주방용 </v-btn>
         </div>
         <div class="react-grid-col ready">
@@ -235,17 +235,20 @@ function toggleDisplayKitchen() {
     }
 
     &.kitchen {
-        @apply tw-text-6xl;
+        @apply text-6xl;
 
-        @media screen and (max-height: 1000px) {
-            @apply tw-text-lg;
+        grid-template-rows: max-content 1fr;
+        
+        @media screen and (height <= 1000px) {
+            @apply text-lg;
         }
 
         .c-order {
             .time {
-                @apply tw-text-2xl;
+                @apply text-2xl;
             }
         }
+
     }
 
     .react-grid-col {
@@ -256,9 +259,7 @@ function toggleDisplayKitchen() {
         gap: 12px;
         height: 100%;
         padding: 4px;
-
-        overflow-y: auto;
-        overflow-x: hidden;
+        overflow: hidden auto;
 
         &::-webkit-scrollbar {
             width: 0;
@@ -277,8 +278,8 @@ function toggleDisplayKitchen() {
             max-width: 100%;
             grid-auto-flow: column;
             height: 100%;
-
             overflow-x: auto;
+
             &::-webkit-scrollbar {
                 width: 0;
             }
@@ -288,11 +289,11 @@ function toggleDisplayKitchen() {
             }
         }
 
-        @media screen and (max-width: 1024px) {
+        @media screen and (width <= 1024px) {
             grid-template-columns: repeat(3, 1fr);
         }
 
-        @media screen and (max-width: 768px) {
+        @media screen and (width <= 768px) {
             grid-template-columns: repeat(1, 1fr);
         }
 
@@ -335,6 +336,7 @@ function toggleDisplayKitchen() {
                     }
                 }
             }
+
             .menues {
                 flex-grow: 1;
                 display: flex;
@@ -350,7 +352,9 @@ function toggleDisplayKitchen() {
                 margin: 10px 0;
 
                 .order-time {
+                    // empty
                 }
+
                 .elapsed {
                     margin-left: 4px;
                     color: var(--color-success);
@@ -365,6 +369,7 @@ function toggleDisplayKitchen() {
             }
 
             &.caution {
+                // empty
             }
 
             &.new {
@@ -405,10 +410,6 @@ function toggleDisplayKitchen() {
             font-weight: bold;
         }
     }
-
-    &.kitchen {
-        grid-template-rows: max-content 1fr;
-    }
 }
 
 .v-popper__popper {
@@ -419,12 +420,15 @@ function toggleDisplayKitchen() {
         button {
             padding: 10px 14px;
             border-bottom: 1px solid grey;
+
             &:hover {
                 color: #fff;
             }
+
             &.update:hover {
                 background-color: var(--color-success);
             }
+
             &.remove:hover {
                 background-color: var(--color-danger);
             }

@@ -88,7 +88,7 @@ async function onRemove(seq: number) {
 <template>
     <v-data-table class="order-list" :headers="cHeaders" :items="cDtProducts" item-value="seq" :items-per-page="0" :hide-default-footer="true">
         <template #top>
-            <div class="tw-flex tw-justify-end">
+            <div class="flex justify-end">
                 <v-btn v-if="isEdit" @click="addProduct"> 추가 </v-btn>
                 <v-btn @click="() => (isEdit = !isEdit)" :color="isEdit ? 'primary' : ''" v-tooltip="'편집'">
                     <font-awesome-icon :icon="['fas', 'pen']" />
@@ -162,7 +162,7 @@ async function onRemove(seq: number) {
             padding: 10px;
 
             .title {
-                @apply tw-text-lg;
+                @apply text-lg;
             }
         }
     }

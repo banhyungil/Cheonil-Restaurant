@@ -211,7 +211,7 @@ function onRemoveUnit(unitInfo: UnitInfo, mpu: ProductCreationEntity) {
                 </div>
                 <div class="row">
                     <span class="label">{{ LBL.name }}</span>
-                    <div class="tw-flex tw-w-full tw-items-center">
+                    <div class="flex w-full items-center">
                         <VTextField type="text" v-model="productInfo.name" density="compact" :hide-details="true" style="height: 45px"></VTextField>
                     </div>
                 </div>
@@ -229,10 +229,10 @@ function onRemoveUnit(unitInfo: UnitInfo, mpu: ProductCreationEntity) {
                             :hide-details="true"
                         >
                             <template v-slot:append-item>
-                                <VBtn @click="openUnitPop" color="primary" class="tw-w-full"
-                                    ><span class="tw-mr-2">추가</span><font-awesome-icon :icon="['fas', 'plus']"
+                                <VBtn @click="openUnitPop" color="primary" class="w-full"
+                                    ><span class="mr-2">추가</span><font-awesome-icon :icon="['fas', 'plus']"
                                 /></VBtn>
-                                <VDivider class="test tw-mt-2 tw-h-4" style="border: 2px solid black"></VDivider>
+                                <VDivider class="test mt-2 h-4" style="border: 2px solid black"></VDivider>
                             </template>
                         </VSelect>
                         <VNumberInput
@@ -247,12 +247,12 @@ function onRemoveUnit(unitInfo: UnitInfo, mpu: ProductCreationEntity) {
                         ></VNumberInput>
                     </div>
                     <div>
-                        <div class="justify-end tw-flex">
-                            <VBtn @click="addUnit" :disabled="selUnit == null" color="primary"><span class="tw-mr">단위 추가</span></VBtn>
+                        <div class="justify-end flex">
+                            <VBtn @click="addUnit" :disabled="selUnit == null" color="primary"><span class="mr">단위 추가</span></VBtn>
                         </div>
                     </div>
                 </div>
-                <div class="tw-flex tw-flex-wrap tw-gap-3">
+                <div class="flex flex-wrap gap-3">
                     <template v-for="prd in products" :key="`${prd.prdInfoSeq}-${prd.unitSeq}`">
                         <v-chip
                             v-for="info in getUnitInfos(prd)"

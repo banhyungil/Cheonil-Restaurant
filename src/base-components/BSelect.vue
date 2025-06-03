@@ -1,7 +1,7 @@
 <script setup lang="ts"></script>
 
 <template>
-    <select class="bselect tw-sm:mt-0 tw-mt-3 tw-w-20">
+    <select class="bselect sm:mt-0 mt-3 w-20">
         <slot></slot>
     </select>
 </template>
