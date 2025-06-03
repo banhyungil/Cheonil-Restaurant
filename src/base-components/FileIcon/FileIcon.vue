@@ -28,12 +28,12 @@ const { variant, type, src } = defineProps<FileIconProps>()
             :style="{
                 backgroundImage: getSVG(variant),
             }"
-            class="relative block bg-center bg-no-repeat bg-contain before:content-[''] before:pt-[100%] before:w-full before:block"
+            class="relative block bg-contain bg-center bg-no-repeat before:block before:w-full before:pt-[100%] before:content-['']"
         >
-            <div v-if="variant == 'file'" class="absolute top-0 bottom-0 left-0 right-0 flex items-center justify-center m-auto text-white">
+            <div v-if="variant == 'file'" class="absolute bottom-0 left-0 right-0 top-0 m-auto flex items-center justify-center text-white">
                 {{ type }}
             </div>
-            <div v-if="variant == 'image'" class="absolute top-0 left-0 w-full h-full image-fit">
+            <div v-if="variant == 'image'" class="image-fit absolute left-0 top-0 h-full w-full">
                 <img class="rounded-md" alt="Midone Tailwind HTML Admin Template" :src="src" />
             </div>
         </div>

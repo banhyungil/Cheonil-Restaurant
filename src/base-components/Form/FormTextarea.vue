@@ -38,7 +38,7 @@ const computedClass = computed(() =>
         formInline && 'flex-1',
         inputGroup && 'rounded-none [&:not(:first-child)]:border-l-transparent first:rounded-l last:rounded-r z-10',
         typeof attrs.class === 'string' && attrs.class,
-    ]),
+    ])
 )
 
 const emit = defineEmits<FormTextareaEmit>()

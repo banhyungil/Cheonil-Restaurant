@@ -166,7 +166,7 @@ const computedClass = computed(() =>
         variant == 'soft-dark' && softDark,
         dismissible && 'pl-5 pr-16',
         typeof attrs.class === 'string' && attrs.class,
-    ]),
+    ])
 )
 </script>
 

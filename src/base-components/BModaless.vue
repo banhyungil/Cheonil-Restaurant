@@ -56,14 +56,14 @@ watch(isOpen, async () => {
             <div
                 v-if="isOpen"
                 ref="bmodalessEl"
-                class="bmodaless fixed flex flex-col bg-dark z-10 p-2 text-white w-[30vw] h-[30vh]"
+                class="bmodaless fixed z-10 flex h-[30vh] w-[30vw] flex-col bg-dark p-2 text-white"
                 v-bind="_.pick($attrs, ['style', 'class'])"
                 :style="style"
             >
                 <!-- Title + 닫기 버튼 -->
-                <div ref="titlebarEl" class="titlebar flex items-center justify-between pb-1 mb-2 border-b-2 border-lightgray">
+                <div ref="titlebarEl" class="titlebar mb-2 flex items-center justify-between border-b-2 border-lightgray pb-1">
                     <slot name="title">
-                        <h2 class="text-lg font-bold ml-2">{{ title }}</h2>
+                        <h2 class="ml-2 text-lg font-bold">{{ title }}</h2>
                     </slot>
                     <BButton variant="danger" v-if="activeClose" @click="isOpen = false">
                         <font-awesome-icon :icon="['fas', 'x']" />
@@ -76,7 +76,7 @@ watch(isOpen, async () => {
                 </div>
 
                 <!-- 푸터 -->
-                <div class="pt-1 mt-2 border-t-2 border-lightgray flex justify-end">
+                <div class="mt-2 flex justify-end border-t-2 border-lightgray pt-1">
                     <slot name="footer" />
                 </div>
             </div>

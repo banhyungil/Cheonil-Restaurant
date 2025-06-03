@@ -113,7 +113,7 @@ async function onRemove(seq: number) {
             <v-data-table class="order-list scroll" :headers="headers" :items="cDtProducts" item-value="seq" :items-per-page="0" :hide-default-footer="true">
                 <template #item.actions="{ value }">
                     <div style="display: flex; justify-content: center; gap: 10px">
-                        <button @click="onRemove(value)" style="color: var(--color-danger)" v-tooltip="'삭제'">
+                        <button @click="onRemove(value)" style="color: rgb(var(--color-danger))" v-tooltip="'삭제'">
                             <font-awesome-icon :icon="['fas', 'trash']" />
                         </button>
                     </div>

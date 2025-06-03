@@ -67,7 +67,7 @@ function onClickThisMonth() {
                         locale="ko-KR"
                     >
                         <template #action-extra>
-                            <div class="justify-center flex gap-1">
+                            <div class="flex justify-center gap-1">
                                 <button class="chi primary w-8" @click="onAddDay(-1)">
                                     <font-awesome-icon :icon="['fas', 'minus']" />
                                 </button>
@@ -92,10 +92,10 @@ function onClickThisMonth() {
             <BTablePaging :items="expenses" itemKey="seq" :colInfos="COL_INFOS" :showNo="true">
                 <template #actions="{ item }">
                     <div style="display: flex; justify-content: center; gap: 10px">
-                        <button @click="() => $emit('update', item.seq)" style="color: var(--color-success)" v-tooltip="'수정'">
+                        <button @click="() => $emit('update', item.seq)" style="color: rgb(var(--color-success))" v-tooltip="'수정'">
                             <font-awesome-icon :icon="['fas', 'pen-to-square']" />
                         </button>
-                        <button @click="() => $emit('remove', item.seq)" style="color: var(--color-danger)" v-tooltip="'삭제'">
+                        <button @click="() => $emit('remove', item.seq)" style="color: rgb(var(--color-danger))" v-tooltip="'삭제'">
                             <font-awesome-icon :icon="['fas', 'trash']" />
                         </button>
                     </div>

@@ -19,11 +19,11 @@ const config: Config = {
             colors: {
                 primary: 'rgb(var(--color-primary) / <alpha-value>)',
                 secondary: 'rgb(var(--color-secondary) / <alpha-value>)',
-                success: 'rgb(var(--color-success) / <alpha-value>)',
+                success: 'rgb(rgb(var(--color-success)) / <alpha-value>)',
                 info: 'rgb(var(--color-info) / <alpha-value>)',
                 warning: 'rgb(var(--color-warning) / <alpha-value>)',
                 pending: 'rgb(var(--color-pending) / <alpha-value>)',
-                danger: 'rgb(var(--color-danger) / <alpha-value>)',
+                danger: 'rgb(rgb(var(--color-danger)) / <alpha-value>)',
                 light: 'rgb(var(--color-light) / <alpha-value>)',
                 dark: 'rgb(var(--color-dark) / <alpha-value>)',
                 darkmode: Object.fromEntries(

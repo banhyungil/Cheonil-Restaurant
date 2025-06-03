@@ -34,7 +34,7 @@ const computedClass = computed(() =>
         props.formSelectSize == 'lg' && 'text-lg py-1.5 pl-4 pr-8',
         formInline && 'flex-1',
         typeof attrs.class === 'string' && attrs.class,
-    ]),
+    ])
 )
 
 const emit = defineEmits<FormSelectEmit>()

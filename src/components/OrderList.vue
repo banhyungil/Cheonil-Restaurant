@@ -352,7 +352,7 @@ const isLoading = ref(false)
                 <section class="flex flex-col gap-3 border-b px-4 pb-2">
                     <section class="flex gap-4">
                         <div class="form-item">
-                            <v-switch label="주문일" v-model="toggleOrderAt" color="var(--color-point)"></v-switch>
+                            <v-switch label="주문일" v-model="toggleOrderAt" color="rgb(var(--color-primary))"></v-switch>
                             <VueDatePicker
                                 v-model="orderAtRange"
                                 :disabled="!toggleOrderAt"
@@ -366,7 +366,7 @@ const isLoading = ref(false)
                                 locale="ko-KR"
                             >
                                 <template #action-extra>
-                                    <div class="justify-center flex gap-1">
+                                    <div class="flex justify-center gap-1">
                                         <button class="chi primary w-8" @click="onAddDay('ORDER', -1)">
                                             <font-awesome-icon :icon="['fas', 'minus']" />
                                         </button>
@@ -380,7 +380,7 @@ const isLoading = ref(false)
                             </VueDatePicker>
                         </div>
                         <div class="form-item">
-                            <v-switch label="결제일" v-model="togglePayAt" color="var(--color-point)"></v-switch>
+                            <v-switch label="결제일" v-model="togglePayAt" color="rgb(var(--color-primary))"></v-switch>
                             <VueDatePicker
                                 v-model="payAtRange"
                                 :disabled="!togglePayAt"
@@ -395,7 +395,7 @@ const isLoading = ref(false)
                                 locale="ko-KR"
                             >
                                 <template #action-extra>
-                                    <div class="justify-center flex gap-1">
+                                    <div class="flex justify-center gap-1">
                                         <button class="chi primary w-8" @click="onAddDay('PAY', -1)"><font-awesome-icon :icon="['fas', 'minus']" /></button>
                                         <button class="chi primary" @click="onClickToday('PAY')">당일</button>
                                         <button class="chi primary" @click="onClickThisMonth('PAY')">당월</button>
@@ -459,7 +459,7 @@ const isLoading = ref(false)
         </template>
         <template #item.actions="{ value }">
             <div style="display: flex; justify-content: center; gap: 10px">
-                <button @click="onRemove(value.seq)" style="color: var(--color-danger)" v-tooltip="'삭제'">
+                <button @click="onRemove(value.seq)" style="color: rgb(var(--color-danger))" v-tooltip="'삭제'">
                     <font-awesome-icon :icon="['fas', 'trash']" />
                 </button>
                 <button
@@ -503,7 +503,7 @@ const isLoading = ref(false)
 
         button {
             &.update {
-                color: var(--color-success);
+                color: rgb(var(--color-success));
             }
 
             &:disabled {
@@ -525,15 +525,15 @@ const isLoading = ref(false)
             font-weight: bold;
 
             &.unpaid {
-                color: var(--color-danger);
+                color: rgb(var(--color-danger));
             }
 
             &.cash {
-                color: var(--color-success);
+                color: rgb(var(--color-success));
             }
 
             &.card {
-                color: var(--color-point);
+                color: rgb(var(--color-primary));
             }
         }
 
@@ -556,7 +556,7 @@ const isLoading = ref(false)
         display: flex;
         flex-direction: column;
         align-items: end;
-        color: var(--color-success);
+        color: rgb(var(--color-success));
         font-weight: bold;
 
         .grp {

@@ -151,7 +151,7 @@ function getTotalPayAmount(pOrders: Order[]) {
                                     content: '회수금 제외',
                                     disabled: cOrdersCollection.length == 0,
                                 }"
-                                style="color: var(--color-point)"
+                                style="color: rgb(var(--color-primary))"
                                 :style="cOrdersCollection.length > 0 ? { cursor: 'help' } : undefined"
                             >
                                 당일 매출
@@ -216,7 +216,7 @@ function getTotalPayAmount(pOrders: Order[]) {
             }
 
             & > button:hover {
-                background-color: var(--color-success);
+                background-color: rgb(var(--color-success));
                 color: #fff;
             }
         }

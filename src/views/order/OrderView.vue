@@ -4,7 +4,6 @@ import { computed, ref, watch } from 'vue'
 import _ from 'lodash'
 import useApiOrder from '@/api/useApiOrder'
 import { useEventListener, useWindowSize } from '@vueuse/core'
-import useSwal from '@/composables/useSwal'
 import { useRouter } from 'vue-router'
 import type MenuTab from '@/components/MenuTab.vue'
 
@@ -13,7 +12,7 @@ const menuStore = useMenuStore()
 const selStore = ref<StoreEntity | null>(null)
 const apiOrder = useApiOrder()
 
-const Swal = useSwal()
+const Alert = useAlert()
 const { width } = useWindowSize()
 
 // tabl localStorage로 저장
@@ -43,7 +42,7 @@ watch(
             originOrder.value = await apiOrder.select(+seq)
 
             if (originOrder.value == null) {
-                Swal.fireCustom({ toast: true, text: '잘못된 경로입니다.', icon: 'warning' })
+                Alert.fire({ toast: true, text: '잘못된 경로입니다.', icon: 'warning' })
                 router.push('/order')
             } else {
                 const clone = _.cloneDeep(originOrder.value)
@@ -119,11 +118,11 @@ async function onComplete() {
         orderMenues.value.forEach((om) => (om.orderSeq = order.value.seq))
 
         await apiOrder.update(order.value, orderMenues.value)
-        Swal.fireCustom({ toast: true, messageType: 'update' })
+        Alert.fire({ toast: true, messageType: 'update' })
         router.back()
     } else {
         await apiOrder.create(order.value, orderMenues.value)
-        Swal.fireCustom({ toast: true, messageType: 'save' })
+        Alert.fire({ toast: true, messageType: 'save' })
     }
     init()
 }
@@ -151,9 +150,9 @@ function init() {
         </section>
         <section class="right">
             <section class="top">
-                <v-btn class="store-name" :color="selStore ? 'primary' : undefined" @click="unSelectStore">
+                <BButton variant="normal" class="store-name" :class="selStore ? 'on' : undefined" @click="unSelectStore">
                     {{ selStore?.name ?? '미지정' }}
-                </v-btn>
+                </BButton>
                 <button class="chi absolute right-2 w-10" style="border: 1px solid #bababa" @click="init">
                     <font-awesome-icon :icon="['fas', 'rotate-left']" />
                 </button>
@@ -169,14 +168,14 @@ function init() {
                                 <span v-if="width < 1024" style="float: right">{{ ` ${om.price.toLocaleString('ko-KR')}` }}</span>
                             </div>
                             <div class="c-cnt-btn">
-                                <v-btn @click="() => om.cnt++" class="hover">
+                                <BButton @click="() => om.cnt++" variant="normal">
                                     <font-awesome-icon :icon="['fas', 'plus']" />
-                                </v-btn>
+                                </BButton>
                                 <!-- <button @click="onUp(om)">+</button> -->
                                 <input class="box-shadow" type="number" v-model="om.cnt" />
-                                <v-btn @click="() => om.cnt--" class="hover">
+                                <BButton @click="() => om.cnt--" variant="normal">
                                     <font-awesome-icon :icon="['fas', 'minus']" />
-                                </v-btn>
+                                </BButton>
                             </div>
                         </div>
                         <div v-if="width >= 1024" class="sub">{{ (om.price * om.cnt).toLocaleString('ko-KR') }}</div>
@@ -351,14 +350,14 @@ function init() {
                 font-weight: bold;
 
                 &:hover {
-                    background-color: var(--color-point);
+                    background-color: rgb(var(--color-primary));
                     color: #fff;
                 }
             }
 
             button.update {
                 &:hover {
-                    background-color: var(--color-success);
+                    background-color: rgb(var(--color-success));
                     color: #fff;
                 }
             }

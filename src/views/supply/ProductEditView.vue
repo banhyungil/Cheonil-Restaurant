@@ -247,7 +247,7 @@ function onRemoveUnit(unitInfo: UnitInfo, mpu: ProductCreationEntity) {
                         ></VNumberInput>
                     </div>
                     <div>
-                        <div class="justify-end flex">
+                        <div class="flex justify-end">
                             <VBtn @click="addUnit" :disabled="selUnit == null" color="primary"><span class="mr">단위 추가</span></VBtn>
                         </div>
                     </div>

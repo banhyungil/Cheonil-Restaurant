@@ -5,7 +5,7 @@ const previewCode = ref(true)
 
 provide<ProvidePreview>(
     'preview',
-    computed(() => previewCode.value),
+    computed(() => previewCode.value)
 )
 </script>
 

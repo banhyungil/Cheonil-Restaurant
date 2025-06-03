@@ -55,7 +55,7 @@ v-pagination .v-btn {
     box-shadow: var(--box-shadow);  
   
     &.primary {
-        background-color: var(--color-point);
+        background-color: rgb(var(--color-primary));
         color: #fff;    
         box-shadow: var(--box-shadow);
     }

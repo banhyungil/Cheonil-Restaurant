@@ -194,7 +194,7 @@ const onChange = (e: Event) => {
 
         input:checked + .btn {
             // @apply bg-secondary;
-            @apply bg-primary border-primary;
+            @apply border-primary bg-primary;
         }
 
         input:checked + .btn::after {

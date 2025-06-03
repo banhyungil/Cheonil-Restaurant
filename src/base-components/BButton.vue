@@ -10,6 +10,7 @@ import { twMerge } from 'tailwind-merge'
 import { computed, type ButtonHTMLAttributes, useAttrs } from 'vue'
 
 type Variant =
+    | 'normal'
     | 'primary'
     | 'secondary'
     | 'success'
@@ -48,7 +49,7 @@ interface ButtonProps extends /* @vue-ignore */ ButtonHTMLAttributes {
     rounded?: Rounded
 }
 
-const { as, size, variant, elevated, rounded } = withDefaults(defineProps<ButtonProps>(), {
+const props = withDefaults(defineProps<ButtonProps>(), {
     as: 'button',
 })
 
@@ -61,6 +62,7 @@ const generalStyles = [
     'focus-visible:outline-none', // On focus visible
     'dark:focus:ring-slate-700 dark:focus:ring-opacity-50', // Dark mode
     '[&:hover:not(:disabled)]:bg-opacity-90 [&:hover:not(:disabled)]:border-opacity-90', // On hover and not disabled
+    '[&:hover:not(:disabled):active]:bg-opacity-100',
     '[&:not(button)]:text-center', // Not a button element
     'disabled:opacity-70 disabled:cursor-not-allowed', // Disabled
 ]
@@ -69,6 +71,7 @@ const generalStyles = [
 const small = ['text-xs py-1.5 px-2']
 const large = ['text-lg py-1.5 px-4']
 
+const normal = ['[&:hover:not(:disabled)]:bg-primary [&:hover:not(:disabled)]:text-secondary']
 // Main Colors
 const primary = [
     'bg-primary border-primary text-white dark:border-primary', // Default
@@ -189,42 +192,74 @@ const softDark = [
 const computedClass = computed(() =>
     twMerge([
         generalStyles,
-        size == 'sm' && small,
-        size == 'lg' && large,
-        variant == 'primary' && primary,
-        variant == 'secondary' && secondary,
-        variant == 'success' && success,
-        variant == 'warning' && warning,
-        variant == 'pending' && pending,
-        variant == 'danger' && danger,
-        variant == 'dark' && dark,
-        variant == 'outline-primary' && outlinePrimary,
-        variant == 'outline-secondary' && outlineSecondary,
-        variant == 'outline-success' && outlineSuccess,
-        variant == 'outline-warning' && outlineWarning,
-        variant == 'outline-pending' && outlinePending,
-        variant == 'outline-danger' && outlineDanger,
-        variant == 'outline-dark' && outlineDark,
-        variant == 'soft-primary' && softPrimary,
-        variant == 'soft-secondary' && softSecondary,
-        variant == 'soft-success' && softSuccess,
-        variant == 'soft-warning' && softWarning,
-        variant == 'soft-pending' && softPending,
-        variant == 'soft-danger' && softDanger,
-        variant == 'soft-dark' && softDark,
-        variant == 'facebook' && facebook,
-        variant == 'twitter' && twitter,
-        variant == 'instagram' && instagram,
-        variant == 'linkedin' && linkedin,
-        rounded && 'rounded-full',
-        elevated && 'shadow-md',
+        props.size == 'sm' && small,
+        props.size == 'lg' && large,
+        props.variant == 'normal' && normal,
+        props.variant == 'primary' && primary,
+        props.variant == 'secondary' && secondary,
+        props.variant == 'success' && success,
+        props.variant == 'warning' && warning,
+        props.variant == 'pending' && pending,
+        props.variant == 'danger' && danger,
+        props.variant == 'dark' && dark,
+        props.variant == 'outline-primary' && outlinePrimary,
+        props.variant == 'outline-secondary' && outlineSecondary,
+        props.variant == 'outline-success' && outlineSuccess,
+        props.variant == 'outline-warning' && outlineWarning,
+        props.variant == 'outline-pending' && outlinePending,
+        props.variant == 'outline-danger' && outlineDanger,
+        props.variant == 'outline-dark' && outlineDark,
+        props.variant == 'soft-primary' && softPrimary,
+        props.variant == 'soft-secondary' && softSecondary,
+        props.variant == 'soft-success' && softSuccess,
+        props.variant == 'soft-warning' && softWarning,
+        props.variant == 'soft-pending' && softPending,
+        props.variant == 'soft-danger' && softDanger,
+        props.variant == 'soft-dark' && softDark,
+        props.variant == 'facebook' && facebook,
+        props.variant == 'twitter' && twitter,
+        props.variant == 'instagram' && instagram,
+        props.variant == 'linkedin' && linkedin,
+        props.rounded && 'rounded-full',
+        props.elevated && 'shadow-md',
         typeof attrs.class === 'string' && attrs.class,
     ])
 )
 </script>
 
 <template>
-    <component :is="as" :class="computedClass" v-bind="_.omit(attrs, 'class')">
+    <component :is="as" class="bbutton" :class="[computedClass, variant]" v-bind="_.omit(attrs, 'class')">
         <slot></slot>
     </component>
 </template>
+
+<style lang="scss">
+.bbutton {
+    @apply focus:ring-4 focus:ring-primary focus:ring-opacity-30;
+
+    &.normal,
+    &.outline-primary {
+        &.on {
+            @apply border-primary bg-primary text-secondary;
+
+            &:hover {
+                @apply bg-primary opacity-70;
+            }
+        }
+    }
+
+    &.dark {
+        &.on {
+            @apply border-primary bg-primary [&:hover:not(:disabled)]:border-primary/60 [&:hover:not(:disabled)]:bg-primary/80;
+        }
+
+        @apply [&:hover:not(:disabled)]:border-primary/80 [&:hover:not(:disabled)]:bg-primary/80;
+    }
+
+    &:active {
+        @apply [&:hover:not(:disabled)]:bg-primary/90;
+
+        transform: translateY(0.15rem);
+    }
+}
+</style>

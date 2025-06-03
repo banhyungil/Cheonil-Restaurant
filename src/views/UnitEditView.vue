@@ -146,18 +146,18 @@ async function onRemove(seq: number) {
             </section>
             <section class="btt" style="border-top: 0; border-bottom: 1px solid grey">
                 <template v-if="cIsUpdate">
-                    <v-btn @click="onUpdateSave" style="background-color: var(--color-success)">수정</v-btn>
-                    <v-btn @click="onCancelUpdate" style="width: max-content; background-color: var(--color-danger)">수정취소</v-btn>
+                    <v-btn @click="onUpdateSave" style="background-color: rgb(var(--color-success))">수정</v-btn>
+                    <v-btn @click="onCancelUpdate" style="width: max-content; background-color: rgb(var(--color-danger))">수정취소</v-btn>
                 </template>
                 <v-btn v-else @click="onCreate">등록</v-btn>
             </section>
             <v-data-table class="order-list scroll" :headers="headers" :items="cDtProducts" item-value="seq" :items-per-page="0" :hide-default-footer="true">
                 <template #item.actions="{ value }">
                     <div style="display: flex; justify-content: center; gap: 10px">
-                        <button @click="onUpdate(value)" style="color: var(--color-success)" v-tooltip="'수정'">
+                        <button @click="onUpdate(value)" style="color: rgb(var(--color-success))" v-tooltip="'수정'">
                             <font-awesome-icon :icon="['fas', 'pen-to-square']" />
                         </button>
-                        <button @click="onRemove(value)" style="color: var(--color-danger)" v-tooltip="'삭제'">
+                        <button @click="onRemove(value)" style="color: rgb(var(--color-danger))" v-tooltip="'삭제'">
                             <font-awesome-icon :icon="['fas', 'trash']" />
                         </button>
                     </div>
