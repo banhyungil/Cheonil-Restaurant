@@ -47,6 +47,10 @@ function onClickThisMonth() {
 
     expenseAtRange.value = range
 }
+
+function onClosed() {
+    debugger
+}
 </script>
 
 <template>
@@ -54,17 +58,16 @@ function onClickThisMonth() {
         <section class="top flex justify-between">
             <section class="left">
                 <div class="form-item">
-                    <label>지출일자</label>
-                    <VueDatePicker
+                    <label for="dp-input-expenseAtRange">지출일자</label>
+                    <BDatePicker
                         v-model="expenseAtRange"
                         range
-                        :format="'yy.MM.dd'"
                         text-input
                         teleport
                         :max-date="today()"
                         :enable-time-picker="false"
                         auto-apply
-                        locale="ko-KR"
+                        uid="expenseAtRange"
                     >
                         <template #action-extra>
                             <div class="flex justify-center gap-1">
@@ -78,7 +81,7 @@ function onClickThisMonth() {
                                 </button>
                             </div>
                         </template>
-                    </VueDatePicker>
+                    </BDatePicker>
                 </div>
             </section>
             <section class="right">
