@@ -47,10 +47,6 @@ function onClickThisMonth() {
 
     expenseAtRange.value = range
 }
-
-function onClosed() {
-    debugger
-}
 </script>
 
 <template>
