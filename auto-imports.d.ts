@@ -88,6 +88,7 @@ declare global {
   const useApiUnit: typeof import('./src/api/useApiUnit')['default']
   const useAttrs: typeof import('vue')['useAttrs']
   const useCheckAll: typeof import('./src/composables/useCheckAll')['default']
+  const useClickOutside: typeof import('./src/composables/useClickOutside')['useClickOutside']
   const useConfigStore: typeof import('./src/stores/configStore')['useConfigStore']
   const useCssModule: typeof import('vue')['useCssModule']
   const useCssVars: typeof import('vue')['useCssVars']
@@ -122,6 +123,6 @@ declare global {
 // for type re-export
 declare global {
   // @ts-ignore
-  export type { Component, ComponentPublicInstance, ComputedRef, ExtractDefaultPropTypes, ExtractPropTypes, ExtractPublicPropTypes, InjectionKey, PropType, Ref, VNode, WritableComputedRef } from 'vue'
+  export type { Component, ComponentPublicInstance, ComputedRef, ExtractDefaultPropTypes, ExtractPropTypes, ExtractPublicPropTypes, InjectionKey, PropType, Ref, VNode, WritableComputedRef, MaybeRef } from 'vue'
   import('vue')
 }
