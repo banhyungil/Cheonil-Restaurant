@@ -32,6 +32,7 @@ interface Props<T extends object> {
     expandVisible?: boolean
     cbxVisible?: boolean
     cbxType?: 'NORMAL' | 'EXPAND' | 'TOGGLE'
+    cbxSize?: 'sm' | 'lg'
     selectable?: boolean
     multiSelectable?: boolean
     /** 선택 항목 재선택시 토글 가능 여부 */
@@ -139,6 +140,7 @@ function onChangedSelected(tgtDsItem: DataSourceNode<T>, selected: boolean) {
             :expandVisible="expandVisible"
             :cbx-visible="cbxVisible"
             :cbx-type="cbxType"
+            :cbxSize="cbxSize"
             :selectable="selectable"
             :multiSelectable="multiSelectable"
             @changedChecked="(tgtDsNode) => onChangedChecked(tgtDsNode)"
