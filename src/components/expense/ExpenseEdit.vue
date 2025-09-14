@@ -50,7 +50,7 @@ function onRemoveExpenseCategory(seq: number) {
 <template>
     <section class="expense-edit">
         <section class="top"></section>
-        <section class="body tw-flex tw-flex-col">
+        <section class="body flex flex-col">
             <div class="row">
                 <label>지출일자</label>
                 <VueDatePicker v-model="expenseAt" :format="'yy.MM.dd'" :time-picker="false" text-input teleport :max-date="today()" auto-apply locale="ko-KR">
@@ -60,10 +60,10 @@ function onRemoveExpenseCategory(seq: number) {
                 <label>카테고리</label>
                 <VSelect :items="expenseCategories" item-title="name" item-value="seq" v-model="expense.ctgSeq" density="compact" :hide-details="true">
                     <template v-slot:append-item>
-                        <VBtn @click="() => (isShowModal = true)" color="primary" class="tw-w-full"
-                            ><span class="tw-mr-2">추가</span><font-awesome-icon :icon="['fas', 'plus']"
+                        <VBtn @click="() => (isShowModal = true)" color="primary" class="w-full"
+                            ><span class="mr-2">추가</span><font-awesome-icon :icon="['fas', 'plus']"
                         /></VBtn>
-                        <VDivider class="test tw-mt-2 tw-h-4" style="border: 2px solid black"></VDivider>
+                        <VDivider class="test mt-2 h-4" style="border: 2px solid black"></VDivider>
                     </template>
                 </VSelect>
             </div>
@@ -78,7 +78,7 @@ function onRemoveExpenseCategory(seq: number) {
                 </VueDatePicker>
             </div>
         </section>
-        <section class="footer tw-flex tw-justify-end">
+        <section class="footer flex justify-end">
             <button @click="onSave">{{ cIsUpdate ? '수정' : '저장' }}</button>
             <button @click="() => $emit('cancel')">취소</button>
         </section>

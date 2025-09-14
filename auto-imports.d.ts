@@ -93,6 +93,7 @@ declare global {
   const useAttrs: typeof import('vue')['useAttrs']
   const useCheckAll: typeof import('./src/composables/useCheckAll')['default']
   const useClickOutside: typeof import('./src/composables/useClickOutside')['useClickOutside']
+  const useClickOutside: typeof import('./src/composables/useClickOutside')['useClickOutside']
   const useConfigStore: typeof import('./src/stores/configStore')['useConfigStore']
   const useCssModule: typeof import('vue')['useCssModule']
   const useCssVars: typeof import('vue')['useCssVars']

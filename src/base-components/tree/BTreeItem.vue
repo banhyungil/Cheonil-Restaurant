@@ -15,6 +15,7 @@ interface Props {
     expandVisible?: boolean
     cbxVisible?: boolean
     cbxType?: 'NORMAL' | 'EXPAND' | 'TOGGLE'
+    cbxSize?: 'sm' | 'lg'
     selectable?: boolean
     multiSelectable?: boolean
     /** 선택 항목 재선택시 토글 가능 여부 */
@@ -46,7 +47,9 @@ defineSlots<{
 }>()
 
 //ANCHOR - Start
-const getKey = (item: DataSourceNode<T>) => item[props.nodeKey] as PropertyKeyRecord
+const getKey = (item: DataSourceNode<T>) => {
+    return item[props.nodeKey] as PropertyKeyRecord
+}
 
 const cCbxVisibleItem = computed(() => dExt.value[getKey(props.dsNode)].cbxVisible ?? true)
 
@@ -94,7 +97,7 @@ function recursivePCheck(dsNode: DataSourceNode<T>, dExt: DataSourceItemExtDict,
     }
     // 달라진 경우 변경 상태 설정.
     if (dExt[getKey(dsNode)].parentId == null) return
-    const pdsItem = props.flatDsNodes.find((item) => item[props.nodeTextKey] == dExt[getKey(dsNode)].parentId)!
+    const pdsItem = props.flatDsNodes.find((item) => item[props.nodeKey] == dExt[getKey(dsNode)].parentId)!
     recursivePCheck(pdsItem, dExt, dExt[getKey(dsNode)].checked)
 }
 
@@ -110,7 +113,11 @@ function onChangedChecked() {
 }
 
 function onSelectRow(dsNode: DataSourceNode<T>) {
+    if (props.selectable == false) {
+        expand()
+    }
     const ext = dExt.value[getKey(dsNode)]
+
     // toggle
     const selected = (() => {
         if (props.activeSelectToggle) return !ext.selected
@@ -140,15 +147,16 @@ function expand() {
         v-if로 변경하여서 해결함. visible은 v-if로 하여도 값 변경 빈도가 낮아 성능 문제가 없을 것이라 판단됨.
     -->
     <div class="btree-item" v-if="dExt[getKey(dsNode)].visible">
-        <section class="row" :class="{ sel: selectable, on: dExt[getKey(dsNode)].selected, disabled: dExt[getKey(dsNode)].disabled }">
+        <section class="row" :class="{ selectable, on: dExt[getKey(dsNode)].selected, disabled: dExt[getKey(dsNode)].disabled }">
             <section class="left">
                 <section class="expand" :class="{ exist: cExpandVisible }">
                     <BCheckbox v-if="cExpandVisible" v-model="cExpanded" type="EXPAND"></BCheckbox>
                 </section>
-                <BButton class="content" @click="onSelectRow(dsNode)">
+                <BButton class="content" @click="onSelectRow(dsNode)" :class="[cbxType]">
                     <BCheckbox
                         v-if="cbxVisible && cCbxVisibleItem && cbxType == 'NORMAL'"
                         v-model="cChecked"
+                        :size="cbxSize"
                         @change="onChangedChecked"
                         :type="cbxType"
                         :disabled="dExt[getKey(dsNode)].cbxDisabled"
@@ -158,6 +166,7 @@ function expand() {
                         <BCheckbox
                             v-if="cbxVisible && cCbxVisibleItem && cbxType == 'TOGGLE'"
                             v-model="cChecked"
+                            :size="cbxSize"
                             @change="onChangedChecked"
                             :type="cbxType"
                             :disabled="dExt[getKey(dsNode)].cbxDisabled"
@@ -181,6 +190,7 @@ function expand() {
                 :expand-visible="expandVisible"
                 :cbx-visible="dExt[getKey(cdsNode)].cbxVisible ?? cbxVisible"
                 :cbx-type="cbxType"
+                :cbxSize="cbxSize"
                 :selectable="selectable"
                 :multi-selectable="multiSelectable"
                 :style="{
@@ -202,10 +212,8 @@ function expand() {
     </div>
 </template>
 <style lang="scss" scoped>
-@use '@/assets/styles/abstracts/mixins.scss';
-
 .btree-item {
-    @include mixins.vue-slide(translateX, -20px, 0.15s);
+    @include vue-slide(translateX, -20px, 0.15s);
     @apply flex flex-col;
 
     & > .row {
@@ -235,13 +243,17 @@ function expand() {
             }
 
             & > .content {
-                @apply flex h-full items-center rounded-md border-none p-0;
+                @apply flex h-full items-center justify-start rounded-md border-none p-0 hover:transform-none hover:bg-inherit;
 
                 width: max-content;
 
                 .text {
                     display: inline-block;
                     padding: 10px;
+                }
+
+                &.TOGGLE {
+                    @apply justify-between;
                 }
             }
         }
@@ -255,16 +267,20 @@ function expand() {
             }
         }
 
-        &.sel > .left {
+        &.selectable > .left {
             & > .content {
-                cursor: pointer;
+                @apply cursor-pointer focus:ring-4 focus:ring-primary/50;
 
-                @apply focus:ring-4 focus:ring-primary/50;
+                &:hover {
+                    opacity: 0.7;
+                    color: rgb(var(--color-secondary));
+                    background-color: rgb(var(--color-primary));
+                }
             }
         }
 
-        &.sel.on > .left > .content {
-            @apply bg-primary text-secondary hover:bg-primary/60 active:bg-primary/80;
+        &.selectable.on > .left > .content {
+            @apply bg-primary text-secondary hover:bg-primary hover:bg-primary/60 active:bg-primary/80;
         }
 
         & > .right.append {

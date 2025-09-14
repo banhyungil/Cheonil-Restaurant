@@ -147,8 +147,10 @@ function toggleDisplayKitchen() {
 
 <template>
     <div class="order-state-view" :class="{ kitchen: isDisplaykitchen }">
-        <div class="tw-flex tw-justify-end">
-            <v-btn @click="toggleDisplayKitchen" :color="isDisplaykitchen ? 'primary' : ''" class="kitchen" style="height: 24px"> 주방용 </v-btn>
+        <div class="flex justify-end">
+            <BButton @click="toggleDisplayKitchen" variant="normal" :class="isDisplaykitchen ? ['on'] : []" class="kitchen" style="height: 24px">
+                주방용
+            </BButton>
         </div>
         <div class="react-grid-col ready">
             <TransitionGroup name="slide">
@@ -161,18 +163,18 @@ function toggleDisplayKitchen() {
                             </button>
                             <template #popper>
                                 <div class="c-btn">
-                                    <button class="update" @click="onUpdate(order.seq!)">수정</button>
-                                    <button class="remove" @click="onRemove(order.seq!)">삭제</button>
+                                    <BButton variant="success" @click="onUpdate(order.seq!)">수정</BButton>
+                                    <BButton variant="danger" @click="onRemove(order.seq!)">삭제</BButton>
                                 </div>
                             </template>
                         </Dropdown>
                     </div>
-                    <div class="menues">
-                        <div v-for="(om, idx) in order.orderMenues" :key="om.menuSeq" class="text" style="font-weight: bold; margin: 2px">
+                    <ul class="menues">
+                        <li v-for="(om, idx) in order.orderMenues" :key="om.menuSeq" class="text" style="font-weight: bold; margin: 2px">
                             <span>{{ `${om.menu.abv ?? om.menu.name} ${om.cnt}` }}</span>
                             <span v-if="idx < order.orderMenues.length - 1">,</span>
-                        </div>
-                    </div>
+                        </li>
+                    </ul>
                     <div v-if="order.cmt">{{ `요청사항: ${order.cmt}` }}</div>
                     <div v-if="isDisplayTime(order)" class="time">
                         <span v-if="isDisplaykitchen == false" class="order-time" v-tooltip="'주문접수시간'">
@@ -204,14 +206,12 @@ function toggleDisplayKitchen() {
                         </div>
                         <div v-if="order.cmt">{{ `요청사항: ${order.cmt}` }}</div>
                         <div class="time" v-tooltip="'완료시간'">
-                            <span class="order-time" style="color: var(--color-point)">
+                            <span class="order-time" style="color: rgb(var(--color-primary))">
                                 <font-awesome-icon :icon="['fas', 'timer']" />
                                 {{ order.cookedAt ? format(order.cookedAt, 'hh:mm aa') : null }}
                             </span>
                         </div>
-                        <v-btn class="complete" style="background-color: var(--color-danger)" @click="onUnComplete(order)" :loading="dLoading[order.seq!]"
-                            >완료 취소</v-btn
-                        >
+                        <BButton class="complete" variant="danger" @click="onUnComplete(order)" :loading="dLoading[order.seq!]">완료 취소</BButton>
                     </div>
                 </TransitionGroup>
             </div>
@@ -226,24 +226,18 @@ function toggleDisplayKitchen() {
     height: calc(100vh - 60px - 40px - 20px);
     font-weight: bold;
 
-    button.kitchen {
-        &:hover {
-            border: 1px solid var(--color-point);
-            color: var(--color-point);
-            transition: all 0.1s ease-in-out;
-        }
-    }
-
     &.kitchen {
-        @apply tw-text-6xl;
+        @apply text-6xl;
 
-        @media screen and (max-height: 1000px) {
-            @apply tw-text-lg;
+        grid-template-rows: max-content 1fr;
+
+        @media screen and (height <= 1000px) {
+            @apply text-lg;
         }
 
         .c-order {
             .time {
-                @apply tw-text-2xl;
+                @apply text-2xl;
             }
         }
     }
@@ -256,9 +250,7 @@ function toggleDisplayKitchen() {
         gap: 12px;
         height: 100%;
         padding: 4px;
-
-        overflow-y: auto;
-        overflow-x: hidden;
+        overflow: hidden auto;
 
         &::-webkit-scrollbar {
             width: 0;
@@ -277,8 +269,8 @@ function toggleDisplayKitchen() {
             max-width: 100%;
             grid-auto-flow: column;
             height: 100%;
-
             overflow-x: auto;
+
             &::-webkit-scrollbar {
                 width: 0;
             }
@@ -288,11 +280,11 @@ function toggleDisplayKitchen() {
             }
         }
 
-        @media screen and (max-width: 1024px) {
+        @media screen and (width <= 1024px) {
             grid-template-columns: repeat(3, 1fr);
         }
 
-        @media screen and (max-width: 768px) {
+        @media screen and (width <= 768px) {
             grid-template-columns: repeat(1, 1fr);
         }
 
@@ -335,6 +327,7 @@ function toggleDisplayKitchen() {
                     }
                 }
             }
+
             .menues {
                 flex-grow: 1;
                 display: flex;
@@ -350,26 +343,29 @@ function toggleDisplayKitchen() {
                 margin: 10px 0;
 
                 .order-time {
+                    // empty
                 }
+
                 .elapsed {
                     margin-left: 4px;
-                    color: var(--color-success);
+                    color: rgb(var(--color-success));
                 }
             }
 
             button.complete {
                 width: 100%;
                 text-align: center;
-                background-color: var(--color-point);
+                background-color: rgb(var(--color-primary));
                 color: #fff;
             }
 
             &.caution {
+                // empty
             }
 
             &.new {
                 .store {
-                    background-color: var(--color-success);
+                    background-color: rgb(var(--color-success));
                     animation: ani-blink 2s infinite;
                 }
             }
@@ -382,7 +378,7 @@ function toggleDisplayKitchen() {
 
             &.danger {
                 .store {
-                    background-color: var(--color-danger);
+                    background-color: rgb(var(--color-danger));
                 }
             }
         }
@@ -405,10 +401,6 @@ function toggleDisplayKitchen() {
             font-weight: bold;
         }
     }
-
-    &.kitchen {
-        grid-template-rows: max-content 1fr;
-    }
 }
 
 .v-popper__popper {
@@ -419,15 +411,6 @@ function toggleDisplayKitchen() {
         button {
             padding: 10px 14px;
             border-bottom: 1px solid grey;
-            &:hover {
-                color: #fff;
-            }
-            &.update:hover {
-                background-color: var(--color-success);
-            }
-            &.remove:hover {
-                background-color: var(--color-danger);
-            }
         }
     }
 }

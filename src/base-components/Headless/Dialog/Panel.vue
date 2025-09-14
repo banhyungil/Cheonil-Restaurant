@@ -31,7 +31,7 @@ const computedClass = computed(() =>
         dialog?.size == 'xl' && 'sm:w-[600px] lg:w-[900px]',
         dialog?.zoom.value && 'scale-105',
         typeof attrs.class === 'string' && attrs.class,
-    ]),
+    ])
 )
 </script>
 

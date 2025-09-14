@@ -89,9 +89,9 @@ function getTotalPayAmount(pOrders: Order[]) {
                 :active-filter="false"
             >
                 <template #top>
-                    <div class="tw-flex tw-flex-col tw-items-center tw-justify-center">
+                    <div class="flex flex-col items-center justify-center">
                         <h2 style="margin-bottom: 4px">정산</h2>
-                        <div class="tw-flex">
+                        <div class="flex">
                             <v-btn class="chi" @click="() => (date = addDays(date, -1))" style="min-width: 0; width: 40px; height: 29px">
                                 <font-awesome-icon :icon="['fas', 'chevron-left']" />
                             </v-btn>
@@ -121,7 +121,7 @@ function getTotalPayAmount(pOrders: Order[]) {
                             </v-btn>
                         </div>
                     </div>
-                    <section class="tw-flex tw-flex-col tw-gap-3">
+                    <section class="flex flex-col gap-3">
                         <div class="c-btn">
                             <div class="item">
                                 <v-btn :base-color="srchFilter == 'CASH' ? 'success' : ''" @click="onClickPayType('CASH')">현금</v-btn>
@@ -136,7 +136,7 @@ function getTotalPayAmount(pOrders: Order[]) {
                                 <h3>{{ cTotalAmountNotPaid.toLocaleString() }}</h3>
                             </div>
                         </div>
-                        <div class="tw-flex tw-items-center tw-justify-end tw-gap-3">
+                        <div class="flex items-center justify-end gap-3">
                             <div class="item" v-if="cOrdersCollection.length > 0">
                                 <v-btn
                                     v-tooltip="'주문 당일 이후에 결제된 금액'"
@@ -151,7 +151,7 @@ function getTotalPayAmount(pOrders: Order[]) {
                                     content: '회수금 제외',
                                     disabled: cOrdersCollection.length == 0,
                                 }"
-                                style="color: var(--color-point)"
+                                style="color: rgb(var(--color-primary))"
                                 :style="cOrdersCollection.length > 0 ? { cursor: 'help' } : undefined"
                             >
                                 당일 매출
@@ -209,14 +209,14 @@ function getTotalPayAmount(pOrders: Order[]) {
             display: flex;
             align-items: center;
             gap: 6px;
-
             font-size: 1.1rem;
 
             & > button {
                 width: 80px;
             }
+
             & > button:hover {
-                background-color: var(--color-success);
+                background-color: rgb(var(--color-success));
                 color: #fff;
             }
         }

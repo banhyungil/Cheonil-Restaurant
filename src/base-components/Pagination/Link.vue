@@ -29,12 +29,12 @@ const computedClass = computed(() =>
         props.active && '!box font-medium dark:bg-darkmode-400',
         typeof attrs.class === 'string' && attrs.class,
         props.disabled && 'disabled',
-    ]),
+    ])
 )
 </script>
 
 <template>
-    <li class="flex-1 sm:flex-initial bg-darkmode-900">
+    <li class="flex-1 bg-darkmode-900 sm:flex-initial">
         <BButton :as="as" :class="computedClass" v-bind="_.omit(attrs, 'class')">
             <slot></slot>
         </BButton>

@@ -30,7 +30,7 @@
         font-size: 22px;
         padding: 14px;
         box-shadow: var(--box-shadow-section);
-        color: var(--color-success);
+        color: rgb(var(--color-success));
     }
 
     .c-menues {
@@ -53,9 +53,10 @@
 
             @include hover;
         }
+
         & > .active {
             color: #fff;
-            background-color: var(--color-point);
+            background-color: rgb(var(--color-primary));
         }
     }
 }

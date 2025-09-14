@@ -93,10 +93,10 @@ async function onClickRemove(seq: number) {
         <v-data-table class="order-list scroll" :headers="headers" :items="cDtExpsCtgs" item-value="seq" :items-per-page="0" :hide-default-footer="true">
             <template #item.actions="{ value }">
                 <div style="display: flex; justify-content: center; gap: 10px">
-                    <button @click="onClickRemove(value)" style="color: var(--color-success)" v-tooltip="'수정'">
+                    <button @click="onClickRemove(value)" style="color: rgb(var(--color-success))" v-tooltip="'수정'">
                         <font-awesome-icon :icon="['fas', 'pen-to-square']" />
                     </button>
-                    <button @click="onClickRemove(value)" style="color: var(--color-danger)" v-tooltip="'삭제'">
+                    <button @click="onClickRemove(value)" style="color: rgb(var(--color-danger))" v-tooltip="'삭제'">
                         <font-awesome-icon :icon="['fas', 'trash']" />
                     </button>
                 </div>
@@ -104,7 +104,7 @@ async function onClickRemove(seq: number) {
             <template #bottom>
                 <div class="c-page">
                     <v-pagination v-show="cTotalPage > 0" lass="page" v-model="pageNo" :length="cTotalPage" :total-visible="5"></v-pagination>
-                    <div class="tw-flex tw-justify-between">
+                    <div class="flex justify-between">
                         <h3 style="width: max-content">총: {{ cUnitTotalCnt }} 건</h3>
                         <div style="width: 100px">
                             <v-select
@@ -141,10 +141,10 @@ async function onClickRemove(seq: number) {
             <v-data-table class="order-list scroll" :headers="headers" :items="cDtExpsCtgs" item-value="seq" :items-per-page="0" :hide-default-footer="true">
                 <template #item.actions="{ value }">
                     <div style="display: flex; justify-content: center; gap: 10px">
-                        <button @click="onClickRemove(value)" style="color: var(--color-success)" v-tooltip="'수정'">
+                        <button @click="onClickRemove(value)" style="color: rgb(var(--color-success))" v-tooltip="'수정'">
                             <font-awesome-icon :icon="['fas', 'pen-to-square']" />
                         </button>
-                        <button @click="onClickRemove(value)" style="color: var(--color-danger)" v-tooltip="'삭제'">
+                        <button @click="onClickRemove(value)" style="color: rgb(var(--color-danger))" v-tooltip="'삭제'">
                             <font-awesome-icon :icon="['fas', 'trash']" />
                         </button>
                     </div>
@@ -152,7 +152,7 @@ async function onClickRemove(seq: number) {
                 <template #bottom>
                     <div class="c-page">
                         <v-pagination v-show="cTotalPage > 0" lass="page" v-model="pageNo" :length="cTotalPage" :total-visible="5"></v-pagination>
-                        <div class="tw-flex tw-justify-between">
+                        <div class="flex justify-between">
                             <h3 style="width: max-content">총: {{ cUnitTotalCnt }} 건</h3>
                             <div style="width: 100px">
                                 <v-select

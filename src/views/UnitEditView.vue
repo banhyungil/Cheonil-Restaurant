@@ -138,7 +138,7 @@ async function onRemove(seq: number) {
                         <span class="label">{{ LBL.name }}</span>
                         <VTextField type="text" v-model="unit.name" density="compact" :hide-details="true" style="height: 45px"></VTextField>
                     </div>
-                    <div class="tw-flex tw-items-center tw-justify-end">
+                    <div class="flex items-center justify-end">
                         <span>단위수량 유무</span>
                         <VCheckbox v-model="unit.isUnitCnt" density="compact" :hide-details="true"></VCheckbox>
                     </div>
@@ -146,18 +146,18 @@ async function onRemove(seq: number) {
             </section>
             <section class="btt" style="border-top: 0; border-bottom: 1px solid grey">
                 <template v-if="cIsUpdate">
-                    <v-btn @click="onUpdateSave" style="background-color: var(--color-success)">수정</v-btn>
-                    <v-btn @click="onCancelUpdate" style="width: max-content; background-color: var(--color-danger)">수정취소</v-btn>
+                    <v-btn @click="onUpdateSave" style="background-color: rgb(var(--color-success))">수정</v-btn>
+                    <v-btn @click="onCancelUpdate" style="width: max-content; background-color: rgb(var(--color-danger))">수정취소</v-btn>
                 </template>
                 <v-btn v-else @click="onCreate">등록</v-btn>
             </section>
             <v-data-table class="order-list scroll" :headers="headers" :items="cDtProducts" item-value="seq" :items-per-page="0" :hide-default-footer="true">
                 <template #item.actions="{ value }">
                     <div style="display: flex; justify-content: center; gap: 10px">
-                        <button @click="onUpdate(value)" style="color: var(--color-success)" v-tooltip="'수정'">
+                        <button @click="onUpdate(value)" style="color: rgb(var(--color-success))" v-tooltip="'수정'">
                             <font-awesome-icon :icon="['fas', 'pen-to-square']" />
                         </button>
-                        <button @click="onRemove(value)" style="color: var(--color-danger)" v-tooltip="'삭제'">
+                        <button @click="onRemove(value)" style="color: rgb(var(--color-danger))" v-tooltip="'삭제'">
                             <font-awesome-icon :icon="['fas', 'trash']" />
                         </button>
                     </div>
@@ -165,7 +165,7 @@ async function onRemove(seq: number) {
                 <template #bottom>
                     <div class="c-page">
                         <v-pagination v-show="cTotalPage > 0" lass="page" v-model="pageNo" :length="cTotalPage" :total-visible="5"></v-pagination>
-                        <div class="tw-flex tw-justify-between">
+                        <div class="flex justify-between">
                             <h3 style="width: max-content">총: {{ cUnitTotalCnt }} 건</h3>
                             <div style="width: 100px">
                                 <v-select

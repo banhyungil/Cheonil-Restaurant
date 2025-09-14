@@ -61,8 +61,9 @@ defineExpose({ eltInp })
         cursor: pointer;
         transition: all 0.2s ease-in-out;
     }
+
     &.focus > label {
-        color: var(--color-point);
+        color: rgb(var(--color-primary));
     }
 
     & > input {
@@ -74,11 +75,12 @@ defineExpose({ eltInp })
             outline: none;
         }
     }
+
     & > button {
         opacity: 0.6;
 
         &:hover {
-            color: var(--color-danger);
+            color: rgb(var(--color-danger));
             background-color: transparent;
             opacity: 1;
         }

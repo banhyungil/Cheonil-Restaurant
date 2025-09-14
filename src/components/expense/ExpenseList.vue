@@ -51,34 +51,33 @@ function onClickThisMonth() {
 
 <template>
     <section class="account-view">
-        <section class="top tw-flex tw-justify-between">
+        <section class="top flex justify-between">
             <section class="left">
                 <div class="form-item">
-                    <label>지출일자</label>
-                    <VueDatePicker
+                    <label for="dp-input-expenseAtRange">지출일자</label>
+                    <BDatePicker
                         v-model="expenseAtRange"
                         range
-                        :format="'yy.MM.dd'"
                         text-input
                         teleport
                         :max-date="today()"
                         :enable-time-picker="false"
                         auto-apply
-                        locale="ko-KR"
+                        uid="expenseAtRange"
                     >
                         <template #action-extra>
-                            <div class="justify-center tw-flex tw-gap-1">
-                                <button class="chi primary tw-w-8" @click="onAddDay(-1)">
+                            <div class="flex justify-center gap-1">
+                                <button class="chi primary w-8" @click="onAddDay(-1)">
                                     <font-awesome-icon :icon="['fas', 'minus']" />
                                 </button>
                                 <button class="chi primary" @click="onClickToday()">당일</button>
                                 <button class="chi primary" @click="onClickThisMonth()">당월</button>
-                                <button class="chi primary tw-w-8" @click="onAddDay(1)" :disabled="expenseAtRange[1] >= today()">
+                                <button class="chi primary w-8" @click="onAddDay(1)" :disabled="expenseAtRange[1] >= today()">
                                     <font-awesome-icon :icon="['fas', 'plus']" />
                                 </button>
                             </div>
                         </template>
-                    </VueDatePicker>
+                    </BDatePicker>
                 </div>
             </section>
             <section class="right">
@@ -92,10 +91,10 @@ function onClickThisMonth() {
             <BTablePaging :items="expenses" itemKey="seq" :colInfos="COL_INFOS" :showNo="true">
                 <template #actions="{ item }">
                     <div style="display: flex; justify-content: center; gap: 10px">
-                        <button @click="() => $emit('update', item.seq)" style="color: var(--color-success)" v-tooltip="'수정'">
+                        <button @click="() => $emit('update', item.seq)" style="color: rgb(var(--color-success))" v-tooltip="'수정'">
                             <font-awesome-icon :icon="['fas', 'pen-to-square']" />
                         </button>
-                        <button @click="() => $emit('remove', item.seq)" style="color: var(--color-danger)" v-tooltip="'삭제'">
+                        <button @click="() => $emit('remove', item.seq)" style="color: rgb(var(--color-danger))" v-tooltip="'삭제'">
                             <font-awesome-icon :icon="['fas', 'trash']" />
                         </button>
                     </div>

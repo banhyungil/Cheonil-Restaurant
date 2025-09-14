@@ -14,13 +14,13 @@ interface TitleProps extends /* @vue-ignore */ ExtractProps<typeof HeadlessDialo
     as?: string | object
 }
 
-const props= withDefaults(defineProps<TitleProps>(), {
+const props = withDefaults(defineProps<TitleProps>(), {
     as: 'div',
 })
 
 const attrs = useAttrs()
 const computedClass = computed(() =>
-    twMerge(['flex items-center px-5 py-3 border-b border-slate-200/60 dark:border-darkmode-400', typeof attrs.class === 'string' && attrs.class]),
+    twMerge(['flex items-center px-5 py-3 border-b border-slate-200/60 dark:border-darkmode-400', typeof attrs.class === 'string' && attrs.class])
 )
 </script>
 

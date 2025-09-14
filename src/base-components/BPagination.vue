@@ -33,7 +33,7 @@ watch(
 </script>
 
 <template>
-    <ul class="pagination tw-sm:w-auto tw-sm:mr-auto tw-mr-0 tw-flex tw-items-center">
+    <ul class="pagination mr-0 flex items-center sm:mr-auto sm:w-auto">
         <button v-if="grpNext" @click="$emit('update:modelValue', (cGrpNo - 1) * pageGrpSize)" :disabled="cGrpNo <= 1">
             <font-awesome-icon :icon="['fas', 'chevrons-left']" />
         </button>
@@ -60,7 +60,7 @@ watch(
         padding: 4px 6px;
 
         &:hover {
-            background-color: var(--color-point);
+            background-color: rgb(var(--color-primary));
             color: #fff;
         }
     }

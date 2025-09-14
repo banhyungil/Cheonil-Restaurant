@@ -14,11 +14,11 @@
 .btt-bar {
     display: grid;
     grid-template-columns: 1fr 1fr 100px;
-    align-items: center;
-    justify-items: center;
+    place-items: center center;
     width: 100%;
-    border: 1px solid var(--color-point);
-    color: var(--color-point);
+    border: 1px solid rgb(var(--color-primary));
+    color: rgb(var(--color-primary));
+
     //   background-color: #2aac8e;
 
     .item {
@@ -27,28 +27,28 @@
         justify-content: center;
         width: 100%;
         height: 100%;
-        border: 2px solid var(--color-point);
-        color: var(--color-point);
+        border: 2px solid rgb(var(--color-primary));
+        color: rgb(var(--color-primary));
         border-right: none;
         font-weight: bold;
 
         &.router-link-active {
             color: #fff;
-            background-color: var(--color-point);
+            background-color: rgb(var(--color-primary));
         }
 
         &:hover {
-            background-color: var(--color-point);
+            background-color: rgb(var(--color-primary));
             color: #fff;
             opacity: 0.7;
         }
 
         &.link {
-            border-color: var(--color-success);
-            color: var(--color-success);
+            border-color: rgb(var(--color-success));
+            color: rgb(var(--color-success));
 
             &:hover {
-                background-color: var(--color-success);
+                background-color: rgb(var(--color-success));
                 color: #fff;
             }
         }

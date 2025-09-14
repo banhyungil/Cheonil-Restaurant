@@ -32,18 +32,18 @@ watch(
     () => {
         if (cTotalPage.value == 0) pageNo.value = 1
         else if (cTotalPage.value < pageNo.value) pageNo.value = cTotalPage.value
-    },
+    }
 )
 </script>
 
 <template>
     <nav class="pagination">
-        <ul class="flex w-full mr-0 sm:w-auto sm:mr-auto">
+        <ul class="mr-0 flex w-full sm:mr-auto sm:w-auto">
             <Link v-if="grpNext" @click="$emit('update:modelValue', (cGrpNo - 1) * pageGrpSize)" :disabled="cGrpNo <= 1">
-                <font-awesome-icon :icon="['fas', 'chevrons-left']" class="w-4 h-4" />
+                <font-awesome-icon :icon="['fas', 'chevrons-left']" class="h-4 w-4" />
             </Link>
             <Link v-if="next" @click="$emit('update:modelValue', pageNo - 1)" :disabled="pageNo <= 1">
-                <font-awesome-icon :icon="['fas', 'chevron-left']" class="w-4 h-4" />
+                <font-awesome-icon :icon="['fas', 'chevron-left']" class="h-4 w-4" />
             </Link>
             <slot>
                 <Link
@@ -57,14 +57,10 @@ watch(
                 </Link>
             </slot>
             <Link v-if="next" @click="$emit('update:modelValue', pageNo + 1)" :class="{ disabled: pageNo >= cTotalPage }">
-                <font-awesome-icon :icon="['fas', 'chevron-right']" class="w-4 h-4" />
+                <font-awesome-icon :icon="['fas', 'chevron-right']" class="h-4 w-4" />
             </Link>
-            <Link
-                v-if="grpNext"
-                @click="$emit('update:modelValue', cGrpNo * pageGrpSize + 1)"
-                :class="{ disabled: cGrpNo * pageGrpSize >= cTotalPage }"
-            >
-                <font-awesome-icon :icon="['fas', 'chevrons-right']" class="w-4 h-4" />
+            <Link v-if="grpNext" @click="$emit('update:modelValue', cGrpNo * pageGrpSize + 1)" :class="{ disabled: cGrpNo * pageGrpSize >= cTotalPage }">
+                <font-awesome-icon :icon="['fas', 'chevrons-right']" class="h-4 w-4" />
             </Link>
         </ul>
     </nav>
@@ -76,7 +72,7 @@ watch(
         @apply text-white;
 
         &.active {
-            @apply text-white bg-primary;
+            @apply bg-primary text-white;
             opacity: 0.8;
         }
         &.hover {

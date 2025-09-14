@@ -36,7 +36,7 @@ const { dark, bordered, hover, striped, sm } = withDefaults(defineProps<TablePro
 const attrs = useAttrs()
 
 const computedClass = computed(() =>
-    twMerge(['w-full text-left', dark && 'bg-dark text-white dark:bg-black/30', typeof attrs.class === 'string' && attrs.class]),
+    twMerge(['w-full text-left', dark && 'bg-dark text-white dark:bg-black/30', typeof attrs.class === 'string' && attrs.class])
 )
 
 provide<ProvideTable>('table', {

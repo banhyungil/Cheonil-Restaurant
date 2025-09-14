@@ -1,6 +1,7 @@
 <script lang="ts">
 type Variant =
     | 'normal'
+    | 'normal'
     | 'primary'
     | 'secondary'
     | 'success'
@@ -68,6 +69,7 @@ const generalStyles = [
     'dark:focus:ring-slate-700 dark:focus:ring-opacity-50', // Dark mode
     '[&:hover:not(:disabled)]:bg-opacity-90 [&:hover:not(:disabled)]:border-opacity-90', // On hover and not disabled
     '[&:hover:not(:disabled):active]:bg-opacity-100',
+    '[&:hover:not(:disabled):active]:bg-opacity-100',
     '[&:not(button)]:text-center', // Not a button element
     'disabled:opacity-70 disabled:cursor-not-allowed', // Disabled
 ]
@@ -76,6 +78,7 @@ const generalStyles = [
 const small = ['text-xs py-1.5 px-2']
 const large = ['text-lg py-1.5 px-4']
 
+const normal = ['[&:hover:not(:disabled)]:bg-primary [&:hover:not(:disabled)]:text-secondary']
 const normal = ['[&:hover:not(:disabled)]:bg-primary [&:hover:not(:disabled)]:text-secondary']
 // Main Colors
 const primary = [
@@ -251,6 +254,7 @@ const computedClass = computed(() =>
 </script>
 
 <template>
+    <component :is="as" class="bbutton" :class="[computedClass, variant]" v-bind="_.omit(attrs, 'class')">
     <component :is="as" class="bbutton" :class="[computedClass, variant]" v-bind="_.omit(attrs, 'class')">
         <slot></slot>
     </component>

@@ -12,7 +12,7 @@ const { type } = withDefaults(defineProps<PanelProps>(), {
 
 const preview = inject<ProvidePreview>(
     'preview',
-    computed(() => true),
+    computed(() => true)
 )
 </script>
 

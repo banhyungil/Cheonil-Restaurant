@@ -67,7 +67,7 @@ async function onRemove(seq: number) {
     -->
     <v-data-table class="order-list" :headers="cHeaders" :items="cDtProducts" item-value="seq" :items-per-page="0" :hide-default-footer="true">
         <template #top>
-            <div class="tw-flex tw-justify-end">
+            <div class="flex justify-end">
                 <v-btn v-if="isEdit" @click="addProduct"> 추가 </v-btn>
                 <v-btn @click="() => (isEdit = !isEdit)" :color="isEdit ? 'primary' : ''" v-tooltip="'편집'">
                     <font-awesome-icon :icon="['fas', 'pen']" />
@@ -76,10 +76,10 @@ async function onRemove(seq: number) {
         </template>
         <template #item.actions="{ value }">
             <div style="display: flex; justify-content: center; gap: 10px">
-                <button @click="onUpdate(value)" style="color: var(--color-success)" v-tooltip="'수정'">
+                <button @click="onUpdate(value)" style="color: rgb(var(--color-success))" v-tooltip="'수정'">
                     <font-awesome-icon :icon="['fas', 'pen-to-square']" />
                 </button>
-                <button @click="onRemove(value)" style="color: var(--color-danger)" v-tooltip="'삭제'">
+                <button @click="onRemove(value)" style="color: rgb(var(--color-danger))" v-tooltip="'삭제'">
                     <font-awesome-icon :icon="['fas', 'trash']" />
                 </button>
             </div>
@@ -109,7 +109,7 @@ async function onRemove(seq: number) {
 
         .type {
             font-weight: bold;
-            color: var(--color-danger);
+            color: rgb(var(--color-danger));
 
             &.collected {
                 color: var(--color-second);
@@ -141,7 +141,7 @@ async function onRemove(seq: number) {
             padding: 10px;
 
             .title {
-                @apply tw-text-lg;
+                @apply text-lg;
             }
         }
     }

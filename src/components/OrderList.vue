@@ -349,10 +349,10 @@ const isLoading = ref(false)
                 :cashAmount="getTotalPayAmount(orders.filter((od) => od.payments.every((pm) => pm.payType == 'CASH')))"
                 :cardAmount="getTotalPayAmount(orders.filter((od) => od.payments.every((pm) => pm.payType == 'CARD')))"
             >
-                <section class="tw-flex tw-flex-col tw-gap-3 tw-border-b tw-px-4 tw-pb-2">
-                    <section class="tw-flex tw-gap-4">
+                <section class="flex flex-col gap-3 border-b px-4 pb-2">
+                    <section class="flex gap-4">
                         <div class="form-item">
-                            <v-switch label="주문일" v-model="toggleOrderAt" color="var(--color-point)"></v-switch>
+                            <v-switch label="주문일" v-model="toggleOrderAt" color="rgb(var(--color-primary))"></v-switch>
                             <VueDatePicker
                                 v-model="orderAtRange"
                                 :disabled="!toggleOrderAt"
@@ -366,13 +366,13 @@ const isLoading = ref(false)
                                 locale="ko-KR"
                             >
                                 <template #action-extra>
-                                    <div class="justify-center tw-flex tw-gap-1">
-                                        <button class="chi primary tw-w-8" @click="onAddDay('ORDER', -1)">
+                                    <div class="flex justify-center gap-1">
+                                        <button class="chi primary w-8" @click="onAddDay('ORDER', -1)">
                                             <font-awesome-icon :icon="['fas', 'minus']" />
                                         </button>
                                         <button class="chi primary" @click="onClickToday('ORDER')">당일</button>
                                         <button class="chi primary" @click="onClickThisMonth('ORDER')">당월</button>
-                                        <button class="chi primary tw-w-8" @click="onAddDay('ORDER', 1)" :disabled="orderAtRange[1] >= today()">
+                                        <button class="chi primary w-8" @click="onAddDay('ORDER', 1)" :disabled="orderAtRange[1] >= today()">
                                             <font-awesome-icon :icon="['fas', 'plus']" />
                                         </button>
                                     </div>
@@ -380,7 +380,7 @@ const isLoading = ref(false)
                             </VueDatePicker>
                         </div>
                         <div class="form-item">
-                            <v-switch label="결제일" v-model="togglePayAt" color="var(--color-point)"></v-switch>
+                            <v-switch label="결제일" v-model="togglePayAt" color="rgb(var(--color-primary))"></v-switch>
                             <VueDatePicker
                                 v-model="payAtRange"
                                 :disabled="!togglePayAt"
@@ -395,18 +395,18 @@ const isLoading = ref(false)
                                 locale="ko-KR"
                             >
                                 <template #action-extra>
-                                    <div class="justify-center tw-flex tw-gap-1">
-                                        <button class="chi primary tw-w-8" @click="onAddDay('PAY', -1)"><font-awesome-icon :icon="['fas', 'minus']" /></button>
+                                    <div class="flex justify-center gap-1">
+                                        <button class="chi primary w-8" @click="onAddDay('PAY', -1)"><font-awesome-icon :icon="['fas', 'minus']" /></button>
                                         <button class="chi primary" @click="onClickToday('PAY')">당일</button>
                                         <button class="chi primary" @click="onClickThisMonth('PAY')">당월</button>
-                                        <button class="chi primary tw-w-8" @click="onAddDay('PAY', 1)"><font-awesome-icon :icon="['fas', 'plus']" /></button>
+                                        <button class="chi primary w-8" @click="onAddDay('PAY', 1)"><font-awesome-icon :icon="['fas', 'plus']" /></button>
                                     </div>
                                 </template>
                             </VueDatePicker>
                         </div>
                     </section>
-                    <section class="tw-flex tw-justify-between tw-gap-4">
-                        <div class="tw-flex tw-gap-3">
+                    <section class="flex justify-between gap-4">
+                        <div class="flex gap-3">
                             <div class="form-item">
                                 <label>결제방식</label>
                                 <v-select class="height-40" v-model="filter.payType" :items="payTypes" item-title="label" item-value="val"></v-select>
@@ -415,13 +415,13 @@ const isLoading = ref(false)
                                 <label>매장명</label>
                                 <BInputCho v-model="filter.storeName" />
                                 <v-btn @click="() => $emit('search')" style="min-width: 0" color="primary">
-                                    <span class="tw-mr-2">검색</span>
+                                    <span class="mr-2">검색</span>
                                     <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
                                 </v-btn>
                             </div>
                         </div>
 
-                        <div class="tw-flex tw-justify-center tw-gap-2">
+                        <div class="flex justify-center gap-2">
                             <template v-if="isEdit && activeCollection">
                                 <v-btn @click="collectList('CASH')" base-color="success" :disabled="!cCollectAble">현금</v-btn>
                                 <v-btn @click="collectList('CARD')" base-color="primary" :disabled="!cCollectAble">카드</v-btn>
@@ -443,11 +443,11 @@ const isLoading = ref(false)
                     </section>
                 </section>
                 <section v-if="activeSummary" class="c-summary">
-                    <div class="grp tw-flex tw-gap-3">
+                    <div class="grp flex gap-3">
                         <h3 class="title">주문 금액: {{ getTotalOrderAmount(orders).toLocaleString() }}</h3>
-                        <div class="tw-flex tw-flex-col tw-gap-2">
+                        <div class="flex flex-col gap-2">
                             <h3 class="title">결제 금액: {{ getTotalPayAmount(orders).toLocaleString() }}</h3>
-                            <div class="ml-4 tw-flex tw-gap-2 tw-text-black">
+                            <div class="ml-4 flex gap-2 text-black">
                                 -
                                 <h3>현금: {{ getTotalPayAmount(orders.filter((od) => od.payments.every((pm) => pm.payType == 'CASH'))).toLocaleString() }}</h3>
                                 <h3>카드: {{ getTotalPayAmount(orders.filter((od) => od.payments.every((pm) => pm.payType == 'CARD'))).toLocaleString() }}</h3>
@@ -459,7 +459,7 @@ const isLoading = ref(false)
         </template>
         <template #item.actions="{ value }">
             <div style="display: flex; justify-content: center; gap: 10px">
-                <button @click="onRemove(value.seq)" style="color: var(--color-danger)" v-tooltip="'삭제'">
+                <button @click="onRemove(value.seq)" style="color: rgb(var(--color-danger))" v-tooltip="'삭제'">
                     <font-awesome-icon :icon="['fas', 'trash']" />
                 </button>
                 <button
@@ -503,7 +503,7 @@ const isLoading = ref(false)
 
         button {
             &.update {
-                color: var(--color-success);
+                color: rgb(var(--color-success));
             }
 
             &:disabled {
@@ -525,15 +525,15 @@ const isLoading = ref(false)
             font-weight: bold;
 
             &.unpaid {
-                color: var(--color-danger);
+                color: rgb(var(--color-danger));
             }
 
             &.cash {
-                color: var(--color-success);
+                color: rgb(var(--color-success));
             }
 
             &.card {
-                color: var(--color-point);
+                color: rgb(var(--color-primary));
             }
         }
 
@@ -556,14 +556,14 @@ const isLoading = ref(false)
         display: flex;
         flex-direction: column;
         align-items: end;
-        color: var(--color-success);
+        color: rgb(var(--color-success));
         font-weight: bold;
 
         .grp {
             padding: 10px;
 
             .title {
-                @apply tw-text-lg;
+                @apply text-lg;
             }
         }
     }

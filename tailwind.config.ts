@@ -83,13 +83,14 @@ const config: Config = {
         plugin(({ addBase, matchUtilities, addUtilities }) => {
             addBase({
                 ':root': {
-                    '--color-primary': hexToRGB(colors.orange['600']),
+                    '--color-primary': hexToRGB('#2aac8e'),
                     '--color-secondary': hexToRGB(colors.slate['200']),
-                    '--color-success': hexToRGB(colors.teal['600']),
+                    '--color-success': hexToRGB('#5697d4'),
                     '--color-info': hexToRGB(colors.cyan['500']),
                     '--color-warning': hexToRGB(colors.amber['500']),
                     '--color-pending': hexToRGB(colors.orange['500']),
-                    '--color-danger': hexToRGB(colors.red['700']),
+                    // '--color-danger': hexToRGB(colors.red['700']),
+                    '--color-danger': hexToRGB('#fa4a4a'),
                     '--color-light': hexToRGB(colors.slate['100']),
                     '--color-light-gray': hexToRGB('#585654'),
                     // '--color-dark': hexToRGB(colors.slate['800']),

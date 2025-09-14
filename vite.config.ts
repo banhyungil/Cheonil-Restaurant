@@ -2,7 +2,13 @@ import { fileURLToPath, URL } from 'node:url'
 
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
+/**
+ * @see https://www.npmjs.com/package/unplugin-auto-import/v/0.17.1
+ */
 import AutoImport from 'unplugin-auto-import/vite'
+/**
+ * @see https://www.npmjs.com/package/unplugin-vue-components/v/0.14.0-beta.1
+ */
 import Components from 'unplugin-vue-components/vite'
 import { Vuetify3Resolver } from 'unplugin-vue-components/resolvers'
 
@@ -28,8 +34,12 @@ export default defineConfig({
                 // example type import
                 {
                     from: 'vue',
-                    imports: ['Ref', 'MaybeRef', 'MaybeRefOrGetter'],
+                    imports: ['Ref', 'MaybeRef', 'MaybeRefOrGetter', 'ComputedRef'],
                     type: true,
+                },
+                {
+                    from: 'vue',
+                    imports: ['onMounted', 'onUnmounted'],
                 },
             ],
 

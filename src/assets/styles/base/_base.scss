@@ -55,7 +55,7 @@ v-pagination .v-btn {
     box-shadow: var(--box-shadow);  
   
     &.primary {
-        background-color: var(--color-point);
+        background-color: rgb(var(--color-primary));
         color: #fff;    
         box-shadow: var(--box-shadow);
     }
@@ -85,7 +85,7 @@ v-pagination .v-btn {
   }
   
   .form-item {
-      @apply tw-justify-center tw-flex tw-items-center tw-shadow-sm tw-gap-3;
+      @apply justify-center flex items-center shadow-sm gap-3;
   
       label {
           display: inline-block;
@@ -101,7 +101,7 @@ v-pagination .v-btn {
           display: flex;
           align-items: center;
   
-          @apply tw-shadow-sm;
+          @apply shadow-sm;
   
           .v-input__control {
               display: block;
