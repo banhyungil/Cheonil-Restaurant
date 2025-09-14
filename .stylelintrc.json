@@ -10,5 +10,13 @@
         "scss/at-rule-no-unknown": true,
         "selector-class-pattern": null,
         "scss/at-mixin-pattern": null
+    },
+    "overrides": [
+    {
+      "files": ["**/*.css"],
+      "rules": {
+        "scss/at-rule-no-unknown": null
+      }
     }
+  ]
 }
