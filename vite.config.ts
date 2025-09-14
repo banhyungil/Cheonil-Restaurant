@@ -28,7 +28,7 @@ export default defineConfig({
                 // example type import
                 {
                     from: 'vue',
-                    imports: ['Ref'],
+                    imports: ['Ref', 'MaybeRef', 'MaybeRefOrGetter'],
                     type: true,
                 },
             ],

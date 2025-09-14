@@ -74,7 +74,7 @@ export default function useMoveCell(options: Options) {
         console.log('changed index', `${rowIdx}, ${colIdx}`)
         console.log('cell index', getCellIdx(rowIdx, colIdx))
 
-        elts.value[getCellIdx(rowIdx, colIdx)].focus()
+        elts.value[getCellIdx(rowIdx, colIdx)]!.focus()
     }
 
     function getIdxInfo(cellIdx: number) {

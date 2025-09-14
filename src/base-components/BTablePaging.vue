@@ -1,7 +1,7 @@
 <script setup lang="ts" generic="T extends object">
 // Extends BTable
 import { type BTableProps, type BTableSlots, type BTableEmtis } from './BTable.vue'
-import { PAGE_SIZE_LIST } from '@/composables/usePagination'
+import usePagination, { PAGE_SIZE_LIST } from '@/composables/usePagination'
 import _ from 'lodash'
 
 //ANCHOR - Props, Models, Emits, Slots
@@ -90,6 +90,9 @@ function changeSelected(v: any, selected: boolean) {
 function changeChecked(v: any) {
     emit('changeChecked', v)
 }
+function onColHover(item: any, key: any, event: MouseEvent) {
+    emit('colHover', item, key, event)
+}
 </script>
 <template>
     <div class="btable-paging">
@@ -100,6 +103,7 @@ function changeChecked(v: any) {
             @change-cell="changeCell"
             @change-selected="changeSelected"
             @change-checked="changeChecked"
+            @colHover="onColHover"
             v-model:sel-ids="selIds"
             :booleanFormatter="booleanFormatter"
             class="btable"
@@ -124,7 +128,7 @@ function changeChecked(v: any) {
             </Pagination>
             <div>
                 <FormLabel htmlFor="regular-form-1" class="mx-5 mb-0">총 {{ items.length }} 건</FormLabel>
-                <FormSelect v-if="pgSizeSelection" v-model="pageSize" class="!box mt-3 w-20 sm:mt-0">
+                <FormSelect v-if="pgSizeSelection" v-model="pageSize" class="select mt-3 w-20 sm:mt-0">
                     <option v-for="size in cPgSizes" :key="size" :value="size">{{ size }}</option>
                 </FormSelect>
             </div>
