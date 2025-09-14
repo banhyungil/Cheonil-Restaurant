@@ -110,7 +110,7 @@ const config: Config = {
                     '--color-darkmode-900': hexToRGB('#0f172a'), // 15  23  42
                 },
             })
-            addUtilities({
+            ;(addUtilities({
                 '.flex-center': {
                     display: 'flex',
                     'justify-content': 'center',
@@ -124,7 +124,7 @@ const config: Config = {
                     {
                         values: Object.fromEntries(Array.from({ length: 50 }, (_, i) => [i * 10, `${i * 0.1}s`])),
                     }
-                )
+                ))
 
             matchUtilities(
                 {

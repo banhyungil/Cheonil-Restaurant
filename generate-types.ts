@@ -1,4 +1,3 @@
-/* eslint-disable  no-template-curly-in-string */
 import { Client, Config } from '@rmp135/sql-ts'
 import path, { dirname } from 'path'
 import fs from 'fs'

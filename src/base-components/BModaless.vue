@@ -8,8 +8,6 @@ defineOptions({
 
 //ANCHOR - Props
 export interface BModalessProps {
-//ANCHOR - Props
-export interface BModalessProps {
     title?: string
     activeClose?: boolean
     activeCloseClickOutside?: boolean
@@ -18,7 +16,6 @@ export interface BModalessProps {
     container?: HTMLElement | string
     handle?: MaybeRefOrGetter<HTMLElement | SVGElement | null | undefined>
 }
-const props = withDefaults(defineProps<BModalessProps>(), {
 const props = withDefaults(defineProps<BModalessProps>(), {
     title: '',
     activeClose: true,
@@ -57,7 +54,6 @@ useClickOutside({
 
 // ESC 키 닫기 (선택)
 function handleKeyDown(e: KeyboardEvent) {
-function handleKeyDown(e: KeyboardEvent) {
     if (e.key === 'Escape') isOpen.value = false
 }
 
@@ -91,25 +87,10 @@ onMounted(() => {
         },
         { immediate: true }
     )
-                // 모달이 열릴 때 위치 조정
-                if (props?.initPosition) {
-                    x.value = props.initPosition.x
-                    y.value = props.initPosition.y
-                } else {
-                    x.value = window.innerWidth / 2 - bmodalessEl.value!.offsetWidth / 2
-                    y.value = window.innerHeight / 2 - bmodalessEl.value!.offsetHeight / 2
-                }
-            } else {
-                emit('close')
-            }
-        },
-        { immediate: true }
-    )
 })
 </script>
 
 <template>
-    <Teleport :to="container">
     <Teleport :to="container">
         <transition name="fade">
             <div
@@ -154,7 +135,6 @@ onMounted(() => {
     .content {
         @apply overflow-y-auto;
     }
-
     // empty
 }
 </style>
