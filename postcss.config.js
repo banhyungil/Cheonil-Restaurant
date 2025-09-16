@@ -11,5 +11,8 @@ export default {
      * display: flex;
      */
     autoprefixer: {},
+
+    /** @see https://tailwindcss.com/docs/upgrade-guide#using-postcss */
+    "@tailwindcss/postcss": {}
   },
 }

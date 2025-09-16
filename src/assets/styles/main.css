@@ -1,2 +1,11 @@
 @import "tailwindcss";
 @config "../../../tailwind.config.ts";
+
+/* @see https://tailwindcss.com/docs/adding-custom-styles#adding-component-classes */
+@layer components {
+  .flex-center {
+        display: 'flex';
+        justify-content: 'center';
+        align-items: 'center';
+    }
+}

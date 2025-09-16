@@ -6,7 +6,9 @@ import SideBar from '@/layouts/components/SideBar.vue'
     <div class="admin-layout">
         <SideBar></SideBar>
         <div class="right">
-            <slot></slot>
+            <KeepAlive :max="3">
+                <RouterView></RouterView>
+            </KeepAlive>
         </div>
     </div>
 </template>

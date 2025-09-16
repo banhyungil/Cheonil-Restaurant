@@ -120,22 +120,14 @@ const config: Config = {
                     '--color-darkmode-900': hexToRGB('#0f172a'), // 15  23  42
                 },
             })
-            ;(addUtilities({
-                '.flex-center': {
-                    display: 'flex',
-                    'justify-content': 'center',
-                    'align-items': 'center',
+            matchUtilities(
+                {
+                    'animate-delay': (value) => ({ 'animation-delay': value }),
                 },
-            }),
-                matchUtilities(
-                    {
-                        'animate-delay': (value) => ({ 'animation-delay': value }),
-                    },
-                    {
-                        values: Object.fromEntries(Array.from({ length: 50 }, (_, i) => [i * 10, `${i * 0.1}s`])),
-                    }
-                ))
-
+                {
+                    values: Object.fromEntries(Array.from({ length: 50 }, (_, i) => [i * 10, `${i * 0.1}s`])),
+                }
+            )
             matchUtilities(
                 {
                     'animate-fill-mode': (value) => ({ 'animation-fill-mode': value }),
