@@ -44,6 +44,7 @@ export type BTableEmtis<T extends object> = {
     changeCell: [value: CellInfo<T>]
     pressF2: []
     change: [options: BTableChange<T>]
+    colHover: [item: T, key: keyof T, event: MouseEvent]
 }
 
 export interface BTableProps<T extends object> {
@@ -54,9 +55,13 @@ export interface BTableProps<T extends object> {
     sortType?: 'single' | 'multy'
     /** 선택 유형 */
     selectType?: 'single' | 'multy'
+    /** 선택 토글 가능 여부 */
+    activeSelectToggle?: boolean
     /** 체크박스 유형 */
     checkedType?: 'checkbox' | 'radio'
-    /** 테이블 스타일 테마 */
+    /**
+     * 테이블 스타일 테마
+     *  */
     theme?: 'basic' | 'border'
     /** checkbox 비활성화 */
     disableCheckbox?: boolean
@@ -73,6 +78,7 @@ const props = withDefaults(defineProps<BTableProps<T>>(), {
     disableCheckbox: false,
     rowClass: () => '',
     booleanFormatter: (val: boolean) => (val ? 'O' : 'X'),
+    activeSelectToggle: true,
 })
 //ANCHOR - Emits
 const emit = defineEmits<BTableEmtis<T>>()
@@ -82,12 +88,13 @@ defineSlots<BTableSlots<T>>()
 //ANCHOR - Start
 const itemKeys = ref<string[]>([])
 watch(
-    () => (props.items.length > 0 ? Object.keys(props.items[0]) : []),
+    () => (props.items.length > 0 ? Object.keys(props.items[0]!) : []),
     (newVal, oldVal) => {
         if (_.isEqual(newVal, oldVal) == false) {
             itemKeys.value = newVal
         }
-    }
+    },
+    { immediate: true }
 )
 
 /**
@@ -98,16 +105,18 @@ watch(
  * */
 const inColinfos = ref(_.cloneDeep(props.colInfos)) as Ref<BTableColInfo<T>[]>
 watch(
-    () => props.colInfos.map((ci) => ci.key).join(','),
+    () => props.colInfos.map((ci) => ci.key),
     () => {
         inColinfos.value = _.cloneDeep(props.colInfos)
     },
     { flush: 'pre' }
 )
 watch(
-    [() => props.colInfos.map((ci) => ci.colSize).join(','), () => props.items.map((item) => item[props.itemKey]).join(',')],
+    [() => props.colInfos.map((ci) => ci.colSize), () => props.items.map((item) => item[props.itemKey])],
     () => {
-        inColinfos.value.forEach((ci, idx) => (ci.colSize = props.colInfos[idx].colSize))
+        inColinfos.value.forEach((ci, idx) => {
+            if (props.colInfos[idx]) ci.colSize = props.colInfos[idx].colSize
+        })
         // console.log('watch colInfos', inColinfos.value)
     },
     { flush: 'pre' }
@@ -185,6 +194,29 @@ const cRowCnt = computed(() => props.items.length)
 const cColCnt = computed(() => cColInfos.value.length)
 const uuid = getUuid(true)
 
+//ANCHOR - Hover functionality
+const hoveredRowIdx = ref<number | null>(null)
+
+function onMouseOverOut(e: MouseEvent) {
+    const target = e.target as HTMLElement
+    const colEl: HTMLElement | null = target.classList.contains('.btable-col') ? target : target.closest('.btable-col')
+    if (colEl == null) return
+
+    const rowidx = colEl.dataset.rowidx
+    // console.log('e.type', e.type)
+    // console.log('rowidx', rowidx)
+
+    if (rowidx == null || e.type === 'mouseout') {
+        hoveredRowIdx.value = null
+        return
+    }
+
+    if (e.type === 'mouseover') {
+        hoveredRowIdx.value = +rowidx
+        emit('colHover', cOrderedItems.value[+rowidx]!, colEl.dataset.colkey as keyof T, e)
+    }
+}
+
 /**
  * 셀요소
  * 이슈
@@ -196,17 +228,18 @@ const bodyElt = ref() as Ref<HTMLElement>
 const { width } = useElementSize(bodyElt)
 
 /** body 첫번째 행 요소 목록  */
-const cCellFirstBElts = computed(() => cellElts.value.filter((elt) => elt.classList.contains('b') && elt.classList.contains('row-0')))
 /** 헤더 요소 목록 */
-const cCellHElts = computed(() => cellElts.value.filter((elt) => elt.classList.contains('h')))
 
 const cBWidthList = computed(() => {
-    return cCellFirstBElts.value.map((elt) => {
+    const cellFirstBElts = cellElts.value.filter((elt) => elt.classList.contains('b') && +elt.dataset.rowidx! == 0)
+
+    return cellFirstBElts.map((elt) => {
         return elt.getBoundingClientRect().width
     })
 })
 const cHWidthList = computed(() => {
-    return cCellHElts.value.map((elt) => {
+    const cellHElts = cellElts.value.filter((elt) => elt.classList.contains('h'))
+    return cellHElts.map((elt) => {
         return elt.getBoundingClientRect().width
     })
 })
@@ -226,10 +259,10 @@ const syncBodyHeaderSize = _.throttle(
         // * 값설정 후 렌더링을 기다리기 위해 nextTick 사용
         await nextTick()
         cHWidthList.value.forEach((hWidth, idx) => {
-            const bWidth = cBWidthList.value[idx]
+            const bWidth = cBWidthList.value[idx]!
             // Body가 Header보다 작은 경우 Header 넓이를 Body 넓이로 설정
             if (bWidth < hWidth) {
-                const tgt = inColinfos.value.find((ci) => ci.key == cColInfos.value[idx].key)
+                const tgt = inColinfos.value.find((ci) => ci.key == cColInfos.value[idx]!.key)
                 if (tgt) tgt.colSize = `${hWidth}px`
                 // console.log(`bWidth: ${bWidth}`, `hWidth: ${hWidth}`, `elt: ${cCellHElts.value[idx].classList}`)
                 // console.log('inColinfos', inColinfos.value)
@@ -239,7 +272,10 @@ const syncBodyHeaderSize = _.throttle(
     200,
     { trailing: true }
 )
-watch([() => props.items.map((item) => item[props.itemKey]).join(','), width], syncBodyHeaderSize, { immediate: true, flush: 'post' })
+watch([() => props.items.map((item) => item[props.itemKey]).join(','), width, () => cColInfos.value.map((colInfo) => colInfo.key)], syncBodyHeaderSize, {
+    immediate: true,
+    flush: 'post',
+})
 
 const cGridBodyTemplateColumns = computed(() => {
     return cColInfos.value.map((colInfo) => colInfo['colSize']).join(' ')
@@ -250,9 +286,9 @@ function validKey<T extends object>(item: T, key: any): key is keyof T {
 }
 
 function getCellInfo(rowIdx: number, colIdx: number) {
-    const item = cOrderedItems.value[rowIdx]
-    const originItem = props.items[rowIdx]
-    const colInfo = cColInfos.value[colIdx]
+    const item = cOrderedItems.value[rowIdx]!
+    const originItem = props.items[rowIdx]!
+    const colInfo = cColInfos.value[colIdx]!
     const colKey = colInfo.key
     const originValue = validKey(originItem, colKey) ? originItem[colKey] : null
     const value = validKey(item, colKey) ? item[colKey] : null
@@ -283,16 +319,21 @@ const EDIT_INP_TYPES = ['text', 'number']
  * cell 이동을 위해서는 정렬을 해줘야함
  * v-for는 최초 생성시에는 목록에 따른 렌더링 순서를 보장한다.
  * 그러나 key를 사용하면 기존과 같은 key를 가진 요소들은 cache되기 때문에 별도로 정렬이 필요
+ * 정렬 후에는 DOM 순서에 맞춰 data-cellidx를 기준으로 정렬
  */
-const cOrderdCellElts = computed(() => {
-    return cellElts.value.sort((a, b) => +(a.dataset.cellidx ?? 0) - +(b.dataset.cellidx ?? 0))
-})
-const { getCellIdx } = useMoveCell({ rowCnt: cRowCnt, colCnt: cColCnt, elts: cOrderdCellElts })
+const { getCellIdx } = useMoveCell({ rowCnt: cRowCnt, colCnt: cColCnt, elts: cellElts })
 
-const cGrdSortable = computed(() => props.sortType != null)
+const cGridSortable = computed(() => props.sortType != null)
 const cMultiSortable = computed(() => props.sortType == 'multy')
 
 const { toggle, cOrderDict, cOrdered: cOrderedItems } = useOrderBy({ items: cItems })
+watch(cOrderedItems, () => {
+    // 정렬 후 cellElts 재정렬이 필요하므로 nextTick에서 처리
+    nextTick(() => {
+        // DOM이 업데이트된 후 cellElts 배열을 다시 정렬
+        cellElts.value = _.sortBy(cellElts.value, (el) => +el.dataset.cellidx!)
+    })
+})
 
 function onSort(colKey: string, colSortable?: boolean) {
     if (props.sortType == null || colSortable == false) return
@@ -302,24 +343,26 @@ function onSort(colKey: string, colSortable?: boolean) {
 /** assert 단축 */
 const AST = (val: any) => assert<PropertyKey>(val)
 
-const cSelectedItems = computed(() => props.items.filter((it) => dItemExt.value[AST(it[props.itemKey])].selected))
+const cSelectedItems = computed(() => props.items.filter((it) => dItemExt.value[AST(it[props.itemKey])]!.selected))
 
 function selectRow(item: T) {
     if (props.selectType == null) return
 
-    const selected = !dItemExt.value[AST(item[props.itemKey])].selected
-    if (selected && props.selectType != 'multy') {
+    const tgtItemExt = dItemExt.value[AST(item[props.itemKey])]!
+    if (!tgtItemExt.selected && props.selectType != 'multy') {
         // 기존 선택 된 것은 해제 해준다.
         props.items.forEach((it) => {
-            const ext = dItemExt.value[AST(it[props.itemKey])]
+            const ext = dItemExt.value[AST(it[props.itemKey])]!
             if (ext.selected) ext.selected = false
         })
     }
 
-    dItemExt.value[AST(item[props.itemKey])].selected = selected
+    if (props.activeSelectToggle) tgtItemExt.selected = !tgtItemExt.selected
+    else tgtItemExt.selected = true
+
     selIds.value = cSelectedItems.value.map((item) => item[props.itemKey])
     console.log('selIds', selIds)
-    emit('changeSelected', item, selected)
+    emit('changeSelected', item, tgtItemExt.selected)
 }
 
 const editableInp = ref({}) as Ref<HTMLInputElement>
@@ -380,7 +423,7 @@ function onValueChanged(item: T, key: keyof T, val: any) {
  * @param {KeyboardEvent} e
  */
 function onEnterInp(rowIdx: number, colIdx: number) {
-    cellElts.value[getCellIdx(rowIdx, colIdx)].focus()
+    cellElts.value[getCellIdx(rowIdx, colIdx)]!.focus()
 }
 
 function onChangeCell(rowIdx: number, colIdx: number) {
@@ -410,7 +453,7 @@ defineExpose({ getSelectedItems, getCheckedItems, uuid, rollback })
                 :key="key"
                 :data-cellidx="idx"
                 class="btable-col h"
-                :class="[{ sortable: cGrdSortable && sortable }, key]"
+                :class="[{ sortable: cGridSortable && sortable }, key]"
                 :style="colStyle"
                 @click="onSort(assert(key), sortable)"
                 @keyup="onKeyupCell"
@@ -427,18 +470,28 @@ defineExpose({ getSelectedItems, getCheckedItems, uuid, rollback })
             </div>
         </div>
         <div class="flex items-center justify-center text-xl text-slate-500" v-if="cOrderedItems.length == 0">No Data</div>
-        <div ref="bodyElt" class="body" role="grid" :style="{ gridTemplateColumns: cGridBodyTemplateColumns }">
+        <div
+            ref="bodyElt"
+            class="body"
+            role="grid"
+            :style="{ gridTemplateColumns: cGridBodyTemplateColumns }"
+            @mouseover="onMouseOverOut"
+            @mouseout="onMouseOverOut"
+        >
             <template v-for="(item, rowIdx) in cOrderedItems" :key="item[assert<keyof T>(itemKey)]">
                 <div
                     v-for="({ key, inputType, editable, colStyle }, colIdx) in cColInfos"
                     :key="`${item[assert<keyof T>(itemKey)]}colIdx${colIdx}`"
+                    :data-cellidx="cColCnt + rowIdx * cColInfos.length + colIdx"
+                    :data-rowidx="rowIdx"
+                    :data-colKey="key"
                     class="btable-col b"
                     :class="[
                         `id-${item[assert<keyof T>(itemKey)]}`,
                         key,
-                        selectType ? { selected: selIds.includes(item[assert<keyof T>(itemKey)]) } : null,
+                        selectType ? { selectable: true, selected: selIds.includes(item[assert<keyof T>(itemKey)]) } : null,
                         rowClass(item),
-                        `row-${rowIdx}`,
+                        { 'row-hovered': hoveredRowIdx === rowIdx },
                     ]"
                     :style="{ ...colStyle, animationDelay: `${(1 / items.length) * ((rowIdx * cColInfos.length) / cColInfos.length)}s` }"
                     @click="selectRow(item)"
@@ -603,16 +656,21 @@ defineExpose({ getSelectedItems, getCheckedItems, uuid, rollback })
         }
 
         &.h {
-            &:hover {
+            &.sortable:hover {
+                @apply bg-primary/80;
                 opacity: 0.7;
             }
         }
 
         &.b {
-            background-color: #fff;
+            background-color: inherit;
 
             &.selectable {
                 cursor: pointer;
+
+                &.row-hovered {
+                    @apply bg-primary text-white;
+                }
             }
 
             &.selected {

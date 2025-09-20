@@ -24,7 +24,6 @@ const { data } = _useWebSocket(`ws://localhost:8000`, {
 export default function useWebSocket() {
     const callbackDict = ref({} as CallbackDict)
 
-    /* eslint-disable no-unused-vars */
     function listen(baseUrl: ApiMenu.URL, method: 'POST', callback: (resBody: ApiMenu.Post['resBody']) => void): void
     function listen(baseUrl: ApiMenu.URL, method: 'PATCH', callback: (resBody: ApiMenu.Post['resBody']) => void): void
     function listen(baseUrl: ApiMenu.URL, method: 'DELETE', callback: (seq: number) => void): void
@@ -40,7 +39,6 @@ export default function useWebSocket() {
 
         callbackDict.value[baseUrl][method].push(callback)
     }
-    /* eslint-enable no-unused-vars */
 
     function isSync(oData: any): oData is Sync {
         const baseUrls = ['/menu', '/menuCategory', '/store', '/storeCategory', '/placeCategory', '/order', '/payment'].map((url) => `/api${url}`)

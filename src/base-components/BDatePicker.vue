@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import _ from 'lodash'
 /** @see https://vue3datepicker.com/installation/ */
-import { type Slots, type VueDatePickerProps, type PublicMethods, type EmitEvents, type ModelValue } from '@vuepic/vue-datepicker'
-// import VueDatePicker from '@vuepic/vue-datepicker'
+import VueDatePicker, { type Slots, type VueDatePickerProps, type PublicMethods, type EmitEvents, type ModelValue } from '@vuepic/vue-datepicker'
 
 //ANCHOR - Props
 /**
@@ -35,7 +34,12 @@ defineExpose<PublicMethods>()
 </script>
 
 <template>
-    <VueDatePicker v-bind="{ ...$props, ...$attrs }" v-model="modelVal"> </VueDatePicker>
+    <VueDatePicker v-bind="{ ...$props, ...$attrs }" v-model="modelVal">
+        <!-- 조건부 slot -->
+        <template v-if="$slots.trigger" #trigger>
+            <slot name="trigger"></slot>
+        </template>
+    </VueDatePicker>
 </template>
 
 <style>

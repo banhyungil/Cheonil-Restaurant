@@ -14,6 +14,7 @@ declare module 'vue' {
     BCheckbox: typeof import('./src/base-components/BCheckbox.vue')['default']
     BDatePicker: typeof import('./src/base-components/BDatePicker.vue')['default']
     BEditToggleInput: typeof import('./src/base-components/BEditToggleInput.vue')['default']
+    BInput: typeof import('./src/base-components/BInput.vue')['default']
     BInputCho: typeof import('./src/base-components/BInputCho.vue')['default']
     BInputNumFormat: typeof import('./src/base-components/BInputNumFormat.vue')['default']
     BLoading: typeof import('./src/base-components/BLoading.vue')['default']

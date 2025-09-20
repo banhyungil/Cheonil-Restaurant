@@ -1,0 +1,5 @@
+# Ignore artifacts:
+dist
+.data
+node_modules
+public

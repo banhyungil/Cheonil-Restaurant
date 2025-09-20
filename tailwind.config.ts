@@ -12,7 +12,16 @@ function hexToRGB(hex: string): string {
 
 const config: Config = {
     content: ['./src/**/*.{js,jsx,ts,vue}'],
-    safelist: [{ pattern: /animate-delay-.+/ }],
+    /**
+     * safelist기능이 없어지고 @source inline 명령어를 사용하여야 함
+     * example
+     * @source inline("{hover:,}bg-indigo-{50,{300..500},800,950}");
+     *
+     * Generates grid-cols-1, grid-cols-2, ..., grid-cols-12
+     * * @source inline("{sm:,md:,lg:,xl:,}grid-cols-{1..12}");
+     * @see https://github.com/tailwindlabs/tailwindcss/pull/17147
+     * */
+    // safelist: [{ pattern: /animate-delay-.+/ }],
     darkMode: 'class',
     theme: {
         extend: {
@@ -79,6 +88,7 @@ const config: Config = {
         },
     },
     plugins: [
+        /* eslint-disable @typescript-eslint/no-require-imports */
         require('@tailwindcss/forms'),
         plugin(({ addBase, matchUtilities, addUtilities }) => {
             addBase({
@@ -110,7 +120,7 @@ const config: Config = {
                     '--color-darkmode-900': hexToRGB('#0f172a'), // 15  23  42
                 },
             })
-            addUtilities({
+            ;(addUtilities({
                 '.flex-center': {
                     display: 'flex',
                     'justify-content': 'center',
@@ -124,7 +134,7 @@ const config: Config = {
                     {
                         values: Object.fromEntries(Array.from({ length: 50 }, (_, i) => [i * 10, `${i * 0.1}s`])),
                     }
-                )
+                ))
 
             matchUtilities(
                 {
@@ -141,11 +151,6 @@ const config: Config = {
             )
         }),
     ],
-    variants: {
-        extend: {
-            boxShadow: ['dark'],
-        },
-    },
 }
 
 export default config

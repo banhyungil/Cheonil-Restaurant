@@ -1,15 +1,37 @@
 {
-  "extends": "@vue/tsconfig/tsconfig.dom.json",
-  "include": ["env.d.ts", "src/**/*", "src/**/*.vue", "auto-imports.d.ts", "components.d.ts"],
-  "exclude": ["src/**/__tests__/*"],
-  "compilerOptions": {
-    "composite": false,
-    "noEmit": true,
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"]
-    },
-    "target": "ES5",
-    "experimentalDecorators": true
-  }
+    "extends": "@vue/tsconfig/tsconfig.dom.json",
+    "include": [
+        "vite-env.d.ts",
+        "src/**/*",
+        "src/**/*.vue",
+        "ztest/**/*",
+        "ztest/**/*.vue",
+        "components.d.ts",
+        "auto-imports.d.ts",
+        "global-components.d.ts",
+        "global.d.ts",
+        "eslint.config.ts",
+        "tailwind.config.ts",
+        "vite.config.ts",
+        "public/data"
+    ],
+    "exclude": ["src/**/__tests__/*"],
+    "compilerOptions": {
+        "target": "ESNext",
+        "module": "ESNext",
+        "moduleResolution": "Bundler",
+        // ts, generic 컴포넌트에서 발생하는 오류 해결을 위해 주석 (Default export of the module has or is using private name 'Props'.)
+        // "composite": true,
+        "baseUrl": ".",
+        "paths": {
+            "@/*": ["./src/*"]
+        },
+        // "types": ["kakao.maps.d.ts"],
+        "lib": ["ESNext", "DOM"],
+        "strict": true,
+        "forceConsistentCasingInFileNames": true,
+        "skipLibCheck": true,
+        "resolveJsonModule": true,
+        "allowSyntheticDefaultImports": true
+    }
 }

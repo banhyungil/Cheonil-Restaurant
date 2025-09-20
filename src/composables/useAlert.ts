@@ -4,12 +4,12 @@ import Swal, { type SweetAlertCustomClass, type SweetAlertIcon, type SweetAlertO
 
 //ANCHOR - Constants
 const CUSTOM_CLASS = {
-    popup: 'rounded-xl shadow-lg !bg-dark text-white',
+    popup: 'rounded-xl shadow-lg bg-dark! text-white',
     actions: 'flex gap-2',
     confirmButton: 'rounded-xl shadow-lg bg-primary border-primary text-white dark:border-primary px-4 py-2 rounded-sm',
     cancelButton: 'rounded-xl shadow-lg bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-sm',
     denyButton: 'rounded-xl shadow-lg bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-sm',
-    timerProgressBar: 'bg-primary/50',
+    timerProgressBar: 'bg-primary/80',
 } as SweetAlertCustomClass
 const SWAL = Swal.mixin({
     cancelButtonText: '취소',
@@ -84,7 +84,7 @@ export const useAlert = (options?: SweetAlertOptions) => {
             return { icon, title }
         })()
 
-        const ringColor = (() => {
+        const popupClass = (() => {
             switch (icon) {
                 case 'error':
                     return 'danger'
@@ -92,7 +92,6 @@ export const useAlert = (options?: SweetAlertOptions) => {
                     return icon
             }
         })()
-        const popupClass = `ring-4 !ring-${ringColor} !ring-opacity-40`
 
         return MyAlert.fire({
             title,
@@ -133,7 +132,7 @@ export const useAlert = (options?: SweetAlertOptions) => {
             messages.push(message)
         }
         // 임시: 하나의 에러 메시지만 표시하자
-        return fire({ ...options, messageType: 'error', html: getMessages([messages[0]]) })
+        return fire({ ...options, messageType: 'error', html: getMessages([messages[0]!]) })
     }
 
     function disable(text: string = '접근할 수 없습니다.', options?: SweetAlertOptions) {
@@ -151,6 +150,10 @@ export const useAlert = (options?: SweetAlertOptions) => {
         fire,
         confirm,
         fireVuelidate,
+        // info,
+        // error,
+        // vuelid,
+        // response,
         disable,
     }
 }
