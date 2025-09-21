@@ -5,4 +5,8 @@
 @use './components/g-form' as *;
 @use './components/tab' as *;
 
-
+/* stylelint-disable */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+/* stylelint-enable */

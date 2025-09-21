@@ -13,6 +13,7 @@
         "eslint.config.ts",
         "tailwind.config.ts",
         "vite.config.ts",
+        "eslint.conifg.ts",
         "public/data"
     ],
     "exclude": ["src/**/__tests__/*"],
