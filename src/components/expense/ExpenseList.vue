@@ -50,8 +50,8 @@ function onClickThisMonth() {
 </script>
 
 <template>
-    <section class="account-view">
-        <section class="top flex justify-between">
+    <section class="account-view flex flex-col h-full">
+        <section class="top flex justify-between w-full">
             <section class="left">
                 <div class="form-item">
                     <label for="dp-input-expenseAtRange">지출일자</label>
@@ -87,7 +87,7 @@ function onClickThisMonth() {
                 </v-btn>
             </section>
         </section>
-        <section class="body">
+        <section class="body flex-1 w-full">
             <BTablePaging :items="expenses" itemKey="seq" :colInfos="COL_INFOS" :showNo="true">
                 <template #actions="{ item }">
                     <div style="display: flex; justify-content: center; gap: 10px">
@@ -106,8 +106,12 @@ function onClickThisMonth() {
 
 <style lang="scss" scoped>
 .account-view {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
+     :deep(.btable-paging) {
+        @apply h-full;
+
+        .body {
+            @apply h-full;
+        }
+    } 
 }
 </style>

@@ -13,7 +13,7 @@ function backRoute() {
 }
 </script>
 <template>
-    <section class="expense-edit">
+    <section class="expense-edit h-full">
         <ExpenseContainer type="EDIT" :seq="seq != null ? +seq : undefined" @cancel="backRoute" @create="backRoute" @update="backRoute"></ExpenseContainer>
     </section>
 </template>

@@ -1,5 +1,6 @@
 @use "../abstracts/mixin";
 
+
 v-pagination .v-btn {
     &:disabled {
       color: var(--color-disable);

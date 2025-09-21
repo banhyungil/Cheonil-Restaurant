@@ -8,15 +8,13 @@ function toEditView(seq?: number) {
 </script>
 
 <template>
-    <section class="expense-view">
+    <section class="expense-list-view flex h-full w-full">
         <ExpenseContainer type="LIST" @toEditView="toEditView"></ExpenseContainer>
     </section>
 </template>
 
 <style lang="scss" scoped>
-.account-view {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
+.expense-list-view {
+    // 
 }
 </style>
