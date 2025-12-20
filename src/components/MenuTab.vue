@@ -82,7 +82,6 @@ const Dirty = useDirty([toRef(menuStore, 'items'), toRef(menuStore, 'categories'
 
 async function onToggleEdit() {
     const setting = settingStore.setting
-    debugger
 
     if (isEdit.value && Dirty.cIsDirty.value) {
         if ((await swal.confirm({ title: '', text: '변경 사항을 저장하시겠습니까?', icon: 'question' })) == false) {
