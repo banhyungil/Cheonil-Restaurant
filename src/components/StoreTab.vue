@@ -11,7 +11,7 @@ import _ from 'lodash'
 import useSwal from '@/composables/useSwal'
 import { VueDraggableNext } from 'vue-draggable-next'
 
-//ANCHOR - Props
+//ANCHOR - Props, Models
 interface Props {
     focusSrch?: boolean
 }
@@ -81,7 +81,7 @@ const dStoreOrder = ref(_.keyBy(storeOrders.value, 'seq'))
 const Dirty = useDirty([toRef(storeStore, 'items'), toRef(storeStore, 'categories')])
 
 const cFilteredItems = computed(() => {
-    if (isEdit.value == false) return storeStore.items
+    if (isEdit.value) return storeStore.items
 
     // 카테고리 필터링
     const items = (() => {
