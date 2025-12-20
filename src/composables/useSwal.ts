@@ -91,7 +91,12 @@ export default function useSwal(options?: SweetAlertOptions) {
         }
     }
 
-    return Object.assign(nSwal, { fireCustom, MESSAGE })
+    async function confirm(options?: SweetAlertOptionsCustom) {
+        const options_ = Object.assign({ isConfirm: true }, options)
+        return (await fireCustom(options_)) as boolean
+    }
+
+    return Object.assign(nSwal, { fireCustom, MESSAGE, confirm })
 }
 
 type MessageType = 'save' | 'update' | 'remove' | 'error' | 'info'

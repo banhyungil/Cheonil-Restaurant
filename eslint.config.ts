@@ -27,5 +27,5 @@ export default defineConfigWithVueTs(
             '@typescript-eslint/no-namespace': 'warn',
             'no-debugger': 'warn',
         },
-    },
+    }
 )

@@ -9,6 +9,36 @@ import _ from 'lodash'
 import { VueDraggableNext } from 'vue-draggable-next'
 import useSwal from '@/composables/useSwal'
 
+//ANCHOR - Props
+interface Props {
+    focusSrch?: boolean
+}
+const props = defineProps<Props>()
+
+//ANCHOR - Emits
+const emit = defineEmits<{
+    (e: 'selectItem', item: MenuEntity): void
+}>()
+
+//ANCHOR - Hooks
+onBeforeMount(async () => {
+    // 메뉴 조회
+    const menuList = await apiMenu.selectList()
+    menuStore.items = orderWithList(menuOrders.value, _.orderBy(menuList, ['name']), 'seq')
+    // 메뉴 순서 정보 초기화
+    menuList.forEach((item) => {
+        if (!dMenuOrder.value[item.seq]) dMenuOrder.value[item.seq] = { seq: item.seq, order: 0, isFavorite: false }
+    })
+
+    // 메뉴 카테고리 조회
+    const ctgList = await apiMenuCtg.selectList()
+    menuStore.categories = ctgList
+
+    settingStore.orderMenuCtgs(menuStore.categories)
+    Dirty.commit()
+})
+
+//ANCHOR - Stores, Composables
 const menuStore = useMenuStore()
 const settingStore = useSettingStore()
 const apiSetting = useApiSetting()
@@ -21,10 +51,7 @@ const apiMenu = useApiMenu()
 const apiMenuCtg = useApiMenuCtg()
 const router = useRouter()
 
-interface Props {
-    focusSrch?: boolean
-}
-const props = defineProps<Props>()
+//ANCHOR - Start
 const inpSrch = ref({} as InstanceType<typeof BInputCho>)
 
 watch(
@@ -38,70 +65,41 @@ const srchText = defineModel('srchText', {
     default: '',
 })
 
-const emit = defineEmits<{
-    (e: 'selectItem', item: MenuEntity): void
-}>()
-
-// 메뉴 조회
-apiMenu.selectList().then((list) => {
-    menuStore.items = _.orderBy(list, ['name'])
-})
-
-// 메뉴 카테고리 조회
-apiMenuCtg.selectList().then((list) => {
-    menuStore.categories = list
-
-    settingStore.orderMenuCtgs(menuStore.categories)
-})
-
-watch(
-    () => settingStore.setting.config?.menuCtgOrders,
-    () => {
-        settingStore.orderMenuCtgs(menuStore.categories)
-    },
-    { deep: true }
-)
-
 const isEdit = ref(false)
 
-// 즐겨 찾기 등록된 목록 관리
-// 즐겨 찾기 등록된 항목 관리해야함.
-const favorites = ref<number[]>(settingStore.setting.config.menuOrders?.map((item) => item.seq) ?? [])
+// 메뉴 순서 정보
+const menuOrders = computed({
+    get() {
+        return settingStore.setting.config?.menuOrders ?? []
+    },
+    set(value) {
+        settingStore.setting.config.menuOrders = value
+    },
+})
+const dMenuOrder = ref(_.keyBy(menuOrders.value, 'seq'))
+// 변경상태 확인
+const Dirty = useDirty([toRef(menuStore, 'items'), toRef(menuStore, 'categories')])
 
-const cMenuCtgOrders = computed(() => menuStore.categories.map((ctg, idx) => ({ seq: ctg.seq, order: idx })))
-
-// 매장 카테고리 순서 변경여부
-const cIsCtgOrderUpdated = computed(() => _.isEqual(cMenuCtgOrders.value, settingStore.setting.config.menuCtgOrders) == false)
-// 매장순서 변경여부
-const cIsMenuOrderUpdated = computed(
-    () =>
-        _.isEqual(
-            favorites.value,
-            settingStore.setting.config.menuOrders?.map((item) => item.seq)
-        ) == false
-)
 async function onToggleEdit() {
     const setting = settingStore.setting
+    debugger
 
-    if (isEdit.value == true && (cIsCtgOrderUpdated.value || cIsMenuOrderUpdated.value)) {
-        // 카테고리 순서 변경
-        if (cIsCtgOrderUpdated.value && (await swal.fireCustom({ isConfirm: true, title: '', text: '설정 정보를 저장하시겠습니까?', icon: 'question' }))) {
-            setting.config.menuCtgOrders = cMenuCtgOrders.value
-            await apiSetting.update(setting)
-
-            swal.fireCustom({ toast: true, messageType: 'save' })
+    if (isEdit.value && Dirty.cIsDirty.value) {
+        if ((await swal.confirm({ title: '', text: '변경 사항을 저장하시겠습니까?', icon: 'question' })) == false) {
+            // 변경사항 되돌리기
+            Dirty.revert()
         } else {
-            settingStore.orderStoreCtgs(menuStore.categories)
-        }
+            // 매장 순서 변경
+            menuOrders.value = menuStore.items.map((item, idx) => ({ seq: item.seq, order: idx, isFavorite: dMenuOrder.value[item.seq]?.isFavorite ?? false }))
+            // 매장 카테고리 변경
+            setting.config.menuCtgOrders = menuStore.categories.map((ctg, idx) => ({ seq: ctg.seq, order: idx }))
 
-        // 매장 순서 변경
-        if (cIsMenuOrderUpdated.value && (await swal.fireCustom({ isConfirm: true, title: '', text: '설정 정보를 저장하시겠습니까?', icon: 'question' }))) {
-            setting.config.menuOrders = favorites.value.map((fvt, idx) => ({ seq: fvt, order: idx }))
             await apiSetting.update(setting)
-
             swal.fireCustom({ toast: true, messageType: 'save' })
-        } else {
-            favorites.value = settingStore.setting.config.menuOrders?.map((item) => item.seq) ?? []
+
+            settingStore.orderMenuCtgs(menuStore.categories)
+
+            Dirty.commit()
         }
     }
 
@@ -109,22 +107,15 @@ async function onToggleEdit() {
 }
 
 const cFilteredItems = computed(() => {
+    if (isEdit.value) return menuStore.items
     // 카테고리 필터링
-    let items = (() => {
+    const items = (() => {
         if (selCtg.value == null) {
             return menuStore.items
         } else {
             return menuStore.items?.filter((item) => item.ctgSeq == (selCtg.value as MenuCategoryEntity).seq)
         }
     })() as MenuEntity[]
-
-    items = orderWithList(
-        favorites.value.map((seq) => {
-            return { seq }
-        }),
-        _.orderBy(items, 'name'),
-        'seq'
-    )
 
     // 검색 필터링
     if (srchText.value == '') {
@@ -175,17 +166,15 @@ useEventListener(document, 'keyup', (e) => {
     if (e.key == 'Escape') {
         if (isEdit.value) {
             isEdit.value = false
+            onToggleEdit()
         }
     }
 })
 
 const isCtgUpdated = ref(false)
 
-function onClickFavorite(store: StoreEntity) {
-    const idx = favorites.value.findIndex((seq) => seq == store.seq)
-    // 있으면 삭제, 없으면 생성
-    if (idx >= 0) favorites.value.splice(idx, 1)
-    else favorites.value.push(store.seq)
+function onClickFavorite(menu: MenuEntity) {
+    if (dMenuOrder.value[menu.seq]) dMenuOrder.value[menu.seq].isFavorite = !dMenuOrder.value[menu.seq].isFavorite
 }
 defineExpose({ selCtg })
 </script>
@@ -227,24 +216,25 @@ defineExpose({ selCtg })
                     </button>
                 </Transition>
             </ul>
-            <section class="grid">
+            <section class="overflow-y-auto">
                 <TransitionGroup name="list">
-                    <div v-for="item in cFilteredItems" :key="item.seq" @click="onClickItem(item)" class="item">
-                        <button @click.stop="onClickFavorite(item)" class="favorite" :disabled="!isEdit">
-                            <font-awesome-icon v-if="favorites.includes(item.seq)" :icon="['fas', 'star']" style="color: #ffd43b" />
-                            <font-awesome-icon v-else-if="isEdit" :icon="['far', 'star']" />
+                    <VueDraggableNext class="grid" v-model="menuStore.items" @change="() => (isCtgUpdated = true)" :animation="500" :disabled="!isEdit">
+                        <button v-for="item in cFilteredItems" :key="item.seq" @click="onClickItem(item)" class="item">
+                            <button @click.stop="onClickFavorite(item)" class="favorite" :disabled="!isEdit">
+                                <font-awesome-icon v-if="dMenuOrder[item.seq].isFavorite" :icon="['fas', 'star']" style="color: #ffd43b" />
+                                <font-awesome-icon v-else-if="isEdit" :icon="['far', 'star']" />
+                            </button>
+                            <span>
+                                {{ item['name'] ?? '' }}
+                            </span>
                         </button>
-                        <span>
-                            {{ item['name'] ?? '' }}
-                        </span>
-                    </div>
+                        <Transition name="slide">
+                            <button v-show="isEdit" class="item add" @click="onAddItem">
+                                <font-awesome-icon :icon="['fas', 'plus']" />
+                            </button>
+                        </Transition>
+                    </VueDraggableNext>
                 </TransitionGroup>
-
-                <Transition name="slide">
-                    <button v-show="isEdit" class="item add" @click="onAddItem">
-                        <font-awesome-icon :icon="['fas', 'plus']" />
-                    </button>
-                </Transition>
             </section>
         </section>
     </section>

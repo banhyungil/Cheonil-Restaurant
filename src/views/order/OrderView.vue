@@ -136,17 +136,13 @@ function init() {
     menuSrchText.value = ''
     menuTabComp.value.selCtg = null
 }
-
-// 매장및 메뉴에 즐겨찾기 등록을하는 경우 순서 지정은...boolean으로 하면 순서지정은안됨.
-// 아니면 즐겨찾기가 아니라 order을 만들까그냥..?그럼 setting으로 똑같이?
-// 순서는 어떻게 ?? 그냥 리스트 순으로할까... 바꿀수 있게도 할까..
 </script>
 
 <template>
     <div class="order-view">
         <section class="left">
             <StoreTab v-show="tab == 'STORE'" @selectItem="onChoiceStore" :focusSrch="tab == 'STORE'" v-model:srch-text="storeSrchText" />
-            <MenuTab ref="menuTabComp" v-show="tab == 'MENU'" @selectItem="onChoiceMenu" :focusSrch="tab == 'MENU'" v-model:srch-text="menuSrchText" />
+            <MenuTab v-show="tab == 'MENU'" ref="menuTabComp" @selectItem="onChoiceMenu" :focusSrch="tab == 'MENU'" v-model:srch-text="menuSrchText" />
         </section>
         <section class="right">
             <section class="top">
@@ -160,19 +156,19 @@ function init() {
             <section class="content">
                 <ul class="orders">
                     <!-- 주문 목록을 표시, 주문 목록 정보 객체를 만들어야함 -->
-                    <li class="c-item" v-for="(om, idx) in orderMenues" :key="idx">
+                    <li class="c-item flex flex-col gap-y-2 border-2 border-gray-500 p-4" v-for="(om, idx) in orderMenues" :key="idx">
                         <div class="main">
                             <!-- price 반응형 레이아웃 적용 -->
                             <div class="c-title">
                                 <span class="name">{{ menuStore.dict[om.menuSeq]?.name }}</span>
                                 <span v-if="width < 1024" style="float: right">{{ ` ${om.price.toLocaleString('ko-KR')}` }}</span>
                             </div>
-                            <div class="c-cnt-btn">
+                            <div class="gap-3 flex-center">
                                 <BButton @click="() => om.cnt++" variant="normal">
                                     <font-awesome-icon :icon="['fas', 'plus']" />
                                 </BButton>
                                 <!-- <button @click="onUp(om)">+</button> -->
-                                <input class="box-shadow" type="number" v-model="om.cnt" />
+                                <BInput class="w-14" type="number" v-model="om.cnt" :active-cancel="false"></BInput>
                                 <BButton @click="() => om.cnt--" variant="normal">
                                     <font-awesome-icon :icon="['fas', 'minus']" />
                                 </BButton>
@@ -285,12 +281,6 @@ function init() {
                 list-style-type: none;
 
                 .c-item {
-                    display: flex;
-                    flex-direction: column;
-                    row-gap: 6px;
-                    border: 1px solid grey;
-                    padding: 18px;
-
                     .main {
                         display: flex;
                         justify-content: space-between;

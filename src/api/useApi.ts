@@ -35,6 +35,7 @@ function convertDates<T>(data: T): T | Date {
 
     return data
 }
+
 export default function useApi() {
     const api = axios.create({ baseURL: '/api' })
     const Swal = useSwal()

@@ -16,12 +16,16 @@ export interface BInputProps extends FormInputProps {
     // 입력값이 변경될 때 디바운스 시간 (ms)BCheckboxv
     inputDebounceTime?: number
     activeCancel?: boolean
+    /** number 타입 */
+    // arrow 버튼 숨김 여부
+    hideArrow?: boolean
 }
 const props = withDefaults(defineProps<BInputProps>(), {
     showSearchIcon: false,
     initFocus: false,
     inputDebounceTime: 0,
     activeCancel: true,
+    hideArrow: true,
 })
 
 //ANCHOR - Models
@@ -115,7 +119,7 @@ defineExpose({
     <div
         class="binput relative flex items-center gap-4 text-inherit"
         v-bind="_.pick($attrs, ['style', 'class'])"
-        :class="{ focused, readonly: attrs.readonly != null, disabled: attrs.disabled != null }"
+        :class="{ focused, readonly: attrs.readonly != null, disabled: attrs.disabled != null, hideArrow }"
     >
         <label v-if="props.label" :for="id" class="text-sm font-bold">{{ label }}</label>
         <div ref="absolutePreEl" class="absolute inset-y-0 left-2 flex items-center gap-2">
@@ -177,6 +181,16 @@ defineExpose({
     &.focused {
         .search-icon {
             @apply text-primary;
+        }
+    }
+
+    &.hideArrow :deep(input[type='number']) {
+        -moz-appearance: textfield;
+
+        &::-webkit-outer-spin-button,
+        &::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
         }
     }
 }

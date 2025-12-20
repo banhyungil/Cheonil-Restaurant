@@ -350,9 +350,9 @@ interface SettingEntity {
 
 interface SettingConfig {
     menuCtgOrders?: { seq: number; order: number }[]
-    menuOrders?: { seq: number; order: number }[]
+    menuOrders?: { seq: number; order: number; isFavorite: boolean }[]
     storeCtgOrders?: { seq: number; order: number }[]
-    storeOrders?: { seq: number; order: number }[]
+    storeOrders?: { seq: number; order: number; isFavorite: boolean }[]
 }
 
 /* 매장 */

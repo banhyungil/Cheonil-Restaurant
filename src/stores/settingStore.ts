@@ -11,20 +11,22 @@ export const useSettingStore = defineStore(
         }
 
         function orderStoreCtgs(storeCtgs: StoreCategoryEntity[]) {
-            if (setting.value?.config?.storeCtgOrders == null) return storeCtgs
-            else return orderWithList(setting.value.config.storeCtgOrders, storeCtgs, 'seq')
+            if (setting.value.config?.storeCtgOrders == null) setting.value.config.storeCtgOrders = []
+
+            return orderWithList(setting.value.config.storeCtgOrders, storeCtgs, 'seq')
         }
 
         function orderMenuCtgs(storeCtgs: StoreCategoryEntity[]) {
-            if (setting.value?.config?.menuCtgOrders == null) return storeCtgs
-            else return orderWithList(setting.value.config.menuCtgOrders, storeCtgs, 'seq')
+            if (setting.value.config?.menuCtgOrders == null) setting.value.config.menuCtgOrders = []
+
+            return orderWithList(setting.value.config.menuCtgOrders, storeCtgs, 'seq')
         }
 
         return { setting, assertion, orderStoreCtgs, orderMenuCtgs }
     },
     {
         persist: {
-            paths: ['setting'],
+            pick: ['setting'],
         },
     }
 )

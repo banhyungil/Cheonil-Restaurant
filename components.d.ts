@@ -81,9 +81,11 @@ declare module 'vue' {
     VBtn: typeof import('vuetify/components')['VBtn']
     VDataTable: typeof import('vuetify/components')['VDataTable']
     VDivider: typeof import('vuetify/components')['VDivider']
+    VListItem: typeof import('vuetify/components')['VListItem']
     VPagination: typeof import('vuetify/components')['VPagination']
     VSelect: typeof import('vuetify/components')['VSelect']
     VSwitch: typeof import('vuetify/components')['VSwitch']
+    VTextarea: typeof import('vuetify/components')['VTextarea']
     VTextField: typeof import('vuetify/components')['VTextField']
     VueDatePicker: typeof import('@vuepic/vue-datepicker')['default']
   }

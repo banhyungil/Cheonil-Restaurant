@@ -11,6 +11,39 @@ import _ from 'lodash'
 import useSwal from '@/composables/useSwal'
 import { VueDraggableNext } from 'vue-draggable-next'
 
+//ANCHOR - Props
+interface Props {
+    focusSrch?: boolean
+}
+const props = defineProps<Props>()
+
+const srchText = defineModel('srchText', {
+    default: '',
+})
+
+//ANCHOR - Emits
+const emit = defineEmits<{
+    (e: 'selectItem', item: StoreEntity): void
+}>()
+//ANCHOR - Hooks
+onBeforeMount(async () => {
+    // 매장 조회
+    const storeList = await apiStore.selectList()
+    storeStore.items = orderWithList(storeOrders.value, _.orderBy(storeList, ['name']), 'seq')
+    // 매장 순서 정보 초기화
+    storeList.forEach((item) => {
+        if (!dStoreOrder.value[item.seq]) dStoreOrder.value[item.seq] = { seq: item.seq, order: 0, isFavorite: false }
+    })
+
+    // 매장 카테고리 조회
+    const ctgList = await apiStoreCtg.selectList()
+    storeStore.categories = ctgList
+
+    settingStore.orderStoreCtgs(storeStore.categories)
+    Dirty.commit()
+})
+
+//ANCHOR - Stores, Composables
 const storeStore = useStoreStore()
 const settingStore = useSettingStore()
 const apiSetting = useApiSetting()
@@ -24,68 +57,40 @@ const apiStoreCtg = useApiStoreCtg()
 const router = useRouter()
 
 const compSrch = ref({} as InstanceType<typeof BInputCho>)
-interface Props {
-    focusSrch?: boolean
-}
-const props = defineProps<Props>()
 
+//ANCHOR - Start
 watch(
     () => props.focusSrch,
     () => {
         if (props.focusSrch) nextTick().then(() => compSrch.value.eltInp?.focus())
     }
 )
-const srchText = defineModel('srchText', {
-    default: '',
-})
-
-const emit = defineEmits<{
-    (e: 'selectItem', item: StoreEntity): void
-}>()
-
-// 매장 조회
-apiStore.selectList().then((list) => {
-    storeStore.items = _.orderBy(list, ['name'])
-})
-
-// 매장 카테고리 조회
-apiStoreCtg.selectList().then((list) => {
-    storeStore.categories = list
-
-    if (settingStore?.setting?.config?.storeCtgOrders == null) {
-        settingStore.setting.config.storeCtgOrders = storeStore.categories.map((ctg, idx) => ({ seq: ctg.seq, order: idx }))
-    }
-
-    watch(
-        () => settingStore.setting?.config?.storeCtgOrders,
-        () => {
-            if (settingStore.setting?.config == null) return
-            else {
-                settingStore.orderStoreCtgs(storeStore.categories)
-            }
-        },
-        { immediate: true, deep: true }
-    )
-})
 
 const isEdit = ref(false)
+// 매장 순서정보
+const storeOrders = computed({
+    get() {
+        return settingStore.setting.config?.storeOrders ?? []
+    },
+    set(value) {
+        settingStore.setting.config.storeOrders = value
+    },
+})
+const dStoreOrder = ref(_.keyBy(storeOrders.value, 'seq'))
+/** 변경상태 확인 */
+const Dirty = useDirty([toRef(storeStore, 'items'), toRef(storeStore, 'categories')])
+
 const cFilteredItems = computed(() => {
+    if (isEdit.value == false) return storeStore.items
+
     // 카테고리 필터링
-    let items = (() => {
+    const items = (() => {
         if (selCtg.value == null) {
             return storeStore.items
         } else {
             return storeStore.items?.filter((item) => item.ctgSeq == (selCtg.value as StoreCategoryEntity).seq)
         }
     })() as StoreEntity[]
-
-    items = orderWithList(
-        favorites.value.map((seq) => {
-            return { seq }
-        }),
-        _.orderBy(items, 'name'),
-        'seq'
-    )
 
     // 검색 필터링
     if (srchText.value == '') {
@@ -136,59 +141,34 @@ useEventListener(document, 'keyup', (e) => {
     if (e.key == 'Escape') {
         if (isEdit.value) {
             isEdit.value = false
+            onToggleEdit()
         }
     }
 })
 
-// 즐겨 찾기 등록된 목록 관리
-// 즐겨 찾기 등록된 항목 관리해야함.
-const favorites = ref<number[]>(settingStore.setting.config.storeOrders?.map((item) => item.seq) ?? [])
-
-const cStoreCtgOrders = computed(() => storeStore.categories.map((ctg, idx) => ({ seq: ctg.seq, order: idx })))
-
-// 매장 카테고리 순서 변경여부
-const cIsCtgOrderUpdated = computed(() => _.isEqual(cStoreCtgOrders.value, settingStore.setting.config.storeCtgOrders) == false)
-// 매장순서 변경여부
-const cIsStoreOrderUpdated = computed(
-    () =>
-        _.isEqual(
-            favorites.value,
-            settingStore.setting.config.storeOrders?.map((item) => item.seq)
-        ) == false
-)
 async function onToggleEdit() {
-    const setting = settingStore.setting
+    if (isEdit.value && Dirty.cIsDirty.value) {
+        if ((await swal.confirm({ title: '', text: '설정 정보를 저장하시겠습니까?', icon: 'question' })) == false) {
+            Dirty.revert()
+        } else {
+            settingStore.setting.config.storeCtgOrders = storeStore.categories.map((ctg, idx) => ({ seq: ctg.seq, order: idx }))
+            storeOrders.value = storeStore.items.map((item, idx) => ({
+                seq: item.seq,
+                order: idx,
+                isFavorite: dStoreOrder.value[item.seq]?.isFavorite ?? false,
+            }))
 
-    if (isEdit.value == true && (cIsCtgOrderUpdated.value || cIsStoreOrderUpdated.value)) {
-        // 카테고리 순서 변경
-        if (cIsCtgOrderUpdated.value && (await swal.fireCustom({ isConfirm: true, title: '', text: '설정 정보를 저장하시겠습니까?', icon: 'question' }))) {
-            setting.config.storeCtgOrders = cStoreCtgOrders.value
-            await apiSetting.update(setting)
+            await apiSetting.update(settingStore.setting)
+            Dirty.commit()
 
             swal.fireCustom({ toast: true, messageType: 'save' })
-        } else {
-            settingStore.orderStoreCtgs(storeStore.categories)
-        }
-
-        // 매장 순서 변경
-        if (cIsStoreOrderUpdated.value && (await swal.fireCustom({ isConfirm: true, title: '', text: '설정 정보를 저장하시겠습니까?', icon: 'question' }))) {
-            setting.config.storeOrders = favorites.value.map((fvt, idx) => ({ seq: fvt, order: idx }))
-            await apiSetting.update(setting)
-
-            swal.fireCustom({ toast: true, messageType: 'save' })
-        } else {
-            favorites.value = settingStore.setting.config.storeOrders?.map((item) => item.seq) ?? []
         }
     }
-    // 토글
     isEdit.value = !isEdit.value
 }
 
 function onClickFavorite(store: StoreEntity) {
-    const idx = favorites.value.findIndex((seq) => seq == store.seq)
-    // 있으면 삭제, 없으면 생성
-    if (idx >= 0) favorites.value.splice(idx, 1)
-    else favorites.value.push(store.seq)
+    if (dStoreOrder.value[store.seq]) dStoreOrder.value[store.seq].isFavorite = !dStoreOrder.value[store.seq].isFavorite
 }
 </script>
 
@@ -228,23 +208,25 @@ function onClickFavorite(store: StoreEntity) {
                     </button>
                 </Transition>
             </ul>
-            <section class="grid">
+            <section class="overflow-y-auto">
                 <TransitionGroup name="list">
-                    <button v-for="item in cFilteredItems" :key="item.seq" @click="onClickItem(item)" class="item">
-                        <button @click.stop="onClickFavorite(item)" class="favorite" :disabled="!isEdit">
-                            <font-awesome-icon v-if="favorites.includes(item.seq)" :icon="['fas', 'star']" style="color: #ffd43b" />
-                            <font-awesome-icon v-else-if="isEdit" :icon="['far', 'star']" />
+                    <VueDraggableNext class="grid" v-model="storeStore.items" :animation="200" :disabled="!isEdit">
+                        <button v-for="item in cFilteredItems" :key="item.seq" @click="onClickItem(item)" class="item">
+                            <button @click.stop="onClickFavorite(item)" class="favorite" :disabled="!isEdit">
+                                <font-awesome-icon v-if="dStoreOrder[item.seq]?.isFavorite" :icon="['fas', 'star']" style="color: #ffd43b" />
+                                <font-awesome-icon v-else-if="isEdit" :icon="['far', 'star']" />
+                            </button>
+                            <span>
+                                {{ item['name'] ?? '' }}
+                            </span>
                         </button>
-                        <span>
-                            {{ item['name'] ?? '' }}
-                        </span>
-                    </button>
+                        <Transition name="slide">
+                            <button v-show="isEdit" class="item add" @click="onAddItem">
+                                <font-awesome-icon :icon="['fas', 'plus']" />
+                            </button>
+                        </Transition>
+                    </VueDraggableNext>
                 </TransitionGroup>
-                <Transition name="slide">
-                    <button v-show="isEdit" class="item add" @click="onAddItem">
-                        <font-awesome-icon :icon="['fas', 'plus']" />
-                    </button>
-                </Transition>
             </section>
         </section>
     </section>

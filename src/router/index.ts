@@ -126,6 +126,11 @@ const router = createRouter({
             props: true,
             component: () => import('../views/store/StoreCtgEditView.vue'),
         },
+        {
+            path: '/test/draggable',
+            props: true,
+            component: () => import('../views/ztest/VueDraggableView.vue'),
+        },
     ],
 })
 
