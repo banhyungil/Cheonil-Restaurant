@@ -9,11 +9,15 @@ import _ from 'lodash'
 import { VueDraggableNext } from 'vue-draggable-next'
 import useSwal from '@/composables/useSwal'
 
-//ANCHOR - Props
+//ANCHOR - Props, Models
 interface Props {
     focusSrch?: boolean
 }
 const props = defineProps<Props>()
+
+const srchText = defineModel('srchText', {
+    default: '',
+})
 
 //ANCHOR - Emits
 const emit = defineEmits<{
@@ -60,10 +64,6 @@ watch(
         if (props.focusSrch) nextTick().then(() => inpSrch.value.eltInp?.focus())
     }
 )
-
-const srchText = defineModel('srchText', {
-    default: '',
-})
 
 const isEdit = ref(false)
 
