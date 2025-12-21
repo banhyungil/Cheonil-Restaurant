@@ -7,6 +7,7 @@ import { helpers, required } from '@vuelidate/validators'
 import { useVuelidate, type ValidationArgs } from '@vuelidate/core'
 import { VNumberInput } from 'vuetify/labs/components'
 import { VChip } from 'vuetify/components'
+import type { ProductInfoExt } from '@/api/useApiProductInfo'
 
 const Swal = useSwal()
 const router = useRouter()
@@ -17,8 +18,8 @@ const apiProduct = useApiProduct()
 
 const supplies = ref<SupplyEntity[]>([])
 const units = ref<UnitEntity[]>([])
-const originProduct = ref<ProductInfoEntity>()
-const productInfo = ref({} as ProductInfoCreationEntity)
+const originProduct = ref<ProductInfoExt>()
+const productInfo = ref({} as ProductInfoExt)
 
 const selUnit = ref<UnitEntity | null>()
 const unitCnt = ref<number | null>(1)

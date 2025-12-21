@@ -11,6 +11,12 @@ interface ExpenseEntity {
     /* 지출 카테고리 SEQ */
     ctgSeq: number
 
+    /* 매장 SEQ */
+    storeSeq: number
+
+    /* 지출명 */
+    name: string
+
     /* 금액 */
     amount: number
 
@@ -32,29 +38,12 @@ type ExpenseEntityCreation = PartialK<ExpenseEntity, 'seq'>
 interface ExpenseCategoryEntity {
     /** 지출 카테고리 SEQ */
     seq: number
+    /** 지출 카테고리 부모 SEQ */
+    pSeq?: string
     /** 지출 카테고리 명 */
-    name: string
+    path: string
     /** 추가정보 */
     options?: object
-}
-
-/* 제품/단위 맵핑 */
-interface ProductEntity {
-    /* 제품 정보 SEQ */
-    prdInfoSeq: number
-
-    /* 단위 SEQ */
-    unitSeq: number
-
-    /* 단위수량 목록 */
-    unitCntList?: number[] | null
-
-    unit?: UnitEntity
-
-    /* 제품정보 */
-    prdInfo: ProductInfoEntity
-    /* 단위 */
-    unit: UnitEntity
 }
 
 /* 지출 카네고리 */
@@ -93,9 +82,7 @@ interface ExpenseProductEntity {
     cmt?: string | null
 }
 
-interface ExpenseProductExt extends ExpenseProductEntity {
-    product: ProductExt
-}
+type ExpenseProductEntityCreation = PartialK<ExpenseProductEntity, 'expsSeq'>
 
 /* 메뉴 */
 interface MenuEntity {
@@ -301,15 +288,10 @@ interface ProductEntity {
     unitSeq: number
 
     /* 단위수량 목록 */
-    unitCntList?: number[] | null
+    unitCntList: number[]
 }
 
 type ProductCreationEntity = PartialK<ProductEntity, 'prdInfoSeq' | 'unitSeq'>
-
-interface ProductExt extends ProductEntity {
-    unit: UnitEntity
-    prdInfo: ProductInfoEntity
-}
 
 /* 제품 정보 */
 interface ProductInfoEntity {
@@ -333,9 +315,6 @@ interface ProductInfoEntity {
 
     /* 수정시간 */
     updatedAt?: Date | null
-
-    /* 제품목록 */
-    products: RequiredK<ProductExt, 'unit'>[]
 }
 
 type ProductInfoCreationEntity = PartialK<ProductInfoEntity, 'seq' | 'products'>

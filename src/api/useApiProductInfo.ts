@@ -1,4 +1,4 @@
-export type ProductInfoExt = ProductInfoEntity & { products: ProductEntity & { unit: UnitEntity }[] }
+export type ProductInfoExt = ProductInfoEntity & { products: (ProductEntity & { unit: UnitEntity })[] }
 
 export default function useApiProductInfo() {
     const api = useApi()
@@ -15,7 +15,7 @@ export default function useApiProductInfo() {
     async function select(seq: number) {
         const res = await api.get(`${prefix}/${seq}`)
 
-        return res.data as ProductInfoEntity
+        return res.data as ProductInfoExt
     }
 
     async function create(productInfo: ProductInfoCreationEntity) {
