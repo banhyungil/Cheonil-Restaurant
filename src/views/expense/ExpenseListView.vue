@@ -15,6 +15,6 @@ function toEditView(seq?: number) {
 
 <style lang="scss" scoped>
 .expense-list-view {
-    // 
+    //
 }
 </style>

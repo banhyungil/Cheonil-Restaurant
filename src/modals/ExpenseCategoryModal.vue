@@ -82,21 +82,30 @@ const cDtExpsCtgs = computed(() =>
 async function onClickRemove(seq: number) {
     props.onRemove(seq)
 }
+const isOpen = ref(true)
 </script>
 <template>
-    <BModal class="expense-ctg-modal" title="단위관리">
+    <BModal class="expense-ctg-modal" title="단위관리" v-model="isOpen">
         <section class="form">
             <span class="label">{{ LBL.name }}</span>
             <VTextField type="text" v-model="expsCtg.name" density="compact" :hide-details="true" style="height: 45px"></VTextField>
             <BButton @click="onClickCreate" variant="primary">등록</BButton>
         </section>
-        <v-data-table class="order-list scroll" :headers="headers" :items="cDtExpsCtgs" item-value="seq" :items-per-page="0" :hide-default-footer="true">
-            <template #item.actions="{ value }">
+        <v-data-table
+            a-table
+            class="order-list scroll"
+            :headers="headers"
+            :items="cDtExpsCtgs"
+            item-value="seq"
+            :items-per-page="0"
+            :hide-default-footer="true"
+        >
+            <template v-slot:[`item.actions`]="{ item }">
                 <div style="display: flex; justify-content: center; gap: 10px">
-                    <button @click="onClickRemove(value)" style="color: rgb(var(--color-success))" v-tooltip="'수정'">
+                    <button @click="onClickRemove(item.seq)" style="color: rgb(var(--color-success))" v-tooltip="'수정'">
                         <font-awesome-icon :icon="['fas', 'pen-to-square']" />
                     </button>
-                    <button @click="onClickRemove(value)" style="color: rgb(var(--color-danger))" v-tooltip="'삭제'">
+                    <button @click="onClickRemove(item.seq)" style="color: rgb(var(--color-danger))" v-tooltip="'삭제'">
                         <font-awesome-icon :icon="['fas', 'trash']" />
                     </button>
                 </div>

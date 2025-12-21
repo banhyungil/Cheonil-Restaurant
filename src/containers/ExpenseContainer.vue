@@ -65,7 +65,7 @@ async function onRemoveExpenseCategory(seq: number) {
 </script>
 
 <template>
-    <section class="expense-container flex flex-col h-full flex-1">
+    <section class="expense-container flex h-full flex-1 flex-col">
         <ExpenseList
             v-if="type == 'LIST'"
             :expenses="expenses"
@@ -90,6 +90,6 @@ async function onRemoveExpenseCategory(seq: number) {
 
 <style lang="scss" scoped>
 .expense-container {
-    // 
+    //
 }
 </style>
