@@ -8,9 +8,9 @@ export default {
 import _ from 'lodash'
 import { twMerge } from 'tailwind-merge'
 import { DialogDescription as HeadlessDialogDescription } from '@headlessui/vue'
-import { useAttrs, computed } from 'vue'
+import { useAttrs, computed, type ExtractPropTypes } from 'vue'
 
-interface DescriptionProps extends /* @vue-ignore */ ExtractProps<typeof HeadlessDialogDescription> {
+interface DescriptionProps extends /* @vue-ignore */ ExtractPropTypes<typeof HeadlessDialogDescription> {
     as?: string | object
 }
 

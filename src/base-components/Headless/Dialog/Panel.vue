@@ -8,10 +8,10 @@ export default {
 import { DialogPanel as HeadlessDialogPanel, TransitionChild } from '@headlessui/vue'
 import _ from 'lodash'
 import { twMerge } from 'tailwind-merge'
-import { ProvideDialog } from './Dialog.vue'
+import { type ProvideDialog } from './Dialog.vue'
 import { inject, useAttrs, computed } from 'vue'
 
-interface PanelProps extends /* @vue-ignore */ ExtractProps<typeof HeadlessDialogPanel> {
+interface PanelProps extends /* @vue-ignore */ ExtractPropTypes<typeof HeadlessDialogPanel> {
     as?: string | object
 }
 

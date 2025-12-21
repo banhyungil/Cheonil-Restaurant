@@ -10,7 +10,7 @@ type Size = 'sm' | 'md' | 'lg' | 'xl'
 import _ from 'lodash'
 import { twMerge } from 'tailwind-merge'
 import { Dialog as HeadlessDialog, TransitionRoot } from '@headlessui/vue'
-import { provide, useAttrs, computed, ref, Ref } from 'vue'
+import { provide, useAttrs, computed, ref, type Ref, type ExtractPropTypes } from 'vue'
 
 export type ProvideDialog = {
     open: boolean
@@ -18,7 +18,7 @@ export type ProvideDialog = {
     size?: Size
 }
 
-interface DialogProps extends /* @vue-ignore */ ExtractProps<typeof HeadlessDialog> {
+interface DialogProps extends /* @vue-ignore */ ExtractPropTypes<typeof HeadlessDialog> {
     size?: Size
     open: boolean
     staticBackdrop?: boolean
