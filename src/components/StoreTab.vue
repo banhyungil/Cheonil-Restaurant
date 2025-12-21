@@ -211,13 +211,14 @@ function onClickFavorite(store: StoreEntity) {
             <section class="overflow-y-auto">
                 <TransitionGroup name="list">
                     <VueDraggableNext class="grid" v-model="storeStore.items" :animation="200" :disabled="!isEdit">
-                        <button v-for="item in cFilteredItems" :key="item.seq" @click="onClickItem(item)" class="item">
+                        <button v-for="item in cFilteredItems" :key="item.seq" @click="onClickItem(item)" class="item" v-tooltip="item.cmt">
                             <button @click.stop="onClickFavorite(item)" class="favorite" :disabled="!isEdit">
                                 <font-awesome-icon v-if="dStoreOrder[item.seq]?.isFavorite" :icon="['fas', 'star']" style="color: #ffd43b" />
                                 <font-awesome-icon v-else-if="isEdit" :icon="['far', 'star']" />
                             </button>
                             <span>
                                 {{ item['name'] ?? '' }}
+                                <font-awesome-icon v-if="item['cmt']" :icon="['fas', 'circle-info']" />
                             </span>
                         </button>
                         <Transition name="slide">

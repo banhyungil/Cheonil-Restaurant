@@ -156,7 +156,10 @@ function toggleDisplayKitchen() {
             <TransitionGroup name="slide">
                 <div v-for="order in orders" :key="order.seq" class="item c-order" :class="getElapsedClass(order)">
                     <div class="store">
-                        <span>{{ order.store.name }}</span>
+                        <div class="cursor-pointer" v-tooltip.right="order.store.cmt">
+                            <span>{{ order.store.name }}</span>
+                            <font-awesome-icon :icon="['fas', 'circle-info']" />
+                        </div>
                         <Dropdown class="c-choice">
                             <button class="choice">
                                 <font-awesome-icon :icon="['fas', 'ellipsis-vertical']" />
