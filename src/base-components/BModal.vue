@@ -15,7 +15,7 @@ const isOpen = defineModel<boolean>({ required: true })
 </script>
 <template>
     <Dialog class="bmodal text-white" :open="isOpen" :static-backdrop="true">
-        <Dialog.Panel class="bg-dark">
+        <Dialog.Panel class="bg-white">
             <Dialog.Title>
                 <slot name="title">
                     <h2 class="mr-auto text-base font-bold">{{ title }}</h2>
