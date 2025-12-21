@@ -19,6 +19,8 @@ export interface BInputProps extends FormInputProps {
     /** number 타입 */
     // arrow 버튼 숨김 여부
     hideArrow?: boolean
+    // 숫자 포맷팅 (천단위 콤마)
+    numberFormat?: boolean
 }
 const props = withDefaults(defineProps<BInputProps>(), {
     showSearchIcon: false,
@@ -68,6 +70,37 @@ const { focused } = useFocus(computed(() => inpComp.value?.$el))
 const { width: preWidth } = useElementSize(absolutePreEl)
 const { width: postWidth } = useElementSize(absolutePostEl)
 
+const cType = computed(() => {
+    let type = (attrs.type as string | null) ?? 'text'
+
+    // numberFormat이 활성화되면 항상 text 타입으로 변경
+    if (props.numberFormat) {
+        type = 'text'
+    }
+
+    return type
+})
+
+// numberFormat이 활성화된 경우 표시용 값
+const cDisplayValue = computed(() => {
+    if (!props.numberFormat) return cModelValue.value
+
+    // 포커스 중일 때는 raw 값 표시 (입력 중)
+    if (focused.value) {
+        const val = cModelValue.value
+        return val ?? ''
+    }
+
+    // blur 상태일 때 포맷팅
+    const val = cModelValue.value
+    if (val == null || val === '') return ''
+
+    const numValue = typeof val === 'number' ? val : parseFloat(String(val).replace(/,/g, ''))
+    if (isNaN(numValue)) return val
+
+    return numValue.toLocaleString('ko-KR')
+})
+
 const cPlaceholder = computed(() => {
     const result = typeof attrs.placeholder == 'string' ? attrs.placeholder : null
     return result ?? (props.showSearchIcon ? '검색어를 입력하세요' : '')
@@ -82,9 +115,44 @@ const cOnInputDeb = computed(() =>
 function onInput(e: Event) {
     const el = e.target as HTMLInputElement
     if (el.type == 'number') return
-    modelValue.value = el.value
 
+    // numberFormat이 활성화된 경우
+    if (props.numberFormat) {
+        const rawValue = el.value.replace(/,/g, '') // 콤마 제거
+        const cleanValue = rawValue.replace(/[^0-9.-]/g, '') // 숫자, 소수점, 마이너스만 허용
+
+        // 입력 필드의 값도 즉시 업데이트 (텍스트가 입력되지 않도록)
+        if (rawValue !== cleanValue) {
+            el.value = cleanValue
+        }
+
+        if (cleanValue === '' || cleanValue === '-') {
+            modelValue.value = null
+        } else {
+            const numValue = parseFloat(cleanValue)
+            modelValue.value = isNaN(numValue) ? null : numValue
+        }
+        return
+    }
+
+    modelValue.value = el.value
     cOnInputDeb.value(el.value)
+}
+
+// numberFormat일 때 keydown으로 숫자 외 입력 방지
+function onKeyDown(e: KeyboardEvent) {
+    if (!props.numberFormat) return
+
+    const key = e.key
+    // 허용: 숫자, 백스페이스, 딜리트, 화살표, 탭, Enter, 소수점, 마이너스
+    const allowedKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Enter', '.', '-']
+    const isNumber = /^[0-9]$/.test(key)
+    const isAllowed = allowedKeys.includes(key)
+    const isCtrlCmd = e.ctrlKey || e.metaKey // Ctrl+C, Ctrl+V 등
+
+    if (!isNumber && !isAllowed && !isCtrlCmd) {
+        e.preventDefault()
+    }
 }
 
 function onCancel() {
@@ -129,10 +197,17 @@ defineExpose({
             class="inp h-full flex-1 bg-inherit py-3"
             :id="id"
             ref="inpComp"
-            v-bind="_.omit($attrs, ['style', 'class'])"
+            v-bind="_.omit($attrs, ['style', 'class', 'type'])"
+            :type="cType"
             :style="{ paddingLeft: `${preWidth + 14}px`, paddingRight: `${postWidth + 14}px` }"
-            v-model="cModelValue"
+            :model-value="cDisplayValue"
+            @update:model-value="
+                (val) => {
+                    if (!props.numberFormat) cModelValue = val
+                }
+            "
             @input="onInput"
+            @keydown="onKeyDown"
             @focus="$emit('focus')"
             @blur="onBlur"
             :placeholder="cPlaceholder"
