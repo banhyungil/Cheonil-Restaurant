@@ -137,6 +137,9 @@ declare global {
   export type { OrderCURes } from './src/api/useApiOrder'
   import('./src/api/useApiOrder')
   // @ts-ignore
+  export type { ProductExt } from './src/api/useApiProduct'
+  import('./src/api/useApiProduct')
+  // @ts-ignore
   export type { ProductInfoExt } from './src/api/useApiProductInfo'
   import('./src/api/useApiProductInfo')
   // @ts-ignore

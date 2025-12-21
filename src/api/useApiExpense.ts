@@ -1,6 +1,8 @@
 import useApi from './useApi'
 
-interface ExpenseEntityExt extends ExpenseEntity {}
+interface ExpenseProductExt extends ExpenseProductEntity {
+    product: ProductExt
+}
 // url
 // post
 export default function useApiExpense() {
@@ -19,13 +21,13 @@ export default function useApiExpense() {
         return res.data as ExpenseEntity
     }
 
-    const create = async (expense: ExpenseEntityCreation) => {
-        const res = await api.post(prefix, expense)
+    const create = async (expense: ExpenseEntityCreation, expenseProducts: ExpenseProductEntityCreation[]) => {
+        const res = await api.post(prefix, { expense, expenseProducts })
         return res.data as ExpenseEntity
     }
 
-    const update = async (expense: ExpenseEntity) => {
-        const res = await api.patch(`${prefix}/${expense.seq}`, expense)
+    const update = async (expense: ExpenseEntity, expenseProducts: ExpenseProductEntityCreation[]) => {
+        const res = await api.patch(`${prefix}/${expense.seq}`, { expense, expenseProducts })
         return res.data as ExpenseEntity
     }
 

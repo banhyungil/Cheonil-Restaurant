@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import type { ProductExt } from '@/api/useApiProduct'
+import type { BTableColInfo } from '@/base-components/BTable.vue'
 import { today } from '@/utils/common'
+import { SwalExt } from '@/utils/swalExt'
+import { addHours, addSeconds } from 'date-fns'
+import _ from 'lodash'
 
 // 매장
 // 제품
@@ -11,6 +15,8 @@ interface Props {
     uExpense?: ExpenseEntity
     expenseCategories: ExpenseCategoryEntity[]
     stores: StoreEntity[]
+    onCreate: (expense: ExpenseEntityCreation, expenseProducts: ExpenseProductEntityCreation[]) => Promise<void>
+    onUpdate: (expense: ExpenseEntity, expenseProducts: ExpenseProductEntityCreation[]) => Promise<void>
     onCreateExpenseCategory: (expsCtg: ExpenseCategoryEntity) => Promise<void>
     onUpdateExpenseCategory: (expsCtg: ExpenseCategoryEntity) => Promise<void>
     onRemoveExpenseCategory: (seq: number) => Promise<void>
@@ -18,11 +24,6 @@ interface Props {
 const props = defineProps<Props>()
 //ANCHOR - Emits
 const emit = defineEmits<{
-    create: [expense: ExpenseEntity]
-    update: [expense: ExpenseEntity]
-    createExpenseCategory: [expenseCategory: ExpenseCategoryEntity]
-    updateExpenseCategory: [expenseCategory: ExpenseCategoryEntity]
-    removeExpenseCategory: [seq: number]
     cancel: []
 }>()
 
@@ -32,19 +33,25 @@ onBeforeMount(() => {
         products.value = res
     })
 })
+onMounted(() => {
+    if (expenseProducts.value.length === 0) {
+        addProduct()
+    }
+})
 
 //ANCHOR - Composables, Store
 const apiProduct = useApiProduct()
-const cIsUpdate = computed(() => !!props.uExpense)
+const router = useRouter()
 
 //ANCHOR - Start
+const cIsUpdate = computed(() => !!props.uExpense)
 const products = ref<ProductExt[]>([])
+const dProduct = computed(() => _.keyBy(products.value, 'seq'))
 const expense = ref({} as ExpenseEntity)
 const isShowModal = ref(false)
 
-// 제품 항목 리스트
-
-const expenseProducts = ref<ExpenseProductEntityCreate[]>([])
+// 지출항목 리스트
+const expenseProducts = ref<ExpenseProductEntity[]>([])
 
 watch(
     () => props.uExpense,
@@ -56,7 +63,7 @@ watch(
 const expenseAt = ref<Date>()
 
 // 선택된 단위의 unitCntList
-function getUnitCntListForProduct(item: ExpenseProductEntityCreate) {
+function getUnitCntListForProduct(item: ExpenseProductEntity) {
     const product = products.value.find((p) => p.seq === item.prdSeq)
     return product?.unitCntList ?? []
 }
@@ -66,7 +73,11 @@ function addProduct() {
     expenseProducts.value.push({
         cnt: 1,
         price: 0,
-    } as ExpenseProductEntityCreate)
+    } as ExpenseProductEntity)
+}
+
+function onUpdateStore(storeSeq: number) {
+    expense.value.name = props.stores.find((s) => s.seq === storeSeq)?.name || ''
 }
 
 // 항목 삭제
@@ -75,41 +86,83 @@ function removeProduct(index: number) {
 }
 
 // 제품 선택 시 첫 번째 단위 자동 선택
-function onProductSelect(item: ExpenseProductEntityCreate) {
+function onProductSelect(item: ExpenseProductEntity) {
+    item.unitCnt = undefined
     const product = products.value.find((p) => p.seq === item.prdSeq)
     if (product && product.unitCntList.length > 0) {
         item.unitCnt = product.unitCntList[0]
     }
 }
 
-// 총 금액 계산
-const cTotalAmount = computed(() => {
-    return expenseProducts.value.reduce((sum, item) => sum + item.price * item.cnt, 0)
+// BTable colInfos 설정
+const colInfos = ref([
+    { key: 'prdSeq', title: '제품', editable: false },
+    { key: 'unitCnt', title: '단위', editable: false },
+    { key: 'cnt', title: '수량', colSize: '100px', editable: true, inputType: 'number' },
+    { key: 'price', title: '가격', colSize: '140px', editable: true, inputType: 'number' },
+    { key: 'amount', title: '금액', colSize: '140px', editable: true, inputType: 'number' },
+    { key: 'cmt', title: '비고', editable: true, inputType: 'text' },
+    { key: 'actions', title: '삭제', colSize: '80px', editable: false },
+] as BTableColInfo<ExpenseProductEntity>[])
+
+// BTable용 데이터 - no와 subtotal 추가
+const cTableItems = computed(() => {
+    return expenseProducts.value.map((item, idx) => ({
+        ...item,
+        no: idx + 1,
+        amount: (item.price || 0) * (item.cnt || 0),
+    }))
 })
 
-function onSave() {
+async function onSave() {
     // expense.amount에 총 금액 설정
-    expense.value.amount = cTotalAmount.value
+    expense.value.amount = _.sumBy(expenseProducts.value, (ep) => (ep.price || 0) * (ep.cnt || 0))
     expense.value.expenseAt = expenseAt.value || new Date()
 
-    if (cIsUpdate.value) emit('update', expense.value)
-    else emit('create', expense.value)
-}
-
-// 초기 항목 추가
-onMounted(() => {
-    if (expenseProducts.value.length === 0) {
-        addProduct()
+    if (cIsUpdate.value) {
+        await props.onUpdate(expense.value, expenseProducts.value)
+        SwalExt.fireCustom({ toast: true, messageType: 'update', title: '' })
+    } else {
+        await props.onCreate(expense.value, expenseProducts.value)
+        SwalExt.fireCustom({ toast: true, messageType: 'save', title: '' })
     }
-})
+
+    router.back()
+}
 </script>
 <template>
     <section class="expense-edit">
         <section class="top"></section>
         <section class="body flex flex-col gap-2">
             <div class="row">
+                <label>매장</label>
+                <VAutocomplete
+                    :items="stores"
+                    item-title="name"
+                    item-value="seq"
+                    v-model="expense.storeSeq"
+                    @update:model-value="onUpdateStore"
+                    density="compact"
+                    :hide-details="true"
+                >
+                </VAutocomplete>
+            </div>
+            <div class="row">
+                <label>지출명</label>
+                <VTextField v-model="expense.name" density="compact" :hide-details="true" />
+            </div>
+            <div class="row">
                 <label>지출일자</label>
-                <VueDatePicker v-model="expenseAt" :format="'yy.MM.dd'" :time-picker="false" text-input teleport :max-date="today()" auto-apply locale="ko-KR">
+                <VueDatePicker
+                    v-model="expenseAt"
+                    :format="'yy.MM.dd HH:mm'"
+                    :time-picker="false"
+                    text-input
+                    teleport
+                    :max-date="new Date()"
+                    auto-apply
+                    locale="ko-KR"
+                >
                 </VueDatePicker>
             </div>
             <div class="row">
@@ -124,9 +177,8 @@ onMounted(() => {
                 </VSelect>
             </div>
             <div class="row">
-                <label>매장</label>
-                <VAutocomplete :items="stores" item-title="name" item-value="seq" v-model="expense.storeSeq" density="compact" :hide-details="true">
-                </VAutocomplete>
+                <label>금액</label>
+                <VTextField :value="_.sumBy(expenseProducts, 'price').toLocaleString()" disabled density="compact" :hide-details="true"> </VTextField>
             </div>
 
             <!-- 제품 항목 테이블 -->
@@ -139,74 +191,72 @@ onMounted(() => {
                     </BButton>
                 </div>
 
-                <div class="products-table">
-                    <table class="w-full">
-                        <thead>
-                            <tr>
-                                <th>제품</th>
-                                <th>단위</th>
-                                <th>단위수량</th>
-                                <th>수량</th>
-                                <th>가격</th>
-                                <th>소계</th>
-                                <th>삭제</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="(item, index) in expenseProducts" :key="index">
-                                <td>
-                                    <VAutocomplete
-                                        v-model="item.prdSeq"
-                                        :items="products"
-                                        item-title="prdInfo.name"
-                                        item-value="seq"
-                                        placeholder="제품 선택"
-                                        density="compact"
-                                        :hide-details="true"
-                                        @update:model-value="onProductSelect(item)"
-                                    ></VAutocomplete>
-                                </td>
-                                <td>
-                                    <VSelect
-                                        v-model="item.unitCnt"
-                                        :items="getUnitCntListForProduct(item)"
-                                        placeholder="단위수량"
-                                        density="compact"
-                                        :hide-details="true"
-                                        :disabled="!item.prdSeq"
-                                    ></VSelect>
-                                </td>
-                                <td>
-                                    <BInput v-model="item.cnt" type="number" class="w-20" :active-cancel="false"></BInput>
-                                </td>
-                                <td>
-                                    <BInput v-model="item.price" type="number" class="w-24" :active-cancel="false"></BInput>
-                                </td>
-                                <td class="text-right">{{ (item.price * item.cnt).toLocaleString('ko-KR') }}원</td>
-                                <td class="text-center">
-                                    <button @click="removeProduct(index)" class="text-danger">
-                                        <font-awesome-icon :icon="['fas', 'trash']" />
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr v-if="expenseProducts.length === 0">
-                                <td colspan="7" class="text-center text-gray-400">항목을 추가해주세요</td>
-                            </tr>
-                        </tbody>
-                        <tfoot>
-                            <tr class="font-bold">
-                                <td colspan="5" class="text-right">총 금액:</td>
-                                <td class="text-right">{{ cTotalAmount.toLocaleString('ko-KR') }}원</td>
-                                <td></td>
-                            </tr>
-                        </tfoot>
-                    </table>
+                <BTable
+                    v-if="expenseProducts.length > 0"
+                    :items="cTableItems"
+                    :col-infos="colInfos"
+                    item-key="no"
+                    theme="border"
+                    class="expense-products-table"
+                >
+                    <template #prdSeq="{ rowIdx }">
+                        <VAutocomplete
+                            v-model="expenseProducts[rowIdx].prdSeq"
+                            :items="products"
+                            :item-title="(prd) => `${dProduct[prd.seq]?.prdInfo.name} (${dProduct[prd.seq]?.unit.name})`"
+                            item-value="seq"
+                            placeholder="제품 선택"
+                            density="compact"
+                            :hide-details="true"
+                            @update:model-value="onProductSelect(expenseProducts[rowIdx])"
+                        ></VAutocomplete>
+                    </template>
+
+                    <template #unitCnt="{ rowIdx }">
+                        <div class="flex gap-1">
+                            <VCombobox
+                                v-model="expenseProducts[rowIdx].unitCnt"
+                                :items="getUnitCntListForProduct(expenseProducts[rowIdx])"
+                                placeholder="단위수량"
+                                density="compact"
+                                :hide-details="true"
+                                :disabled="!expenseProducts[rowIdx].prdSeq"
+                                class="w-max min-w-24"
+                            ></VCombobox>
+                            <BInput type="text" :value="products.find((prd) => prd.seq === expenseProducts[rowIdx].prdSeq)?.unit.name" disabled class="w-20" />
+                        </div>
+                    </template>
+
+                    <template #cnt="{ rowIdx }">
+                        <BInput v-model="expenseProducts[rowIdx].cnt" type="number" :active-cancel="false"></BInput>
+                    </template>
+
+                    <template #price="{ rowIdx }">
+                        <BInput v-model="expenseProducts[rowIdx].price" number-format :active-cancel="false"></BInput>
+                    </template>
+                    <template #amount="{ item }">
+                        <BInput :value="item.amount" disabled number-format :active-cancel="false"></BInput>
+                    </template>
+
+                    <template #cmt="{ rowIdx }">
+                        <BInput v-model="expenseProducts[rowIdx].cmt" :active-cancel="false"></BInput>
+                    </template>
+
+                    <template #actions="{ rowIdx }">
+                        <button @click="removeProduct(rowIdx)" class="text-danger hover:text-red-700">
+                            <font-awesome-icon :icon="['fas', 'trash']" />
+                        </button>
+                    </template>
+                </BTable>
+
+                <div v-else class="empty-state">
+                    <p class="text-gray-400">항목을 추가해주세요</p>
                 </div>
             </div>
         </section>
         <section class="footer flex justify-end gap-2">
             <BButton @click="onSave" variant="primary">{{ cIsUpdate ? '수정' : '저장' }}</BButton>
-            <BButton @click="() => $emit('cancel')" variant="outline">취소</BButton>
+            <BButton @click="() => $emit('cancel')" variant="danger">취소</BButton>
         </section>
         <ExpenseCategoryModal
             v-if="isShowModal"
@@ -226,47 +276,42 @@ onMounted(() => {
     .products-section {
         margin-top: 1rem;
 
-        .products-table {
-            overflow-x: auto;
-            border: 1px solid #ddd;
+        .empty-state {
+            padding: 3rem;
+            text-align: center;
+            border: 1px dashed #ddd;
             border-radius: 4px;
+            background-color: #fafafa;
+        }
 
-            table {
-                width: 100%;
-                border-collapse: collapse;
+        .total-section {
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: #f5f5f5;
+            border-radius: 4px;
+            border: 2px solid #999;
 
-                th,
-                td {
-                    padding: 8px;
-                    border: 1px solid #ddd;
-                    text-align: left;
+            .total-row {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+
+                .label {
+                    font-size: 18px;
+                    font-weight: 600;
                 }
 
-                thead {
-                    background-color: #f5f5f5;
-
-                    th {
-                        font-weight: 600;
-                        text-align: center;
-                    }
+                .amount {
+                    font-size: 24px;
+                    font-weight: bold;
+                    color: #2563eb;
                 }
+            }
+        }
 
-                tbody {
-                    tr {
-                        &:hover {
-                            background-color: #f9f9f9;
-                        }
-                    }
-                }
-
-                tfoot {
-                    background-color: #f5f5f5;
-                    border-top: 2px solid #999;
-
-                    td {
-                        font-size: 16px;
-                    }
-                }
+        :deep(.expense-products-table) {
+            .b-table-cell {
+                padding: 4px 8px;
             }
         }
     }

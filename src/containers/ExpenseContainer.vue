@@ -4,6 +4,7 @@ interface Props {
     type: 'LIST' | 'EDIT'
     seq?: number
 }
+//ANCHOR - Props
 const props = defineProps<Props>()
 const emit = defineEmits<{
     cancel: []
@@ -12,12 +13,30 @@ const emit = defineEmits<{
     update: []
 }>()
 
+//ANCHOR - Hooks
+onBeforeMount(async () => {
+    apiExpense.selectList().then((res) => {
+        expenses.value = res
+    })
+    apiExpenseCategory.selectList().then((res) => {
+        expenseCategories.value = res
+    })
+    apiStore.selectList().then((res) => {
+        stores.value = res
+    })
+})
+
+//ANCHOR - Composable, Store
+
 const Swal = useSwal()
 const apiExpense = useApiExpense()
 const apiExpenseCategory = useApiExpenseCategory()
+const apiStore = useApiStore()
+
 const expenses = ref<ExpenseEntity[]>([])
 const uExpense = ref<ExpenseEntity>()
 const expenseCategories = ref<ExpenseCategoryEntity[]>([])
+const stores = ref<StoreEntity[]>([])
 
 watch(
     () => props.seq,
@@ -26,23 +45,14 @@ watch(
     }
 )
 
-apiExpense.selectList().then((res) => {
-    expenses.value = res
-})
-apiExpenseCategory.selectList().then((res) => {
-    expenseCategories.value = res
-})
-
-async function onCreate(expense: ExpenseEntity) {
+async function onCreate(expense: ExpenseEntityCreation, expenseProducts: ExpenseProductEntityCreation[]) {
     if ((await Swal.fireCustom({ isConfirm: true, messageType: 'save' })) == false) return
 
-    await apiExpense.create(expense)
-
-    Swal.fireCustom()
+    await apiExpense.create(expense, expenseProducts)
 }
 
-async function onUpdate(expense: ExpenseEntity) {
-    await apiExpense.update(expense)
+async function onUpdate(expense: ExpenseEntity, expenseProducts: ExpenseProductEntityCreation[]) {
+    await apiExpense.update(expense, expenseProducts)
 }
 
 async function onRemove(seq: number) {
@@ -69,6 +79,8 @@ async function onRemoveExpenseCategory(seq: number) {
         <ExpenseList
             v-if="type == 'LIST'"
             :expenses="expenses"
+            :expenseCategories="expenseCategories"
+            :stores="stores"
             @create="() => $emit('toEditView')"
             @update="(seq) => $emit('toEditView', seq)"
             @remove="onRemove"
@@ -78,12 +90,13 @@ async function onRemoveExpenseCategory(seq: number) {
             :expenses="expenses"
             :expenseCategories="expenseCategories"
             :uExpense="uExpense"
-            @create="onCreate"
-            @update="onUpdate"
+            :stores="stores"
+            :onCreate="onCreate"
+            :onUpdate="onUpdate"
+            :onCreateExpenseCategory="onCreateExpenseCategory"
+            :onUpdateExpenseCategory="onUpdateExpenseCategory"
+            :onRemoveExpenseCategory="onRemoveExpenseCategory"
             @cancel="$emit('cancel')"
-            @createExpenseCategory="onCreateExpenseCategory"
-            @updateExpenseCategory="onUpdateExpenseCategory"
-            @removeExpenseCategory="onRemoveExpenseCategory"
         />
     </section>
 </template>

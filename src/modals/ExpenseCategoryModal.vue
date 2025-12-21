@@ -12,20 +12,24 @@ import BModal from '@/base-components/BModal.vue'
 interface Props {
     expenseCategories: ExpenseCategoryEntity[]
     onCancel: () => void
-    onCreate: (expsCtg: ExpenseCategoryEntity) => void
-    onUpdate: (expsCtg: ExpenseCategoryEntity) => void
-    onRemove: (seq: number) => void
+    onCreate: (expsCtg: ExpenseCategoryEntity) => Promise<void>
+    onUpdate: (expsCtg: ExpenseCategoryEntity) => Promise<void>
+    onRemove: (seq: number) => Promise<void>
 }
-
 const props = defineProps<Props>()
+const isOpen = defineModel({
+    default: true,
+})
 
+//ANCHOR - Start
 const Swal = useSwal()
 
-const expsCtg = reactive({ name: '' } as ExpenseCategoryEntity)
+const expsCtg = reactive({ path: '' } as ExpenseCategoryEntity)
 
-const REQUIRED_KEYS = ['name'] as const
+const REQUIRED_KEYS = ['path'] as const
 const LBL = {
-    name: '단위',
+    pSeq: '부모 카테고리',
+    path: '카테고리',
 }
 const reqRules = REQUIRED_KEYS.reduce((result, key) => {
     result[key] = {
@@ -42,8 +46,11 @@ async function validate() {
     if ((await v$.value.$validate()) == false) {
         Swal.fireCustom({ toast: true, messageType: 'error', title: '', text: v$.value.$errors[0].$message.toString() })
         return false
-    } else if (props.expenseCategories.some((u) => u.name == expsCtg.name)) {
+    } else if (props.expenseCategories.some((u) => u.path == expsCtg.path)) {
         Swal.fireCustom({ toast: true, messageType: 'error', title: '', text: '이미 등록된 카테고리 입니다.' })
+        return false
+    } else if (expsCtg.path.includes('/')) {
+        Swal.fireCustom({ toast: true, messageType: 'error', title: '', text: '이름에 / 문자를 포함할 수 없습니다.' })
         return false
     }
 
@@ -52,7 +59,8 @@ async function validate() {
 async function onClickCreate() {
     if ((await validate()) == false) return
 
-    props.onCreate(expsCtg)
+    await props.onCreate(expsCtg)
+    Swal.fireCustom({ toast: true, messageType: 'save', title: '' })
 }
 
 const cUnitTotalCnt = computed(() => props.expenseCategories.length)
@@ -73,7 +81,7 @@ const cDtExpsCtgs = computed(() =>
         return {
             ...expsCtg,
             no: cOffset.value + idx + 1,
-            name: expsCtg.name,
+            path: expsCtg.path,
             actions: expsCtg.seq,
         }
     })
@@ -82,15 +90,31 @@ const cDtExpsCtgs = computed(() =>
 async function onClickRemove(seq: number) {
     props.onRemove(seq)
 }
-const isOpen = ref(true)
 </script>
 <template>
-    <BModal class="expense-ctg-modal" title="단위관리" v-model="isOpen">
-        <section class="form">
-            <span class="label">{{ LBL.name }}</span>
-            <VTextField type="text" v-model="expsCtg.name" density="compact" :hide-details="true" style="height: 45px"></VTextField>
-            <BButton @click="onClickCreate" variant="primary">등록</BButton>
-        </section>
+    <BModal class="expense-ctg-modal bg-red" title="카테고리 관리" v-model="isOpen">
+        <template #content>
+            <section class="form flex flex-col gap-2">
+                <div class="row">
+                    <span class="label">{{ LBL.pSeq }}</span>
+                    <VSelect
+                        v-model="expsCtg.pSeq"
+                        :items="expenseCategories"
+                        item-title="name"
+                        item-value="seq"
+                        placeholder="미선택시 최상위 카테고리"
+                        clearable
+                        density="compact"
+                    >
+                    </VSelect>
+                </div>
+                <div class="row">
+                    <span class="label">{{ LBL.path }}</span>
+                    <VTextField type="text" v-model="expsCtg.path" density="compact" :hide-details="true" style="height: 45px"></VTextField>
+                </div>
+                <BButton @click="onClickCreate" variant="primary">등록</BButton>
+            </section>
+        </template>
         <v-data-table
             a-table
             class="order-list scroll"
@@ -183,11 +207,5 @@ const isOpen = ref(true)
 
 <style lang="scss">
 .expense-ctg-modal {
-    .form {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 4px;
-    }
 }
 </style>

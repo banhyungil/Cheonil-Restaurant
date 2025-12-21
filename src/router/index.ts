@@ -137,7 +137,20 @@ const router = createRouter({
 // layout 설정
 // path에 따라 자신의 layout을 결정한다.
 const layoutRoutePathInfo = {
-    admins: ['/account', '/collection', '/expenseList', '/orderList', '/store', '/menu', '/supply', '/supplyEdit', '/product', '/productEdit', '/unitEdit'],
+    admins: [
+        '/account',
+        '/collection',
+        '/expenseList',
+        '/expenseEdit',
+        '/orderList',
+        '/store',
+        '/menu',
+        '/supply',
+        '/supplyEdit',
+        '/product',
+        '/productEdit',
+        '/unitEdit',
+    ],
 }
 
 router.beforeEach((to, from) => {

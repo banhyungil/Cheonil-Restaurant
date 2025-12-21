@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import type { BTableColInfo } from '@/base-components/BTable.vue'
 import { today } from '@/utils/common'
-import { addDays, addMonths } from 'date-fns'
+import { addDays, addMonths, formatDate } from 'date-fns'
+import _ from 'lodash'
 
 interface Props {
     expenses: ExpenseEntity[]
+    expenseCategories: ExpenseCategoryEntity[]
+    stores: StoreEntity[]
 }
-defineProps<Props>()
+const props = defineProps<Props>()
 defineEmits<{
     create: []
     update: [seq: number]
@@ -16,15 +19,30 @@ defineEmits<{
 const COL_INFOS = [
     { key: 'cateogry', title: '카테고리', colSize: 'minmax(100px, max-content)' },
     { key: 'name', title: '지출명', colSize: 'minmax(100px, 1fr)' },
-    { key: 'store', title: '매장명', colSize: 'minmax(max-content, 1fr)' },
+    { key: 'storeName', title: '매장명', colSize: 'minmax(max-content, 1fr)' },
     { key: 'amount', title: '금액', colSize: 'minmax(100px, 1fr)' },
     { key: 'expenseAt', title: '지출일자', colSize: 'minmax(160px, 1fr)' },
     { key: 'cmt', title: '지출목록', colSize: 'minmax(100px, max-content)' },
     { key: 'actions', title: 'ACTIONS', colSize: '100px' },
-] as BTableColInfo<ExpenseEntity>[]
+] as BTableColInfo<any>[]
 
 const expenseAtRange = ref<Date[]>([])
 const isEdit = ref(false)
+
+// stores를 dictionary로 변환
+const dStores = computed(() => _.keyBy(props.stores, 'seq'))
+const dCategories = computed(() => _.keyBy(props.expenseCategories, 'seq'))
+
+// expenses에 매장명 추가
+const cExpensesWithStore = computed(() => {
+    return props.expenses.map((expense) => ({
+        ...expense,
+        amount: expense.amount.toLocaleString(),
+        cateogry: dCategories.value[expense.ctgSeq]?.path ?? '',
+        expenseAt: formatDate(expense.expenseAt, 'yyyy-MM-dd HH:mm'),
+        storeName: dStores.value[expense.storeSeq]?.name ?? '-',
+    }))
+})
 
 function onClickToday() {
     const range = [today(), today()]
@@ -88,7 +106,7 @@ function onClickThisMonth() {
             </section>
         </section>
         <section class="body w-full flex-1">
-            <BTablePaging :items="expenses" itemKey="seq" :colInfos="COL_INFOS" :showNo="true">
+            <BTablePaging :items="cExpensesWithStore" itemKey="seq" :colInfos="COL_INFOS" :showNo="true">
                 <template #actions="{ item }">
                     <div style="display: flex; justify-content: center; gap: 10px">
                         <button @click="() => $emit('update', item.seq)" style="color: rgb(var(--color-success))" v-tooltip="'수정'">
