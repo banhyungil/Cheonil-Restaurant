@@ -16,6 +16,7 @@ declare module 'vue' {
     BEditToggleInput: typeof import('./src/base-components/BEditToggleInput.vue')['default']
     BInput: typeof import('./src/base-components/BInput.vue')['default']
     BInputCho: typeof import('./src/base-components/BInputCho.vue')['default']
+    BInputNumber: typeof import('./src/base-components/BInputNumber.vue')['default']
     BInputNumFormat: typeof import('./src/base-components/BInputNumFormat.vue')['default']
     BLoading: typeof import('./src/base-components/BLoading.vue')['default']
     BModal: typeof import('./src/base-components/BModal.vue')['default']
