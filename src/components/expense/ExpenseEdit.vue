@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import type { ProductExt } from '@/api/useApiProduct'
 import type { BTableColInfo } from '@/base-components/BTable.vue'
-import { today } from '@/utils/common'
 import { SwalExt } from '@/utils/swalExt'
-import { addHours, addSeconds } from 'date-fns'
 import _ from 'lodash'
+import { helpers, required, minValue } from '@vuelidate/validators'
+import { useVuelidate } from '@vuelidate/core'
+import type { ErrorObject, ValidationArgs } from '@vuelidate/core'
+import { faLampStreet } from '@fortawesome/pro-solid-svg-icons'
 
 // 매장
 // 제품
@@ -22,10 +24,6 @@ interface Props {
     onRemoveExpenseCategory: (seq: number) => Promise<void>
 }
 const props = defineProps<Props>()
-//ANCHOR - Emits
-const emit = defineEmits<{
-    cancel: []
-}>()
 
 //ANCHOR - Hooks
 onBeforeMount(() => {
@@ -85,13 +83,63 @@ function removeProduct(index: number) {
     expenseProducts.value.splice(index, 1)
 }
 
+// Vuelidate 검증 규칙 - expense 기본 정보
+const expenseRules = {
+    storeSeq: {
+        required: helpers.withMessage('매장을 선택해주세요.', required),
+    },
+    name: {
+        required: helpers.withMessage('지출명을 입력해주세요.', required),
+    },
+    ctgSeq: {
+        required: helpers.withMessage('카테고리를 선택해주세요.', required),
+    },
+    expenseAt: {
+        required: helpers.withMessage('지출일자를 선택해주세요.', required),
+    },
+} as ValidationArgs<Partial<ExpenseEntity>>
+
+const v$Expense = useVuelidate(expenseRules, expense, { $autoDirty: true })
+
+// Vuelidate 검증 규칙 - expenseProducts
+const rules = computed(() => {
+    const productRules: Record<number, ValidationArgs<Partial<ExpenseProductEntity>>> = {}
+    expenseProducts.value.forEach((_, index) => {
+        productRules[index] = {
+            prdSeq: {
+                required: helpers.withMessage('제품을 선택해주세요.', required),
+            },
+            unitCnt: {
+                required: helpers.withMessage('단위를 선택해주세요.', required),
+            },
+            cnt: {
+                required: helpers.withMessage('수량을 입력해주세요.', required),
+                minValue: helpers.withMessage('수량은 0보다 커야 합니다.', minValue(0.01)),
+            },
+            price: {
+                required: helpers.withMessage('가격을 입력해주세요.', required),
+                minValue: helpers.withMessage('가격은 0보다 커야 합니다.', minValue(0.01)),
+            },
+        }
+    })
+    return productRules
+})
+
+const v$ = useVuelidate(rules, expenseProducts, { $autoDirty: true })
+
 // 제품 선택 시 첫 번째 단위 자동 선택
 function onProductSelect(item: ExpenseProductEntity) {
     item.unitCnt = undefined
     const product = products.value.find((p) => p.seq === item.prdSeq)
+
     if (product && product.unitCntList.length > 0) {
         item.unitCnt = product.unitCntList[0]
     }
+}
+
+function getAvailableProducts(currentItem: ExpenseProductEntity) {
+    const expPrdSeqs = expenseProducts.value.map((ep) => ep.prdSeq)
+    return products.value.filter((p) => !expPrdSeqs.includes(p.seq) || currentItem.prdSeq == p.seq)
 }
 
 // BTable colInfos 설정
@@ -114,7 +162,37 @@ const cTableItems = computed(() => {
     }))
 })
 
+async function validate() {
+    const message = await (async () => {
+        if ((await v$.value.$validate()) == false) {
+            const firstError = v$.value.$errors[0]
+
+            return firstError.$message.toString()
+        } else if ((await v$Expense.value.$validate()) == false) {
+            const firstError = v$Expense.value.$errors[0]
+
+            return firstError.$message.toString()
+        } else if (expenseProducts.value.length === 0) {
+            return '지출 항목을 하나 이상 추가해주세요.'
+        } else {
+            return null
+        }
+    })()
+    if (message) {
+        SwalExt.fireCustom({ toast: true, messageType: 'error', title: '', text: message })
+        return false
+    }
+
+    return true
+}
+
 async function onSave() {
+    // 검증
+    if ((await validate()) == false) return
+
+    // 저장여부 확인
+    if ((await SwalExt.fireCustom({ isConfirm: true, messageType: cIsUpdate.value ? 'update' : 'save' })) == false) return
+
     // expense.amount에 총 금액 설정
     expense.value.amount = _.sumBy(expenseProducts.value, (ep) => (ep.price || 0) * (ep.cnt || 0))
     expense.value.expenseAt = expenseAt.value || new Date()
@@ -131,9 +209,12 @@ async function onSave() {
 }
 </script>
 <template>
-    <section class="expense-edit">
-        <section class="top"></section>
-        <section class="body flex flex-col gap-2">
+    <section class="expense-edit px-4">
+        <section class="top py-3">
+            <h2 class="text-xl font-bold">지출내역 {{ cIsUpdate ? '수정' : '등록' }}</h2>
+        </section>
+        <div class="border-b-2"></div>
+        <section class="form flex flex-col gap-2">
             <div class="row">
                 <label>매장</label>
                 <VAutocomplete
@@ -143,18 +224,24 @@ async function onSave() {
                     v-model="expense.storeSeq"
                     @update:model-value="onUpdateStore"
                     density="compact"
-                    :hide-details="true"
+                    :hide-details="false"
+                    :error-messages="v$Expense.storeSeq?.$errors.map((e: ErrorObject) => e.$message as string)"
                 >
                 </VAutocomplete>
             </div>
             <div class="row">
                 <label>지출명</label>
-                <VTextField v-model="expense.name" density="compact" :hide-details="true" />
+                <VTextField
+                    v-model="expense.name"
+                    density="compact"
+                    :hide-details="false"
+                    :error-messages="v$Expense.name?.$errors.map((e: ErrorObject) => e.$message as string)"
+                />
             </div>
             <div class="row">
                 <label>지출일자</label>
                 <VueDatePicker
-                    v-model="expenseAt"
+                    v-model="expense.expenseAt"
                     :format="'yy.MM.dd HH:mm'"
                     :time-picker="false"
                     text-input
@@ -167,7 +254,16 @@ async function onSave() {
             </div>
             <div class="row">
                 <label>카테고리</label>
-                <VSelect :items="expenseCategories" item-title="path" item-value="seq" v-model="expense.ctgSeq" density="compact" :hide-details="true">
+                <VSelect
+                    :items="expenseCategories"
+                    item-title="path"
+                    item-value="seq"
+                    v-model="expense.ctgSeq"
+                    density="compact"
+                    :hide-details="false"
+                    :error-messages="v$Expense.ctgSeq?.$errors.map((e: ErrorObject) => e.$message as string)"
+                    class="h-16"
+                >
                     <template v-slot:append-item>
                         <VBtn @click="() => (isShowModal = true)" color="primary" class="w-full"
                             ><span class="mr-2">추가</span><font-awesome-icon :icon="['fas', 'plus']"
@@ -202,12 +298,14 @@ async function onSave() {
                     <template #prdSeq="{ rowIdx }">
                         <VAutocomplete
                             v-model="expenseProducts[rowIdx].prdSeq"
-                            :items="products"
+                            :items="getAvailableProducts(expenseProducts[rowIdx])"
                             :item-title="(prd) => `${dProduct[prd.seq]?.prdInfo.name} (${dProduct[prd.seq]?.unit.name})`"
                             item-value="seq"
                             placeholder="제품 선택"
                             density="compact"
-                            :hide-details="true"
+                            class="h-10"
+                            :hide-details="false"
+                            :error-messages="v$[rowIdx]?.prdSeq?.$errors.map((e: ErrorObject) => e.$message as string)"
                             @update:model-value="onProductSelect(expenseProducts[rowIdx])"
                         ></VAutocomplete>
                     </template>
@@ -219,9 +317,12 @@ async function onSave() {
                                 :items="getUnitCntListForProduct(expenseProducts[rowIdx])"
                                 placeholder="단위수량"
                                 density="compact"
-                                :hide-details="true"
+                                :hide-details="false"
+                                :error-messages="v$[rowIdx]?.unitCnt?.$errors.map((e: ErrorObject) => e.$message as string)"
                                 :disabled="!expenseProducts[rowIdx].prdSeq"
-                                class="w-max min-w-24"
+                                :min="1"
+                                class="h-10 w-max min-w-24"
+                                type="number"
                             ></VCombobox>
                             <BInput type="text" :value="products.find((prd) => prd.seq === expenseProducts[rowIdx].prdSeq)?.unit.name" disabled class="w-20" />
                         </div>
@@ -232,14 +333,14 @@ async function onSave() {
                     </template>
 
                     <template #price="{ rowIdx }">
-                        <BInput v-model="expenseProducts[rowIdx].price" number-format :active-cancel="false"></BInput>
+                        <BInputNumber v-model="expenseProducts[rowIdx].price" number-format :min="100" :active-cancel="false"></BInputNumber>
                     </template>
                     <template #amount="{ item }">
-                        <BInput :value="item.amount" disabled number-format :active-cancel="false"></BInput>
+                        <BInputNumber :value="item.amount" disabled number-format :active-cancel="false"></BInputNumber>
                     </template>
 
                     <template #cmt="{ rowIdx }">
-                        <BInput v-model="expenseProducts[rowIdx].cmt" :active-cancel="false"></BInput>
+                        <BInput v-model="expenseProducts[rowIdx].cmt"></BInput>
                     </template>
 
                     <template #actions="{ rowIdx }">
@@ -273,6 +374,12 @@ async function onSave() {
 
 <style lang="scss" scoped>
 .expense-edit {
+    .form {
+        .row {
+            @apply font-bold;
+        }
+    }
+
     .products-section {
         margin-top: 1rem;
 

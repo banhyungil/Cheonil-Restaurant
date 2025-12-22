@@ -129,6 +129,8 @@ function onClickThisMonth() {
 
         .body {
             @apply h-full;
+            overflow-y: auto;
+            grid-auto-rows: minmax(50px, 10%); // 모든 행에 적용
         }
     }
 }

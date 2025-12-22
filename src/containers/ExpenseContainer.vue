@@ -46,8 +46,6 @@ watch(
 )
 
 async function onCreate(expense: ExpenseEntityCreation, expenseProducts: ExpenseProductEntityCreation[]) {
-    if ((await Swal.fireCustom({ isConfirm: true, messageType: 'save' })) == false) return
-
     await apiExpense.create(expense, expenseProducts)
 }
 
