@@ -1,7 +1,10 @@
 import useApi from './useApi'
+import type { ProductExt } from './useApiProduct'
 
-interface ExpenseProductExt extends ExpenseProductEntity {
-    product: ProductExt
+export interface ExpenseExt extends ExpenseEntity {
+    store?: StoreEntity
+    category?: ExpenseCategoryEntity
+    expsPrds?: (ExpenseProductEntity & { product: ProductExt })[]
 }
 // url
 // post
@@ -9,10 +12,10 @@ export default function useApiExpense() {
     const api = useApi()
     const prefix = '/expenses'
 
-    const selectList = async () => {
-        const res = await api.get(prefix)
+    const selectList = async (query?: QueryParam) => {
+        const res = await api.get(prefix, { params: query })
 
-        return res.data as ExpenseEntity[]
+        return res.data as ExpenseExt[]
     }
 
     const select = async (seq: number) => {

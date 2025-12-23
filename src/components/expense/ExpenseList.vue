@@ -1,28 +1,37 @@
 <script setup lang="ts">
+import type { ExpenseExt } from '@/api/useApiExpense'
 import type { BTableColInfo } from '@/base-components/BTable.vue'
 import { today } from '@/utils/common'
 import { addDays, addMonths, formatDate } from 'date-fns'
 import _ from 'lodash'
 
+//ANCHOR - Props
 interface Props {
-    expenses: ExpenseEntity[]
+    expenses: RequiredK<ExpenseExt, 'expsPrds'>[]
     expenseCategories: ExpenseCategoryEntity[]
     stores: StoreEntity[]
 }
 const props = defineProps<Props>()
+
+//ANCHOR - Emits
 defineEmits<{
     create: []
     update: [seq: number]
     remove: [seq: number]
 }>()
 
+//ANCHOR - Hooks
+
+//ANCHOR - Composables
+
+//ANCHOR - Start
 const COL_INFOS = [
     { key: 'cateogry', title: '카테고리', colSize: 'minmax(100px, max-content)' },
     { key: 'name', title: '지출명', colSize: 'minmax(100px, 1fr)' },
     { key: 'storeName', title: '매장명', colSize: 'minmax(max-content, 1fr)' },
     { key: 'amount', title: '금액', colSize: 'minmax(100px, 1fr)' },
     { key: 'expenseAt', title: '지출일자', colSize: 'minmax(160px, 1fr)' },
-    { key: 'cmt', title: '지출목록', colSize: 'minmax(100px, max-content)' },
+    { key: 'productNms', title: '지출목록', colSize: 'minmax(max-content, 160px)' },
     { key: 'actions', title: 'ACTIONS', colSize: '100px' },
 ] as BTableColInfo<any>[]
 
@@ -41,6 +50,7 @@ const cExpensesWithStore = computed(() => {
         cateogry: dCategories.value[expense.ctgSeq]?.path ?? '',
         expenseAt: formatDate(expense.expenseAt, 'yyyy-MM-dd HH:mm'),
         storeName: dStores.value[expense.storeSeq]?.name ?? '-',
+        productNms: expense.expsPrds.map((ep) => ep.product.prdInfo.name).join(', '),
     }))
 })
 
@@ -107,6 +117,9 @@ function onClickThisMonth() {
         </section>
         <section class="body w-full flex-1">
             <BTablePaging :items="cExpensesWithStore" itemKey="seq" :colInfos="COL_INFOS" :showNo="true">
+                <template #productNms="{ item }">
+                    <span class="text-ellipsis text-nowrap" :title="item.productNms">{{ item.productNms }}</span>
+                </template>
                 <template #actions="{ item }">
                     <div style="display: flex; justify-content: center; gap: 10px">
                         <button @click="() => $emit('update', item.seq)" style="color: rgb(var(--color-success))" v-tooltip="'수정'">

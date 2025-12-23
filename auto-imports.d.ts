@@ -134,6 +134,9 @@ declare global {
   export type { SweetAlertOptionsCustom } from './src/composables/useSwal'
   import('./src/composables/useSwal')
   // @ts-ignore
+  export type { ExpenseExt } from './src/api/useApiExpense'
+  import('./src/api/useApiExpense')
+  // @ts-ignore
   export type { OrderCURes } from './src/api/useApiOrder'
   import('./src/api/useApiOrder')
   // @ts-ignore
