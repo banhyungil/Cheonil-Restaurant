@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { ExpenseExt } from '@/api/useApiExpense'
 import _ from 'lodash'
 interface Props {
     type: 'LIST' | 'EDIT'
@@ -15,8 +16,8 @@ const emit = defineEmits<{
 
 //ANCHOR - Hooks
 onBeforeMount(async () => {
-    apiExpense.selectList().then((res) => {
-        expenses.value = res
+    apiExpense.selectList({ expand: 'expsPrds' }).then((res) => {
+        expenses.value = res as RequiredK<ExpenseExt, 'expsPrds'>[]
     })
     apiExpenseCategory.selectList().then((res) => {
         expenseCategories.value = res
@@ -33,7 +34,7 @@ const apiExpense = useApiExpense()
 const apiExpenseCategory = useApiExpenseCategory()
 const apiStore = useApiStore()
 
-const expenses = ref<ExpenseEntity[]>([])
+const expenses = ref<RequiredK<ExpenseExt, 'expsPrds'>[]>([])
 const uExpense = ref<ExpenseEntity>()
 const expenseCategories = ref<ExpenseCategoryEntity[]>([])
 const stores = ref<StoreEntity[]>([])
@@ -73,7 +74,7 @@ async function onRemoveExpenseCategory(seq: number) {
 </script>
 
 <template>
-    <section class="expense-container flex h-full flex-1 flex-col">
+    <section class="expense-container flex h-full w-full flex-1 flex-col">
         <ExpenseList
             v-if="type == 'LIST'"
             :expenses="expenses"

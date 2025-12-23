@@ -14,7 +14,7 @@ import SideBar from '@/layouts/components/SideBar.vue'
 <style lang="scss">
 .admin-layout {
     display: grid;
-    grid-template-columns: max-content 1fr;
+    grid-template-columns: max-content minmax(0, 1fr);
     height: 100vh;
     padding-top: 20px;
 
