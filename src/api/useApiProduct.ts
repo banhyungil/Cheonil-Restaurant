@@ -4,11 +4,10 @@ export default function useApiProduct() {
     const api = useApi()
     const prefix = '/products'
 
-    type Expands = 'prdInfo' | 'unit'
-    async function selectList() {
-        const expands: Expands[] = ['prdInfo', 'unit']
-
-        const res = await api.get(`${prefix}`, { params: { expand: expands.join(',') } })
+    // TODO QueryParam 수정 UnitEditView 에러수정
+    // QueryParam Expand 배열로 입력받게 수정
+    async function selectList(query?: QueryParam) {
+        const res = await api.get(`${prefix}`, { params: query })
         const products = res.data as ProductExt[]
 
         // unitCntList 기본값 설정

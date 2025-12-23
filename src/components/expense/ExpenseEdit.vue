@@ -6,7 +6,6 @@ import _ from 'lodash'
 import { helpers, required, minValue } from '@vuelidate/validators'
 import { useVuelidate } from '@vuelidate/core'
 import type { ErrorObject, ValidationArgs } from '@vuelidate/core'
-import { faLampStreet } from '@fortawesome/pro-solid-svg-icons'
 
 // 매장
 // 제품
@@ -27,7 +26,7 @@ const props = defineProps<Props>()
 
 //ANCHOR - Hooks
 onBeforeMount(() => {
-    apiProduct.selectList().then((res) => {
+    apiProduct.selectList({ expand: ['prdInfo', 'unit'].join(',') }).then((res) => {
         products.value = res
     })
 })

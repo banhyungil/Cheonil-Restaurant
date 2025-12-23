@@ -12,7 +12,7 @@ const router = useRouter()
 const Swal = useSwal()
 const apiUnit = useApiUnit()
 const apiProduct = useApiProduct()
-const products = ref<ProductEntity[]>([])
+const products = ref<PartialK<ProductExt, 'unit'>[]>([])
 
 const unit = reactive({ name: '' } as UnitEntity)
 const units = ref<UnitEntity[]>([])
@@ -20,7 +20,7 @@ const units = ref<UnitEntity[]>([])
 apiUnit.selectList().then((res) => {
     units.value = res
 })
-apiProduct.selectList({ expands: ['prdInfo'] }).then((res) => {
+apiProduct.selectList({ expand: 'prdInfo' }).then((res) => {
     products.value = res
 })
 
@@ -152,7 +152,7 @@ async function onRemove(seq: number) {
                 <v-btn v-else @click="onCreate">등록</v-btn>
             </section>
             <v-data-table class="order-list scroll" :headers="headers" :items="cDtProducts" item-value="seq" :items-per-page="0" :hide-default-footer="true">
-                <template #item.actions="{ value }">
+                <template #[`item.actions`]="{ value }">
                     <div style="display: flex; justify-content: center; gap: 10px">
                         <button @click="onUpdate(value)" style="color: rgb(var(--color-success))" v-tooltip="'수정'">
                             <font-awesome-icon :icon="['fas', 'pen-to-square']" />
