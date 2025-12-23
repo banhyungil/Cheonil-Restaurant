@@ -9,9 +9,6 @@ interface Props {
 const props = defineProps<Props>()
 const emit = defineEmits<{
     cancel: []
-    toEditView: [seq?: number]
-    create: []
-    update: []
 }>()
 
 //ANCHOR - Hooks
@@ -75,15 +72,7 @@ async function onRemoveExpenseCategory(seq: number) {
 
 <template>
     <section class="expense-container flex h-full w-full flex-1 flex-col">
-        <ExpenseList
-            v-if="type == 'LIST'"
-            :expenses="expenses"
-            :expenseCategories="expenseCategories"
-            :stores="stores"
-            @create="() => $emit('toEditView')"
-            @update="(seq) => $emit('toEditView', seq)"
-            @remove="onRemove"
-        ></ExpenseList>
+        <ExpenseList v-if="type == 'LIST'" :expenses="expenses" :expenseCategories="expenseCategories" :stores="stores" @remove="onRemove"></ExpenseList>
         <ExpenseEdit
             v-else-if="type == 'EDIT'"
             :expenses="expenses"

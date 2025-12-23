@@ -1,15 +1,8 @@
-<script setup lang="ts">
-const router = useRouter()
-
-function toEditView(seq?: number) {
-    const path = seq ? `/${seq}` : ''
-    router.push(`/expenseEdit${path}`)
-}
-</script>
+<script setup lang="ts"></script>
 
 <template>
     <section class="expense-list-view flex h-full w-full">
-        <ExpenseContainer type="LIST" @toEditView="toEditView"></ExpenseContainer>
+        <ExpenseContainer type="LIST"></ExpenseContainer>
     </section>
 </template>
 

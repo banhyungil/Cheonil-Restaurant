@@ -23,8 +23,14 @@ defineEmits<{
 //ANCHOR - Hooks
 
 //ANCHOR - Composables
+const router = useRouter()
 
 //ANCHOR - Start
+function toEditView(seq?: number) {
+    const path = seq ? `/${seq}` : ''
+    router.push(`/expenseEdit${path}`)
+}
+
 const COL_INFOS = [
     { key: 'cateogry', title: '카테고리', colSize: 'minmax(100px, max-content)' },
     { key: 'name', title: '지출명', colSize: 'minmax(100px, 1fr)' },
@@ -109,7 +115,7 @@ function onClickThisMonth() {
                 </div>
             </section>
             <section class="right">
-                <v-btn v-if="isEdit" @click="() => $emit('create')"> 추가 </v-btn>
+                <v-btn v-if="isEdit" @click="toEditView"> 추가 </v-btn>
                 <v-btn @click="() => (isEdit = !isEdit)" :color="isEdit ? 'primary' : ''" v-tooltip="'편집'">
                     <font-awesome-icon :icon="['fas', 'pen']" />
                 </v-btn>
@@ -122,7 +128,7 @@ function onClickThisMonth() {
                 </template>
                 <template #actions="{ item }">
                     <div style="display: flex; justify-content: center; gap: 10px">
-                        <button @click="() => $emit('update', item.seq)" style="color: rgb(var(--color-success))" v-tooltip="'수정'">
+                        <button @click="() => toEditView(item.seq)" style="color: rgb(var(--color-success))" v-tooltip="'수정'">
                             <font-awesome-icon :icon="['fas', 'pen-to-square']" />
                         </button>
                         <button @click="() => $emit('remove', item.seq)" style="color: rgb(var(--color-danger))" v-tooltip="'삭제'">

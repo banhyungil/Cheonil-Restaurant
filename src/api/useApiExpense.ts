@@ -18,8 +18,8 @@ export default function useApiExpense() {
         return res.data as ExpenseExt[]
     }
 
-    const select = async (seq: number) => {
-        const res = await api.get(`${prefix}/${seq}`)
+    const select = async (seq: number, query?: QueryParam) => {
+        const res = await api.get(`${prefix}/${seq}`, { params: query })
 
         return res.data as ExpenseEntity
     }

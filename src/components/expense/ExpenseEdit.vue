@@ -12,6 +12,7 @@ import type { ErrorObject, ValidationArgs } from '@vuelidate/core'
 // 카테고리리
 //ANCHOR - Props
 interface Props {
+    seq?: number
     expenses: ExpenseEntity[]
     uExpense?: ExpenseEntity
     expenseCategories: ExpenseCategoryEntity[]
@@ -26,6 +27,9 @@ const props = defineProps<Props>()
 
 //ANCHOR - Hooks
 onBeforeMount(() => {
+    if (props.seq) {
+        // props.uExpense = props.expenses.find((exp) => exp.seq === props.seq)
+    }
     apiProduct.selectList({ expand: ['prdInfo', 'unit'].join(',') }).then((res) => {
         products.value = res
     })
@@ -37,6 +41,7 @@ onMounted(() => {
 })
 
 //ANCHOR - Composables, Store
+const apiExpense = useApiExpense()
 const apiProduct = useApiProduct()
 const router = useRouter()
 
