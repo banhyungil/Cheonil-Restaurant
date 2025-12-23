@@ -233,15 +233,12 @@ const { width } = useElementSize(bodyElt)
 const cBWidthList = computed(() => {
     const cellFirstBElts = cellElts.value.filter((elt) => elt.classList.contains('b') && +elt.dataset.rowidx! == 0)
 
-    return cellFirstBElts.map((elt) => {
+    const result = cellFirstBElts.map((elt) => {
         return elt.getBoundingClientRect().width
     })
-})
-const cHWidthList = computed(() => {
-    const cellHElts = cellElts.value.filter((elt) => elt.classList.contains('h'))
-    return cellHElts.map((elt) => {
-        return elt.getBoundingClientRect().width
-    })
+    console.log('cBWidthList', result)
+
+    return result
 })
 
 // header 크기를 body와 동일한 크기로 맞춤
@@ -250,24 +247,9 @@ const syncBodyHeaderSize = _.throttle(
     async () => {
         await nextTick()
         cellElts.value = Array.from(contElt.value?.querySelectorAll('.btable-col') ?? []) as HTMLElement[]
-        gridHeaderTemplateColumns.value =
-            cBWidthList.value.length == 0 ? cGridBodyTemplateColumns.value : cBWidthList.value.map((num) => `minmax(max-content, ${num}px)`).join(' ')
+        gridHeaderTemplateColumns.value = cBWidthList.value.length == 0 ? cGridBodyTemplateColumns.value : cBWidthList.value.map((num) => `${num}px`).join(' ')
 
-        // console.log('gridHeaderTemplateColumns', gridHeaderTemplateColumns.value)
-
-        // header body가 다 렌더링된 이후에 처리
-        // * 값설정 후 렌더링을 기다리기 위해 nextTick 사용
-        await nextTick()
-        cHWidthList.value.forEach((hWidth, idx) => {
-            const bWidth = cBWidthList.value[idx]!
-            // Body가 Header보다 작은 경우 Header 넓이를 Body 넓이로 설정
-            if (bWidth < hWidth) {
-                const tgt = inColinfos.value.find((ci) => ci.key == cColInfos.value[idx]!.key)
-                if (tgt) tgt.colSize = `${hWidth}px`
-                // console.log(`bWidth: ${bWidth}`, `hWidth: ${hWidth}`, `elt: ${cCellHElts.value[idx].classList}`)
-                // console.log('inColinfos', inColinfos.value)
-            }
-        })
+        console.log('gridHeaderTemplateColumns', gridHeaderTemplateColumns.value)
     },
     200,
     { trailing: true }
@@ -583,7 +565,7 @@ defineExpose({ getSelectedItems, getCheckedItems, uuid, rollback })
     // 세로 스크롤바가 생기면 body쪽 컨테이너 내부에 스크롤바가 생기므로 가로 스크롤이 발생하게 됨
     // hidden으로 설정시 끝 컬럼 데이터가 안보이는 이슈가 발생
     .header {
-        position: sticky;
+        // position: sticky;
         top: 0;
         z-index: 1;
     }
