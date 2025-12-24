@@ -16,6 +16,10 @@ onBeforeMount(async () => {
     apiExpense.selectList({ expand: 'expsPrds' }).then((res) => {
         expenses.value = res as RequiredK<ExpenseExt, 'expsPrds'>[]
     })
+    if (props.seq) {
+        uExpense.value = (await apiExpense.select(props.seq, { expand: 'expsPrds' })) as RequiredK<ExpenseExt, 'expsPrds'>
+    }
+
     apiExpenseCategory.selectList().then((res) => {
         expenseCategories.value = res
     })
@@ -26,22 +30,14 @@ onBeforeMount(async () => {
 
 //ANCHOR - Composable, Store
 
-const Swal = useSwal()
 const apiExpense = useApiExpense()
 const apiExpenseCategory = useApiExpenseCategory()
 const apiStore = useApiStore()
 
 const expenses = ref<RequiredK<ExpenseExt, 'expsPrds'>[]>([])
-const uExpense = ref<ExpenseEntity>()
+const uExpense = ref<RequiredK<ExpenseExt, 'expsPrds'>>()
 const expenseCategories = ref<ExpenseCategoryEntity[]>([])
 const stores = ref<StoreEntity[]>([])
-
-watch(
-    () => props.seq,
-    async () => {
-        if (props.seq) uExpense.value = await apiExpense.select(props.seq)
-    }
-)
 
 async function onCreate(expense: ExpenseEntityCreation, expenseProducts: ExpenseProductEntityCreation[]) {
     await apiExpense.create(expense, expenseProducts)
@@ -53,6 +49,7 @@ async function onUpdate(expense: ExpenseEntity, expenseProducts: ExpenseProductE
 
 async function onRemove(seq: number) {
     await apiExpense.remove(seq)
+    _.remove(expenses.value, (exp) => exp.seq == seq)
 }
 
 async function onCreateExpenseCategory(expenseCategory: ExpenseCategoryEntity) {
@@ -72,10 +69,9 @@ async function onRemoveExpenseCategory(seq: number) {
 
 <template>
     <section class="expense-container flex h-full w-full flex-1 flex-col">
-        <ExpenseList v-if="type == 'LIST'" :expenses="expenses" :expenseCategories="expenseCategories" :stores="stores" @remove="onRemove"></ExpenseList>
+        <ExpenseList v-if="type == 'LIST'" :expenses="expenses" :expenseCategories="expenseCategories" :stores="stores" :remove="onRemove"></ExpenseList>
         <ExpenseEdit
             v-else-if="type == 'EDIT'"
-            :expenses="expenses"
             :expenseCategories="expenseCategories"
             :uExpense="uExpense"
             :stores="stores"

@@ -22,7 +22,7 @@ const router = createRouter({
             component: () => import('../views/expense/ExpenseListView.vue'),
         },
         {
-            path: '/expenseEdit:seq?',
+            path: '/expenseEdit/:seq?',
             name: 'expenseEdit',
             props: true,
             component: () => import('../views/expense/ExpenseEditView.vue'),

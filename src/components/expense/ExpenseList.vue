@@ -2,6 +2,7 @@
 import type { ExpenseExt } from '@/api/useApiExpense'
 import type { BTableColInfo } from '@/base-components/BTable.vue'
 import { today } from '@/utils/common'
+import { SwalExt } from '@/utils/swalExt'
 import { addDays, addMonths, formatDate } from 'date-fns'
 import _ from 'lodash'
 
@@ -10,14 +11,13 @@ interface Props {
     expenses: RequiredK<ExpenseExt, 'expsPrds'>[]
     expenseCategories: ExpenseCategoryEntity[]
     stores: StoreEntity[]
+    remove: (seq: number) => Promise<void>
 }
 const props = defineProps<Props>()
 
 //ANCHOR - Emits
 defineEmits<{
     create: []
-    update: [seq: number]
-    remove: [seq: number]
 }>()
 
 //ANCHOR - Hooks
@@ -81,6 +81,13 @@ function onClickThisMonth() {
 
     expenseAtRange.value = range
 }
+
+async function onRemove(seq: number) {
+    if ((await SwalExt.confirm({ messageType: 'remove' })) == false) return
+
+    await props.remove(seq)
+    SwalExt.fireCustom({ toast: true, messageType: 'remove' })
+}
 </script>
 
 <template>
@@ -131,7 +138,7 @@ function onClickThisMonth() {
                         <button @click="() => toEditView(item.seq)" style="color: rgb(var(--color-success))" v-tooltip="'수정'">
                             <font-awesome-icon :icon="['fas', 'pen-to-square']" />
                         </button>
-                        <button @click="() => $emit('remove', item.seq)" style="color: rgb(var(--color-danger))" v-tooltip="'삭제'">
+                        <button @click="onRemove(item.seq)" style="color: rgb(var(--color-danger))" v-tooltip="'삭제'">
                             <font-awesome-icon :icon="['fas', 'trash']" />
                         </button>
                     </div>

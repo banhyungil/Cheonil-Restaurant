@@ -21,7 +21,7 @@ export default function useApiExpense() {
     const select = async (seq: number, query?: QueryParam) => {
         const res = await api.get(`${prefix}/${seq}`, { params: query })
 
-        return res.data as ExpenseEntity
+        return res.data as ExpenseExt
     }
 
     const create = async (expense: ExpenseEntityCreation, expenseProducts: ExpenseProductEntityCreation[]) => {
