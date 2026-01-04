@@ -375,7 +375,7 @@ function toggleDisplayKitchen() {
 
             &.warning {
                 .store {
-                    background-color: var(--color-warning);
+                    background-color: rgb(var(--color-warning));
                 }
             }
 

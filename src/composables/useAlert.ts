@@ -5,6 +5,7 @@ import Swal, { type SweetAlertCustomClass, type SweetAlertIcon, type SweetAlertO
 //ANCHOR - Constants
 const CUSTOM_CLASS = {
     popup: 'rounded-xl shadow-lg bg-dark! text-white',
+    title: 'text-black',
     actions: 'flex gap-2',
     confirmButton: 'rounded-xl shadow-lg bg-primary border-primary text-white dark:border-primary px-4 py-2 rounded-sm',
     cancelButton: 'rounded-xl shadow-lg bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-sm',
