@@ -143,7 +143,7 @@ function onChangedSelected(tgtDsItem: DataSourceNode<T>, selected: boolean) {
             :cbxSize="cbxSize"
             :selectable="selectable"
             :multiSelectable="multiSelectable"
-            @changedChecked="(tgtDsNode) => onChangedChecked(tgtDsNode)"
+            @changedChecked="(tgtDsNode: DataSourceNode<T>) => onChangedChecked(tgtDsNode)"
             @changedExpanded="onChangedExpanded"
             @changedSelected="onChangedSelected"
         >

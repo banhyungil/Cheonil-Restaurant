@@ -125,7 +125,7 @@ function onCancel() {
         ref="inpComp"
         :type="cType"
         :model-value="cDisplayValue"
-        @update:model-value="(val) => (cModelValue = +val)"
+        @update:model-value="(val: string | number) => (cModelValue = +val)"
         @keydown="onKeyDown"
         @cancel="onCancel"
         @blur="onBlur"
