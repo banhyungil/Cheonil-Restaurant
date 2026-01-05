@@ -158,7 +158,7 @@ function toggleDisplayKitchen() {
                     <div class="store">
                         <div class="cursor-pointer" v-tooltip.right="order.store.cmt">
                             <span>{{ order.store.name }}</span>
-                            <font-awesome-icon :icon="['fas', 'circle-info']" />
+                            <font-awesome-icon v-if="order.store.cmt" :icon="['fas', 'circle-info']" />
                         </div>
                         <Dropdown class="c-choice">
                             <button class="choice">
