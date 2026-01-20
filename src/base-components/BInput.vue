@@ -32,6 +32,7 @@ export interface BInputEmits {
     focus: []
     inputDeb: [val: any]
     cancel: []
+    search: [val: any]
 }
 
 //ANCHOR - Emits
@@ -101,32 +102,34 @@ defineExpose({
 </script>
 <template>
     <div
-        class="binput relative flex h-10 items-center gap-4 border-2 text-inherit"
+        class="binput relative flex h-10 items-center gap-4 text-inherit"
         v-bind="_.pick($attrs, ['style', 'class'])"
         :class="{ focused, readonly: attrs.readonly != null, disabled: attrs.disabled != null }"
     >
         <label v-if="props.label" :for="id" class="text-sm font-bold">{{ label }}</label>
-        <div ref="absolutePreEl" class="absolute inset-y-0 left-2 flex items-center gap-2">
-            <slot name="prepend"></slot>
-        </div>
-        <FormInput
-            class="inp h-full flex-1 bg-inherit py-3"
-            :id="id"
-            ref="inpComp"
-            v-bind="_.omit($attrs, ['style', 'class', 'type'])"
-            :style="{ paddingLeft: `${preWidth + 14}px`, paddingRight: `${postWidth + 14}px` }"
-            v-model="cModelValue"
-            @input="onInput"
-            @focus="$emit('focus')"
-            @blur="onBlur"
-            :placeholder="cPlaceholder"
-            title=""
-            autocomplete="off"
-        ></FormInput>
-        <div ref="absolutePostEl" class="absolute inset-y-0 right-2 gap-2 flex-center">
-            <BButton v-if="activeCancel" @click="onCancel" class="cancel-btn"><span>X</span></BButton>
-            <slot name="postpend"> </slot>
-            <font-awesome-icon v-if="showSearchIcon" class="search-icon" :icon="['fas', 'magnifying-glass']" />
+        <div class="inp-box border-2">
+            <div ref="absolutePreEl" class="absolute inset-y-0 left-2 flex items-center gap-2">
+                <slot name="prepend"></slot>
+            </div>
+            <FormInput
+                class="inp h-full flex-1 bg-inherit py-3"
+                :id="id"
+                ref="inpComp"
+                v-bind="_.omit($attrs, ['style', 'class', 'type'])"
+                :style="{ paddingLeft: `${preWidth + 14}px`, paddingRight: `${postWidth + 14}px` }"
+                v-model="cModelValue"
+                @input="onInput"
+                @focus="$emit('focus')"
+                @blur="onBlur"
+                :placeholder="cPlaceholder"
+                title=""
+                autocomplete="off"
+            ></FormInput>
+            <div ref="absolutePostEl" class="absolute inset-y-0 right-2 gap-2 flex-center">
+                <BButton v-if="activeCancel" @click="onCancel" class="cancel-btn"><span>X</span></BButton>
+                <slot name="postpend"> </slot>
+                <font-awesome-icon v-if="showSearchIcon" class="search-icon" @click="$emit('search', cModelValue)" :icon="['fas', 'magnifying-glass']" />
+            </div>
         </div>
     </div>
 </template>
@@ -135,17 +138,16 @@ defineExpose({
 .binput {
     .absolute {
         .cancel-btn {
-            @apply flex h-4 w-4 rounded-[50%] p-2 text-xs transition flex-center hover:border-danger hover:bg-red-600 hover:font-bold hover:text-secondary;
+            @apply flex aspect-square h-6 w-6 rounded-[50%] p-0 text-xs font-bold transition flex-center hover:border-danger hover:bg-red-600 hover:text-secondary;
 
-            &:hover span {
-                margin-right: 1.3px;
-                margin-bottom: 1.5px;
-            }
             visibility: hidden;
         }
 
         .search-icon {
-            @apply inset-y-0 right-0 my-auto w-4 transition;
+            @apply inset-y-0 right-0 my-auto w-4 cursor-pointer transition;
+            &:hover {
+                @apply opacity-50;
+            }
         }
     }
 

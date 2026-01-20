@@ -639,7 +639,7 @@ defineExpose({ getSelectedItems, getCheckedItems, uuid, rollback })
 
         &.h {
             &.sortable:hover {
-                @apply bg-primary/80;
+                @apply bg-primary/80 text-white;
                 opacity: 0.7;
             }
         }

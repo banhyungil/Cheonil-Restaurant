@@ -131,6 +131,9 @@ declare global {
   export type { Component, Slot, Slots, ComponentPublicInstance, ComputedRef, DirectiveBinding, ExtractDefaultPropTypes, ExtractPropTypes, ExtractPublicPropTypes, InjectionKey, PropType, Ref, ShallowRef, MaybeRef, MaybeRefOrGetter, VNode, WritableComputedRef } from 'vue'
   import('vue')
   // @ts-ignore
+  export type { Layout } from './src/stores/layoutStore'
+  import('./src/stores/layoutStore')
+  // @ts-ignore
   export type { SweetAlertOptionsCustom } from './src/composables/useSwal'
   import('./src/composables/useSwal')
   // @ts-ignore
