@@ -2,7 +2,7 @@
 
 <template>
     <section class="expense-list-view flex h-full w-full">
-        <ExpenseContainer type="LIST"></ExpenseContainer>
+        <ExpenseList />
     </section>
 </template>
 

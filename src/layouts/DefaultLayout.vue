@@ -18,7 +18,7 @@ import BottomBar from '@/layouts/components/BottomBar.vue'
 
     .c-slot {
         padding: 20px 30px;
-        overflow: hidden;
+        overflow: auto;
     }
 
     .btt-bar {

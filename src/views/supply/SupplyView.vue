@@ -74,7 +74,7 @@ async function onRemove(seq: number) {
                 </v-btn>
             </div>
         </template>
-        <template #item.actions="{ value }">
+        <template #[`item.actions`]="{ value }">
             <div style="display: flex; justify-content: center; gap: 10px">
                 <button @click="onUpdate(value)" style="color: rgb(var(--color-success))" v-tooltip="'수정'">
                     <font-awesome-icon :icon="['fas', 'pen-to-square']" />

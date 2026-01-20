@@ -1,6 +1,6 @@
 <template>
     <VueDatePicker v-bind="{ ...$props, ...$attrs }" locale="ko-KR">
-        <template v-for="name in slotEntries" v-slot="props">
+        <template v-for="name in slotEntries" :key="name" #[name]="props">
             <slot :name="name" v-bind="props ?? {}"></slot>
         </template>
     </VueDatePicker>
@@ -8,7 +8,6 @@
 
 <script setup lang="ts">
 import VueDatePicker, { type VueDatePickerProps } from '@vuepic/vue-datepicker'
-import { defineProps } from 'vue'
 
 /**
  * pass slots throw to a child component

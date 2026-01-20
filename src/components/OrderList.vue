@@ -457,7 +457,7 @@ const isLoading = ref(false)
                 </section>
             </slot>
         </template>
-        <template #item.actions="{ value }">
+        <template #[`item.actions`]="{ value }">
             <div style="display: flex; justify-content: center; gap: 10px">
                 <button @click="onRemove(value.seq)" style="color: rgb(var(--color-danger))" v-tooltip="'삭제'">
                     <font-awesome-icon :icon="['fas', 'trash']" />
@@ -472,7 +472,7 @@ const isLoading = ref(false)
                 </button>
             </div>
         </template>
-        <template #item.payInfo="{ value }">
+        <template #[`item.payInfo`]="{ value }">
             <div class="pay-info">
                 <span class="type" :class="[value.type.toLocaleLowerCase()]">{{ value.typeLabel }}</span>
                 <div v-show="isEdit == false && activeCollection" class="c-btn">

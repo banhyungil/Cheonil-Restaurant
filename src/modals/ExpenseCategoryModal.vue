@@ -172,7 +172,7 @@ async function onClickRemove(seq: number) {
                 <v-btn @click="onClickCreate">등록</v-btn>
             </section>
             <v-data-table class="order-list scroll" :headers="headers" :items="cDtExpsCtgs" item-value="seq" :items-per-page="0" :hide-default-footer="true">
-                <template #item.actions="{ value }">
+                <template #[`item.actions`]="{ value }">
                     <div style="display: flex; justify-content: center; gap: 10px">
                         <button @click="onClickRemove(value)" style="color: rgb(var(--color-success))" v-tooltip="'수정'">
                             <font-awesome-icon :icon="['fas', 'pen-to-square']" />

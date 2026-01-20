@@ -6,24 +6,28 @@ import { SwalExt } from '@/utils/swalExt'
 import { addDays, addMonths, formatDate } from 'date-fns'
 import _ from 'lodash'
 
-//ANCHOR - Props
-interface Props {
-    expenses: RequiredK<ExpenseExt, 'expsPrds'>[]
-    expenseCategories: ExpenseCategoryEntity[]
-    stores: StoreEntity[]
-    remove: (seq: number) => Promise<void>
-}
-const props = defineProps<Props>()
-
-//ANCHOR - Emits
-defineEmits<{
-    create: []
-}>()
-
 //ANCHOR - Hooks
+onBeforeMount(async () => {
+    const [expensesRes, categoriesRes, storesRes] = await Promise.all([
+        apiExpense.selectList({ expand: 'expsPrds' }),
+        apiExpenseCategory.selectList(),
+        apiStore.selectList(),
+    ])
+
+    expenses.value = expensesRes as RequiredK<ExpenseExt, 'expsPrds'>[]
+    expenseCategories.value = categoriesRes
+    stores.value = storesRes
+})
 
 //ANCHOR - Composables
 const router = useRouter()
+const apiExpense = useApiExpense()
+const apiExpenseCategory = useApiExpenseCategory()
+const apiStore = useApiStore()
+
+const expenses = ref<RequiredK<ExpenseExt, 'expsPrds'>[]>([])
+const expenseCategories = ref<ExpenseCategoryEntity[]>([])
+const stores = ref<StoreEntity[]>([])
 
 //ANCHOR - Start
 function toEditView(seq?: number) {
@@ -45,12 +49,12 @@ const expenseAtRange = ref<Date[]>([])
 const isEdit = ref(false)
 
 // stores를 dictionary로 변환
-const dStores = computed(() => _.keyBy(props.stores, 'seq'))
-const dCategories = computed(() => _.keyBy(props.expenseCategories, 'seq'))
+const dStores = computed(() => _.keyBy(stores.value, 'seq'))
+const dCategories = computed(() => _.keyBy(expenseCategories.value, 'seq'))
 
 // expenses에 매장명 추가
 const cExpensesWithStore = computed(() => {
-    return props.expenses.map((expense) => ({
+    return expenses.value.map((expense) => ({
         ...expense,
         amount: expense.amount.toLocaleString(),
         cateogry: dCategories.value[expense.ctgSeq]?.path ?? '',
@@ -85,40 +89,52 @@ function onClickThisMonth() {
 async function onRemove(seq: number) {
     if ((await SwalExt.confirm({ messageType: 'remove' })) == false) return
 
-    await props.remove(seq)
+    await apiExpense.remove(seq)
+    _.remove(expenses.value, (exp) => exp.seq == seq)
     SwalExt.fireCustom({ toast: true, messageType: 'remove' })
 }
 </script>
 
 <template>
-    <section class="account-view flex h-full flex-col">
+    <section class="expense-list flex h-full w-full flex-col gap-4">
         <section class="top flex w-full justify-between">
             <section class="left">
-                <div class="form-item">
-                    <label for="dp-input-expenseAtRange">지출일자</label>
-                    <BDatePicker
-                        v-model="expenseAtRange"
-                        range
-                        text-input
-                        teleport
-                        :max-date="today()"
-                        :enable-time-picker="false"
-                        auto-apply
-                        uid="expenseAtRange"
-                    >
-                        <template #action-extra>
-                            <div class="flex justify-center gap-1">
-                                <button class="chi primary w-8" @click="onAddDay(-1)">
-                                    <font-awesome-icon :icon="['fas', 'minus']" />
-                                </button>
-                                <button class="chi primary" @click="onClickToday()">당일</button>
-                                <button class="chi primary" @click="onClickThisMonth()">당월</button>
-                                <button class="chi primary w-8" @click="onAddDay(1)" :disabled="expenseAtRange[1] >= today()">
-                                    <font-awesome-icon :icon="['fas', 'plus']" />
-                                </button>
-                            </div>
-                        </template>
-                    </BDatePicker>
+                <div class="form-item flex flex-col">
+                    <div class="row flex w-full items-center gap-2">
+                        <label for="dp-input-expenseAtRange">지출일자</label>
+                        <BDatePicker
+                            v-model="expenseAtRange"
+                            range
+                            text-input
+                            teleport
+                            :max-date="today()"
+                            :enable-time-picker="false"
+                            auto-apply
+                            uid="expenseAtRange"
+                            class="max-w-72"
+                        >
+                            <template #action-extra>
+                                <div class="flex justify-center gap-1">
+                                    <button class="chi primary w-8" @click="onAddDay(-1)">
+                                        <font-awesome-icon :icon="['fas', 'minus']" />
+                                    </button>
+                                    <button class="chi primary" @click="onClickToday()">당일</button>
+                                    <button class="chi primary" @click="onClickThisMonth()">당월</button>
+                                    <button class="chi primary w-8" @click="onAddDay(1)" :disabled="expenseAtRange[1] >= today()">
+                                        <font-awesome-icon :icon="['fas', 'plus']" />
+                                    </button>
+                                </div>
+                            </template>
+                        </BDatePicker>
+                    </div>
+                    <div class="row flex flex-1 items-center gap-2">
+                        <BInput label="매장명" :show-search-icon="true"></BInput>
+                        <BInput label="지출명" :show-search-icon="true"></BInput>
+                        <BButton class="chi danger small ml-2 text-sm" @click="expenseAtRange = []">
+                            <sapn>검색</sapn>
+                            <font-awesome-icon :icon="['fas', 'magnifying-glass']" class="ml-2" />
+                        </BButton>
+                    </div>
                 </div>
             </section>
             <section class="right">
@@ -128,6 +144,7 @@ async function onRemove(seq: number) {
                 </v-btn>
             </section>
         </section>
+        <BDivider />
         <section class="body w-full flex-1">
             <BTablePaging :items="cExpensesWithStore" itemKey="seq" :colInfos="COL_INFOS" :showNo="true">
                 <template #productNms="{ item }">
@@ -149,7 +166,7 @@ async function onRemove(seq: number) {
 </template>
 
 <style lang="scss" scoped>
-.account-view {
+.expense-list {
     :deep(.btable-paging) {
         @apply h-full;
 
